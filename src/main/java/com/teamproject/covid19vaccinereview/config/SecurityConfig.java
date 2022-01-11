@@ -2,6 +2,7 @@ package com.teamproject.covid19vaccinereview.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
@@ -9,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Configuration
 @EnableWebSecurity // 스프링 시큐리티 필터가(SecurityConfig.class) 스프링 필터체인에 등록이 된다.
+@EnableGlobalMethodSecurity(securedEnabled = true) // secure 어노테이션 활성화
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
