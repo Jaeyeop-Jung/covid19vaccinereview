@@ -75,6 +75,36 @@ public class UserApiControllerTest {
 
         assertThat(resultList.get(0)).isInstanceOf(User.class); // JPQL을 이용해 email이 joinTest_POST와 같은 User 클래스를 가져와 정상 적으로 반환 되는지 확인
 
+    }
+
+    @Test
+    public void loginTest_POST() throws Exception {
+
+        //given
+        String content = "" +
+                "{\"email\": \"joinTest_POST\"," +
+                " \"password\": \"joinTest_POST\"," +
+                " \"role\": \"ROLE_USER\"," +
+                " \"nickname\": \"joinTest_POST\"," +
+                " \"userPhoto\": \"joinTest_POST\"" +
+                "}";
+                // 테스트용 UserDto 값 넣기
+
+        System.out.println("content = " + content);
+
+        MockHttpServletRequestBuilder requst = MockMvcRequestBuilders
+                .post("/loginForm")
+                .content(content)
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON
+                ); // 테스트용 Mock Request 만들기
+
+        //when
+        mockMvc.perform( requst )   // 생성한 request 실행
+                .andExpect( status().isOk() )   // Response Code = OK (200) 인지 확인
+                .andDo( print() ); // Response 내용 출력
+
+        //then  로그인 리턴값 확인하기 (추후 추가하기)
 
 
     }

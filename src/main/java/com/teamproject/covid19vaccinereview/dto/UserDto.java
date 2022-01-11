@@ -14,6 +14,7 @@ import java.util.Collection;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Builder
+@ToString
 public class UserDto implements UserDetails {
 
     @NotNull
@@ -34,7 +35,6 @@ public class UserDto implements UserDetails {
         return User.of(email, password, role, nickname, userPhoto);
     }
 
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         Collection<GrantedAuthority> grantedAuthority = new ArrayList<>();
@@ -50,11 +50,11 @@ public class UserDto implements UserDetails {
 
     @Override
     public String getUsername() {
-        return getEmail();
+        return email;
     }
 
     @Override
-    public String getPassword(){ return getPassword();}
+    public String getPassword(){ return password;}
 
     @Override
     public boolean isAccountNonExpired() {

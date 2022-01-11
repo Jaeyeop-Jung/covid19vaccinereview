@@ -7,10 +7,7 @@ import com.teamproject.covid19vaccinereview.service.UserDtoDetailsService;
 import com.teamproject.covid19vaccinereview.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -30,10 +27,14 @@ public class UserApiController {
     @PostMapping("/loginForm")
     public @ResponseBody String login(@RequestBody UserDto userDto){
 
-        UserDetails findUserDto = userDtoDetailsService.loadUserByUsername(userDto.getEmail());
+        System.out.println("userDto = " + userDto);
 
-        return findUserDto.getUsername();
+        UserDto findUserDto = userDtoDetailsService.loadUserByUsername(userDto.getEmail());
 
+        if(findUserDto == null) {
+            return "Failed to Login";
+        }
+
+        return findUserDto.getRole().toString();
     }
-
 }

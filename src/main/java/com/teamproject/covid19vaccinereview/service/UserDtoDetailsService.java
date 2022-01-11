@@ -18,7 +18,7 @@ public class UserDtoDetailsService implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDto loadUserByUsername(String email) throws UsernameNotFoundException {  // 원래는 UserDetails을 반환형으로 하지만 자식 객체인 UserDto를 반환하게함 ( UserDto의 필드들을 사용하기 위해)
 
         List<User> findUser = userRepository.findByEmail(email);
 
