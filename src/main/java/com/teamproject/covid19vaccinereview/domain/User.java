@@ -23,23 +23,22 @@ public class User extends BaseEntity{
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private UserRole role;
+    private UserRole role = UserRole.ROLE_USER;
 
     @NotNull
     private String nickname;
 
     private String userPhoto;
 
-    private User(String email, String password, UserRole role, String nickname, String userPhoto) {
+    private User(String email, String password, String nickname, String userPhoto) {
         this.email = email;
         this.password = password;
-        this.role = role;
         this.nickname = nickname;
         this.userPhoto = userPhoto;
     }
 
-    public static User of(String email, String password, UserRole role, String nickname, String userPhoto){
-        return new User(email, password, role, nickname, userPhoto);
+    public static User of(String email, String password, String nickname, String userPhoto){
+        return new User(email, password, nickname, userPhoto);
     }
 
     public void changePassword(String password){

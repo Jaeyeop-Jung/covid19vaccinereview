@@ -2,6 +2,7 @@ package com.teamproject.covid19vaccinereview.db;
 
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
+import com.teamproject.covid19vaccinereview.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,19 +12,22 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
 
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @Transactional
-@Commit
 @DisplayName("DB 연결 테스트")
 public class DbConnectTest {
 
     private final EntityManager em;
+    private final UserRepository userRepository;
 
     @Autowired
-    public DbConnectTest(EntityManager em) {
+    public DbConnectTest(EntityManager em, UserRepository userRepository) {
         this.em = em;
+        this.userRepository = userRepository;
     }
 
     @Test
@@ -34,7 +38,6 @@ public class DbConnectTest {
         User user = User.of(
                 "Test Email",
                 "Test Password",
-                UserRole.ROLE_USER,
                 "Test Nickname",
                 "Test Photo"
         );
@@ -43,7 +46,9 @@ public class DbConnectTest {
         em.clear();
 
         //when
-        User findUser = em.find(User.class, 1L);
+        List<User> findUserList = userRepository.findByEmail("Test Email");
+        User findUser = findUserList.get(0);
+
         findUser.changeNickname("changeNicknameTest");
         em.flush();
         em.clear();

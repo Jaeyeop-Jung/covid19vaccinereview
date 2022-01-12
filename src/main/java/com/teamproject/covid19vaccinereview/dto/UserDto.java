@@ -11,11 +11,9 @@ import java.util.ArrayList;
 import java.util.Collection;
 
 @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Builder
 @ToString
-public class UserDto implements UserDetails {
+public class UserDto {
 
     @NotNull
     private String email;
@@ -23,7 +21,6 @@ public class UserDto implements UserDetails {
     @NotNull
     private String password;
 
-    @NotNull
     private UserRole role;
 
     @NotNull
@@ -31,49 +28,17 @@ public class UserDto implements UserDetails {
 
     private String userPhoto;
 
-    public static User toEntity(String email, String password, UserRole role, String nickname, String userPhoto){
-        return User.of(email, password, role, nickname, userPhoto);
+    @Builder
+    public UserDto(String email, String password, UserRole role, String nickname, String userPhoto) {
+        this.email = email;
+        this.password = password;
+        this.role = role;
+        this.nickname = nickname;
+        this.userPhoto = userPhoto;
     }
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        Collection<GrantedAuthority> grantedAuthority = new ArrayList<>();
-        grantedAuthority.add(new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return getRole().toString();
-            }
-        });
-
-        return grantedAuthority;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public String getPassword(){ return password;}
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return true;
+    public static User toEntity(String email, String password, String nickname, String userPhoto){
+        return User.of(email, password, nickname, userPhoto);
     }
 
 }

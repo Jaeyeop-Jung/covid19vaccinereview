@@ -1,12 +1,10 @@
 package com.teamproject.covid19vaccinereview.api;
 
-import com.teamproject.covid19vaccinereview.domain.User;
+import com.teamproject.covid19vaccinereview.dto.UserDetailsImpl;
 import com.teamproject.covid19vaccinereview.dto.UserDto;
-import com.teamproject.covid19vaccinereview.repository.UserRepository;
-import com.teamproject.covid19vaccinereview.service.UserDtoDetailsService;
+import com.teamproject.covid19vaccinereview.service.UserDetailsServiceImpl;
 import com.teamproject.covid19vaccinereview.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -14,12 +12,13 @@ import org.springframework.web.bind.annotation.*;
 public class UserApiController {
 
     private final UserService userService;
-    private final UserDtoDetailsService userDtoDetailsService;
+    private final UserDetailsServiceImpl userDetailsService;
 
     @PostMapping("/join")
     public @ResponseBody String join(@RequestBody UserDto userDto){
 
         userService.saveUser(userDto);
+
 
         return "join";
     }
@@ -29,12 +28,12 @@ public class UserApiController {
 
         System.out.println("userDto = " + userDto);
 
-        UserDto findUserDto = userDtoDetailsService.loadUserByUsername(userDto.getEmail());
+        UserDetailsImpl findUserDetails = userDetailsService.loadUserByUsername(userDto.getEmail());
 
-        if(findUserDto == null) {
+        if(findUserDetails == null) {
             return "Failed to Login";
         }
 
-        return findUserDto.getRole().toString();
+        return findUserDetails.getRole().toString();
     }
 }

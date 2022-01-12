@@ -48,7 +48,6 @@ public class UserApiControllerTest {
         String content = objectMapper.writeValueAsString(UserDto.toEntity(
                 "joinTest_POST",
                 "joinTest_POST",
-                    UserRole.ROLE_USER,
                 "joinTest_POST",
                 "joinTest_POST"
         )); // 테스트용 User 값 넣기
@@ -84,7 +83,6 @@ public class UserApiControllerTest {
         String content = "" +
                 "{\"email\": \"joinTest_POST\"," +
                 " \"password\": \"joinTest_POST\"," +
-                " \"role\": \"ROLE_USER\"," +
                 " \"nickname\": \"joinTest_POST\"," +
                 " \"userPhoto\": \"joinTest_POST\"" +
                 "}";
