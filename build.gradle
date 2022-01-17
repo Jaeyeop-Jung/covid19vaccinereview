@@ -35,6 +35,8 @@ dependencies {
 	implementation 'ch.qos.logback:logback-core:1.2.9'
 	implementation 'org.slf4j:slf4j-api:1.7.30'
 
+	testImplementation 'io.rest-assured:rest-assured:3.3.0'
+
 }
 
 test {
