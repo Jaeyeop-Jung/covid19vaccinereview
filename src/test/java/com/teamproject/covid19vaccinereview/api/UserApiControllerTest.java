@@ -49,7 +49,9 @@ public class UserApiControllerTest {
                 "joinTest_POST",
                 "joinTest_POST",
                 "joinTest_POST",
-                "joinTest_POST"
+                "joinTest_POST",
+                null,
+                null
         )); // 테스트용 User 값 넣기
 
         MockHttpServletRequestBuilder requst = MockMvcRequestBuilders

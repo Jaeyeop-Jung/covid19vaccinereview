@@ -30,6 +30,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .role(findUser.get(0).getRole())
                     .nickname(findUser.get(0).getNickname())
                     .userPhoto(findUser.get(0).getUserPhoto())
+                    .googleId(findUser.get(0).getGoogleId())
+                    .refreshToken(findUser.get(0).getRefreshToken())
                     .build();
         }
 
