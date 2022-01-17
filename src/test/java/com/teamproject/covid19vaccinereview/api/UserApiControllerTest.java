@@ -1,15 +1,28 @@
 package com.teamproject.covid19vaccinereview.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.teamproject.covid19vaccinereview.aop.log.AopLogger;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
+import com.teamproject.covid19vaccinereview.dto.UserDetailsImpl;
 import com.teamproject.covid19vaccinereview.dto.UserDto;
+import com.teamproject.covid19vaccinereview.service.UserDetailsServiceImpl;
+import com.teamproject.covid19vaccinereview.service.UserService;
+import com.teamproject.covid19vaccinereview.utils.RestAssuredCRUD;
+import io.restassured.RestAssured;
+import io.restassured.response.ExtractableResponse;
+import io.restassured.response.Response;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.test.web.servlet.*;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -21,10 +34,11 @@ import javax.persistence.TypedQuery;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @DisplayName("UserApiController 테스트")
 public class UserApiControllerTest {
@@ -33,11 +47,61 @@ public class UserApiControllerTest {
     private final ObjectMapper objectMapper;
     private final EntityManager em;
 
+    @LocalServerPort
+    int port;
+
     @Autowired
     public UserApiControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, EntityManager em) {
         this.mockMvc = mockMvc;
         this.objectMapper = objectMapper;
         this.em = em;
+    }
+
+//    @BeforeEach
+//    public void setUp() {
+//        RestAssured.port = port;
+//    }
+
+    @DisplayName("Join 에 관리자 유저를 넣는다")
+    @Test
+    public void joinTest() {
+        RestAssured.port = port;
+
+        UserDto userDto = UserDto.builder()
+            .nickname("nickname")
+            .password("password")
+            .userPhoto("userPhoto")
+            .email("email")
+            .role(UserRole.ROLE_ADMIN).build();
+
+        ExtractableResponse<Response> response = RestAssuredCRUD.postRequest("/join", userDto);
+        요청_성공(response);
+    }
+
+    @DisplayName("AOP 로 감싼 로깅이 동작하는지 확인한다.")
+    @Test
+    public void testAspect() {
+        UserService userService = mock(UserService.class);
+        UserDetailsServiceImpl userDetailsService = mock(UserDetailsServiceImpl.class);
+
+        AspectJProxyFactory factory = new AspectJProxyFactory(new UserApiController(
+            userService, userDetailsService
+        ));
+        factory.addAspect(new AopLogger());
+        UserApiController proxy = factory.getProxy();
+
+        UserDto userDto = UserDto.builder()
+            .nickname("nickname")
+            .password("password")
+            .userPhoto("userPhoto")
+            .email("email")
+            .role(UserRole.ROLE_ADMIN).build();
+
+        proxy.join(userDto);
+    }
+
+    private void 요청_성공(ExtractableResponse<Response> response) {
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test

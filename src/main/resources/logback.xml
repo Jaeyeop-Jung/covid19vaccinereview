@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<configuration>
+  <appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+    <file>$./logs/covid.log</file>
+    <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+      <fileNamePattern>$./logs/covid.%d{yyyy-MM-dd}.log</fileNamePattern>
+    </rollingPolicy>
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] [%-5level]\(%file:%line\) %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss}[%t] | [%-5level]\(%file:%line\) %msg%n</pattern>
+    </encoder>
+  </appender>
+
+  <root level="debug">
+    <appender-ref ref="console" />
+    <appender-ref ref="file" />
+  </root>
+</configuration>
