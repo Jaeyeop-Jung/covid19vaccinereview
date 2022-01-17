@@ -5,10 +5,17 @@ import com.teamproject.covid19vaccinereview.dto.UserDto;
 import com.teamproject.covid19vaccinereview.service.UserDetailsServiceImpl;
 import com.teamproject.covid19vaccinereview.service.UserService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
+import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.logging.LogManager;
 
 @RestController
 @RequiredArgsConstructor
+@Log4j2
 public class UserApiController {
 
     private final UserService userService;
@@ -17,6 +24,7 @@ public class UserApiController {
     @PostMapping("/join")
     public @ResponseBody String join(@RequestBody UserDto userDto){
 
+        log.info("회원가입시도");
         userService.saveUser(userDto);
 
 
