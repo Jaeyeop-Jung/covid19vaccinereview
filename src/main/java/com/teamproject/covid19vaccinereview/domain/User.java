@@ -56,5 +56,7 @@ public class User extends BaseEntity{
         this.nickname = nickname;
     }
 
+    public void changeGoogleId(String googleId){ this.googleId = googleId; }
+
     public void changeRefreshToken(String refreshToken){ this.refreshToken = refreshToken;}
 }

@@ -26,7 +26,8 @@ public class LoggingAspect {
         Object[] args = joinPoint.getArgs();
         Map<String, String> params = new HashMap<>();
         for (Object arg : args) {
-            params.put(arg.getClass().toString(), arg.toString());
+            if(arg != null)
+                params.put(arg.getClass().toString(), arg.toString());
         }
         log.info("Parameter : " + params.toString());
     }
@@ -39,7 +40,8 @@ public class LoggingAspect {
         Object[] args = joinPoint.getArgs();
         Map<String, String> params = new HashMap<>();
         for (Object arg : args) {
-            params.put(arg.getClass().toString(), arg.toString());
+            if(arg != null)
+                params.put(arg.getClass().toString(), arg.toString());
         }
         log.info("Return : " + params.toString());
     }
