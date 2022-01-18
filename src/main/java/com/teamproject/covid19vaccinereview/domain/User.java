@@ -1,6 +1,7 @@
 package com.teamproject.covid19vaccinereview.domain;
 
 import lombok.*;
+import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -30,15 +31,21 @@ public class User extends BaseEntity{
 
     private String userPhoto;
 
-    private User(String email, String password, String nickname, String userPhoto) {
+    private String googleId;
+
+    private String refreshToken;
+
+    private User(String email, String password, String nickname, String userPhoto, String googleId, String refreshToken) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
         this.userPhoto = userPhoto;
+        this.googleId = googleId;
+        this.refreshToken = refreshToken;
     }
 
-    public static User of(String email, String password, String nickname, String userPhoto){
-        return new User(email, password, nickname, userPhoto);
+    public static User of(String email, String password, String nickname, String userPhoto, String googleId, String refreshToken){
+        return new User(email, password, nickname, userPhoto, googleId, refreshToken);
     }
 
     public void changePassword(String password){
@@ -49,4 +56,7 @@ public class User extends BaseEntity{
         this.nickname = nickname;
     }
 
+    public void changeGoogleId(String googleId){ this.googleId = googleId; }
+
+    public void changeRefreshToken(String refreshToken){ this.refreshToken = refreshToken;}
 }

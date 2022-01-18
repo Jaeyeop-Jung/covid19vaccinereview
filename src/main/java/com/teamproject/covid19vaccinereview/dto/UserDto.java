@@ -15,30 +15,33 @@ import java.util.Collection;
 @ToString
 public class UserDto {
 
-    @NotNull
     private String email;
 
-    @NotNull
     private String password;
 
     private UserRole role;
 
-    @NotNull
     private String nickname;
 
     private String userPhoto;
 
+    private String googleId;
+
+    private String refreshToken;
+
     @Builder
-    public UserDto(String email, String password, UserRole role, String nickname, String userPhoto) {
+    public UserDto(String email, String password, UserRole role, String nickname, String userPhoto, String googleId, String refreshToken) {
         this.email = email;
         this.password = password;
         this.role = role;
         this.nickname = nickname;
         this.userPhoto = userPhoto;
+        this.googleId = googleId;
+        this.refreshToken = refreshToken;
     }
 
-    public static User toEntity(String email, String password, String nickname, String userPhoto){
-        return User.of(email, password, nickname, userPhoto);
+    public static User toEntity(String email, String password, String nickname, String userPhoto, String googleId, String refreshToken){
+        return User.of(email, password, nickname, userPhoto, googleId, refreshToken);
     }
 
 }
