@@ -5,7 +5,6 @@ import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Collection;
 
@@ -14,26 +13,29 @@ import java.util.Collection;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class UserDetailsImpl implements UserDetails {
 
-    @NotNull
     private String email;
 
-    @NotNull
     private String password;
 
     private UserRole role;
 
-    @NotNull
     private String nickname;
 
     private String userPhoto;
 
+    private String googleId;
+
+    private String refreshToken;
+
     @Builder
-    public UserDetailsImpl(String email, String password, UserRole role, String nickname, String userPhoto) {
+    public UserDetailsImpl(String email, String password, UserRole role, String nickname, String userPhoto, String googleId, String refreshToken) {
         this.email = email;
         this.password = password;
         this.role = role;
         this.nickname = nickname;
         this.userPhoto = userPhoto;
+        this.googleId = googleId;
+        this.refreshToken = refreshToken;
     }
 
     @Override
@@ -64,7 +66,7 @@ public class UserDetailsImpl implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return false;
+        return true;
     }
 
     @Override
