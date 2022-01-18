@@ -1,10 +1,16 @@
 package com.teamproject.covid19vaccinereview.filter;
 
 import com.teamproject.covid19vaccinereview.domain.User;
+import com.teamproject.covid19vaccinereview.dto.UserDetailsImpl;
+import com.teamproject.covid19vaccinereview.service.UserDetailsServiceImpl;
 import io.jsonwebtoken.*;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
@@ -13,6 +19,8 @@ import java.util.Date;
 @Component
 @Slf4j
 public class JwtTokenProvider {
+
+    private final UserDetailsServiceImpl userDetailsService;
 
     @Value("${jwt.secret}")
     private String secretKey;
@@ -76,6 +84,11 @@ public class JwtTokenProvider {
             log.error("JWT RefreshToken is empty");
         }
         return false;
+    }
+
+    public Authentication getAuthentication(String token){
+        UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(this.findUserIdByJwt(token));
+        return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 
 }

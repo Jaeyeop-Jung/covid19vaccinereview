@@ -1,7 +1,6 @@
 package com.teamproject.covid19vaccinereview.api;
 
 import com.teamproject.covid19vaccinereview.dto.UserDto;
-import com.teamproject.covid19vaccinereview.service.UserDetailsServiceImpl;
 import com.teamproject.covid19vaccinereview.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +50,7 @@ public class UserApiController {
         } else{
             // 구글 로그인 한적이 없으니 googleJoin으로 보낸다
 
-            return "login Fail";
+            return "구글 로그인을 한적 없어서 매핑되지 않음. googleJoin으로 보낸다";
         }
     }
 
@@ -76,7 +75,7 @@ public class UserApiController {
 
             // 회원가입하고 다시 돌아오도록
 
-            return "회원가입 하고 오게";
+            return "자체 회원가입 하고 오게";
         } else{
 
             Map<String, String> token = userService.joinGoogle(userDto, request.getHeader("Refresh_Token"));

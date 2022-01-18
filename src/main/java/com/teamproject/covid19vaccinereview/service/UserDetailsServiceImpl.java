@@ -19,19 +19,19 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     @Transactional
-    public UserDetailsImpl loadUserByUsername(String email) {  // 원래는 UserDetails을 반환형으로 하지만 자식 객체인 UserDto를 반환하게함 ( UserDto의 필드들을 사용하기 위해)
+    public UserDetailsImpl loadUserByUsername(String id) {  // 원래는 UserDetails을 반환형으로 하지만 자식 객체인 UserDto를 반환하게함 ( UserDto의 필드들을 사용하기 위해)
 
-        List<User> findUser = userRepository.findByEmail(email);
+        User findUser = userRepository.findById(Long.parseLong(id)).get();
 
         if(findUser != null){
             return UserDetailsImpl.builder()
-                    .email(findUser.get(0).getEmail())
-                    .password(findUser.get(0).getPassword())
-                    .role(findUser.get(0).getRole())
-                    .nickname(findUser.get(0).getNickname())
-                    .userPhoto(findUser.get(0).getUserPhoto())
-                    .googleId(findUser.get(0).getGoogleId())
-                    .refreshToken(findUser.get(0).getRefreshToken())
+                    .email(findUser.getEmail())
+                    .password(findUser.getPassword())
+                    .role(findUser.getRole())
+                    .nickname(findUser.getNickname())
+                    .userPhoto(findUser.getUserPhoto())
+                    .googleId(findUser.getGoogleId())
+                    .refreshToken(findUser.getRefreshToken())
                     .build();
         }
 
