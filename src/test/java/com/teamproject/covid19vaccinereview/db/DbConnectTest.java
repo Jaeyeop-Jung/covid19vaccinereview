@@ -41,7 +41,6 @@ public class DbConnectTest {
                 "Test Nickname",
                 "Test Photo"
                 , null
-                , null
         );
         em.persist(user);
         em.flush();

@@ -29,23 +29,20 @@ public class User extends BaseEntity{
     @NotNull
     private String nickname;
 
-    private String userPhoto;
-
     private String googleId;
 
     private String refreshToken;
 
-    private User(String email, String password, String nickname, String userPhoto, String googleId, String refreshToken) {
+    private User(String email, String password, String nickname, String googleId, String refreshToken) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-        this.userPhoto = userPhoto;
         this.googleId = googleId;
         this.refreshToken = refreshToken;
     }
 
-    public static User of(String email, String password, String nickname, String userPhoto, String googleId, String refreshToken){
-        return new User(email, password, nickname, userPhoto, googleId, refreshToken);
+    public static User of(String email, String password, String nickname, String googleId, String refreshToken){
+        return new User(email, password, nickname, googleId, refreshToken);
     }
 
     public void changePassword(String password){

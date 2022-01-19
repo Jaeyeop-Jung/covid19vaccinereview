@@ -1,17 +1,22 @@
 package com.teamproject.covid19vaccinereview.api;
 
+import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import com.teamproject.covid19vaccinereview.dto.UserDto;
+import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
+import java.util.*;
 
 
 @RestController
@@ -20,6 +25,7 @@ import java.util.Map;
 public class UserApiController {
 
     private final UserService userService;
+    private final ProfileImageRepository profileImageRepository;
 
     @PostMapping("/originlogin")
     public @ResponseBody String originLogin(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginRequest loginRequest){
@@ -92,5 +98,13 @@ public class UserApiController {
             return null;
         }
     }
+
+    @GetMapping(value = "/image", produces = MediaType.IMAGE_PNG_VALUE)
+    public byte[] image(HttpServletResponse response){
+        ProfileImage profileImage = profileImageRepository.findById(2L).get();
+
+        return Base64.getDecoder().decode(profileImage.getData());
+    }
+
 
 }

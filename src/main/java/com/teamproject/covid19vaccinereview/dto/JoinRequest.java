@@ -14,16 +14,16 @@ public class JoinRequest {
 
     private String nickname;
 
-    private String userPhoto;
+    private ProfileImageDto profileImageDto;
 
     private String googleId;
 
     @Builder
-    public JoinRequest(String email, String password, String nickname, String userPhoto, String googleId) {
+    public JoinRequest(String email, String password, String nickname, ProfileImageDto profileImageDto, String googleId) {
         this.email = email;
         this.password = password;
         this.nickname = nickname;
-        this.userPhoto = userPhoto;
+        this.profileImageDto = profileImageDto;
         this.googleId = googleId;
     }
 }

@@ -1,10 +1,12 @@
 package com.teamproject.covid19vaccinereview.service;
 
+import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import com.teamproject.covid19vaccinereview.dto.UserDto;
 import com.teamproject.covid19vaccinereview.filter.JwtTokenProvider;
+import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +23,7 @@ import java.util.Map;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final ProfileImageRepository profileImageRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -34,7 +37,6 @@ public class UserService {
                     .password(findUser.getPassword())
                     .role(findUser.getRole())
                     .nickname(findUser.getNickname())
-                    .userPhoto(findUser.getUserPhoto())
                     .googleId(findUser.getGoogleId())
                     .refreshToken(findUser.getRefreshToken())
                     .build();
@@ -54,7 +56,6 @@ public class UserService {
                     .password(findUser.getPassword())
                     .role(findUser.getRole())
                     .nickname(findUser.getNickname())
-                    .userPhoto(findUser.getUserPhoto())
                     .googleId(findUser.getGoogleId())
                     .refreshToken(findUser.getRefreshToken())
                     .build();
@@ -99,12 +100,20 @@ public class UserService {
                 joinRequest.getEmail(),
                 bCryptPasswordEncoder.encode(joinRequest.getPassword()),
                 joinRequest.getNickname(),
-                joinRequest.getUserPhoto(),
                 joinRequest.getGoogleId(),
                 null
         );
+        ProfileImage profileImage = ProfileImage.of(
+                user,
+                joinRequest.getProfileImageDto().getData().getBytes(),
+                joinRequest.getProfileImageDto().getName(),
+                joinRequest.getProfileImageDto().getSize(),
+                joinRequest.getProfileImageDto().getContentType()
+        );
 
         User savedUser = userRepository.save(user);
+        profileImageRepository.save(profileImage);
+
 
         String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser);
         String accessToken = jwtTokenProvider.generateAccessToken(savedUser);
