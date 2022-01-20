@@ -10,11 +10,11 @@ import lombok.ToString;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ProfileImageDto {
 
-    private String data;
+    private String fileData;
 
-    private String name;
+    private String fileName;
 
-    private String size;
+    private String fileSize;
 
-    private String contentType;
+    private String fileExtension;
 }

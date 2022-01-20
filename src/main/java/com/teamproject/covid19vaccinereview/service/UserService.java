@@ -96,6 +96,10 @@ public class UserService {
     @Transactional
     public Map<String, String> saveUser(JoinRequest joinRequest){
 
+        if(joinRequest.getProfileImageDto() != null){
+
+        }
+
         User user = User.of(
                 joinRequest.getEmail(),
                 bCryptPasswordEncoder.encode(joinRequest.getPassword()),
@@ -103,13 +107,8 @@ public class UserService {
                 joinRequest.getGoogleId(),
                 null
         );
-        ProfileImage profileImage = ProfileImage.of(
-                user,
-                joinRequest.getProfileImageDto().getData().getBytes(),
-                joinRequest.getProfileImageDto().getName(),
-                joinRequest.getProfileImageDto().getSize(),
-                joinRequest.getProfileImageDto().getContentType()
-        );
+
+        // 프로필이미지 저장
 
         User savedUser = userRepository.save(user);
         profileImageRepository.save(profileImage);

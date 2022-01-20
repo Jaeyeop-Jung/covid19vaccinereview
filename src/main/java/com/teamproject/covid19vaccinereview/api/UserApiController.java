@@ -25,7 +25,6 @@ import java.util.*;
 public class UserApiController {
 
     private final UserService userService;
-    private final ProfileImageRepository profileImageRepository;
 
     @PostMapping("/originlogin")
     public @ResponseBody String originLogin(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginRequest loginRequest){
@@ -98,13 +97,5 @@ public class UserApiController {
             return null;
         }
     }
-
-    @GetMapping(value = "/image", produces = MediaType.IMAGE_PNG_VALUE)
-    public byte[] image(HttpServletResponse response){
-        ProfileImage profileImage = profileImageRepository.findById(2L).get();
-
-        return Base64.getDecoder().decode(profileImage.getData());
-    }
-
 
 }

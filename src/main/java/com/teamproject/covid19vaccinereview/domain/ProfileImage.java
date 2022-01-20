@@ -17,44 +17,32 @@ public class ProfileImage {
     @Column(name = "PROFILEIMAGE_ID")
     private Long id;
 
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_ID")
-    private User user;
-
-    @NotNull
-    @Column(name = "file_data")
-    @Lob
-    private byte[] data;
-
     @NotNull
     @Column(name = "file_name")
-    private String name;
+    private String fileName;
 
     @NotNull
     @Column(name = "file_size")
-    private String size;
+    private String fileSize;
 
     @NotNull
-    @Column(name = "file_contenttype")
-    private String contentType;
+    @Column(name = "file_extension")
+    private String fileExtension;
 
-    public ProfileImage(User user, byte[] data, String name, String size, String contentType) {
-        this.user = user;
-        this.data = data;
-        this.name = name;
-        this.size = String.valueOf(data.length);
-        this.contentType = contentType;
+    public ProfileImage(String fileName, String fileSize, String fileExtension) {
+        this.fileName = fileName;
+        this.fileSize = fileSize;
+        this.fileExtension = fileExtension;
     }
 
-    public static ProfileImage of(User user, byte[] data, String name, String size, String contentType){
-        return new ProfileImage(user, data, name, size, contentType);
+    public static ProfileImage of(String filename, String filesize, String fileExtension){
+        return new ProfileImage(filename, filesize, fileExtension);
     }
 
-    public void changeImage(byte[] data ,String name, String size, String contentType){
-        this.data = data;
-        this.name = name;
-        this.size = String.valueOf(data.length);
-        this.contentType = contentType;
+    public void changeImage(String filename, String filesize, String fileExtension){
+        this.fileName = filename;
+        this.fileSize = filesize;
+        this.fileExtension = fileExtension;
     }
 
 }

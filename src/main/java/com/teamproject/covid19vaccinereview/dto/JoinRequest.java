@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.dto;
 
+import com.teamproject.covid19vaccinereview.domain.UserProvider;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
 import lombok.*;
 
@@ -12,18 +13,12 @@ public class JoinRequest {
 
     private String password;
 
+    private UserProvider provider;
+
     private String nickname;
 
     private ProfileImageDto profileImageDto;
 
     private String googleId;
 
-    @Builder
-    public JoinRequest(String email, String password, String nickname, ProfileImageDto profileImageDto, String googleId) {
-        this.email = email;
-        this.password = password;
-        this.nickname = nickname;
-        this.profileImageDto = profileImageDto;
-        this.googleId = googleId;
-    }
 }
