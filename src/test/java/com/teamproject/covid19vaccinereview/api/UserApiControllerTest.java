@@ -11,6 +11,7 @@ import com.teamproject.covid19vaccinereview.utils.RestAssuredCRUD;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
@@ -57,12 +58,12 @@ public class UserApiControllerTest {
     }
 
     @Test
-    @DisplayName("join 테스트")
-    public void joinTest_POST() throws Exception {
+    @DisplayName("originJoin 테스트")
+    public void originJoinTest_POST() throws Exception {
 
         //given
         String content = objectMapper.writeValueAsString(UserDto.toEntity(
-                "joinTest_POST",
+                "joinTest_POST@email.com",
                 "joinTest_POST",
                 "joinTest_POST",
                 "joinTest_POST",
@@ -86,7 +87,7 @@ public class UserApiControllerTest {
         TypedQuery<User> query = em.createQuery(
                 "SELECT u FROM User u " +
                         "where u.email = :email", User.class);
-        query.setParameter("email", "joinTest_POST");
+        query.setParameter("email", "joinTest_POST@email.com");
 
         List<User> resultList = query.getResultList();
 
@@ -102,7 +103,7 @@ public class UserApiControllerTest {
             .nickname("nickname1")
             .password("password1")
             .userPhoto("userPhoto1")
-            .email("email1")
+            .email("email1@google.com")
             .role(UserRole.ROLE_ADMIN).build();
 
         ExtractableResponse<Response> response = RestAssuredCRUD.postRequest("/originjoin", userDto);
@@ -110,7 +111,7 @@ public class UserApiControllerTest {
 
         //given
         String content = "" +
-                "{\"email\": \"email1\"," +
+                "{\"email\": \"email1@google.com\"," +
                 " \"password\": \"password1\"," +
                 " \"nickname\": \"nickname1\"," +
                 " \"userPhoto\": \"userPhoto1\"" +
@@ -138,7 +139,23 @@ public class UserApiControllerTest {
 
     @DisplayName("Join 에 관리자 유저를 넣는다")
     @Test
-    public void joinTest() {
+    public void validJoinTest() {
+        RestAssured.port = port;
+
+        UserDto userDto = UserDto.builder()
+            .nickname("nickname")
+            .password("password")
+            .userPhoto("userPhoto")
+            .email("email@google.com")
+            .role(UserRole.ROLE_ADMIN).build();
+
+        ExtractableResponse<Response> response = RestAssuredCRUD.postRequest("/originjoin", userDto);
+        요청_성공(response);
+    }
+
+    @DisplayName("Join 으로 관리자 유저를 넣는 경우, 이메일 형식 오류가 난다.")
+    @Test
+    public void invalidEmailJoinTest() {
         RestAssured.port = port;
 
         UserDto userDto = UserDto.builder()
@@ -148,8 +165,11 @@ public class UserApiControllerTest {
             .email("email")
             .role(UserRole.ROLE_ADMIN).build();
 
-        ExtractableResponse<Response> response = RestAssuredCRUD.postRequest("/originjoin", userDto);
-        요청_성공(response);
+        ExtractableResponse<Response> response = RestAssuredCRUD
+            .postRequest("/originjoin", userDto);
+
+        assertThat(response.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.body().asString()).isEqualTo("IllegalArgumentException test");
     }
 
     @DisplayName("AOP 로 감싼 로깅이 동작하는지 확인한다.")

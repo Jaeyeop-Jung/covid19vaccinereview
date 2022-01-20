@@ -79,6 +79,7 @@ public class UserService {
 
             return token;
         } else{
+            // TODO: 여기 하드코딩으로 숫자 0 인덱스 넣으면 안됨
             User findUser = userRepository.findByEmail(userDto.getEmail()).get(0);
 
             String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
