@@ -53,10 +53,11 @@ public class UserApiController {
             @PathVariable(name = "loginProvider") LoginProvider loginProvider,
             @RequestParam(name = "code") String authorizationCode){
 
-        Map<String, String> token = userService.oauthLogin(loginProvider, authorizationCode);
+        log.info("API 서버로부터 받은 code : {}, {}", authorizationCode, loginProvider);
+        String s = userService.oauthLogin(loginProvider, authorizationCode);
 
 
-        return "login success";
+        return s;
     }
 
 }

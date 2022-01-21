@@ -27,6 +27,7 @@ public class User extends BaseEntity{
 
     @NotNull
     @Enumerated(EnumType.STRING)
+    @Column(name = "loginprovider")
     private LoginProvider loginProvider;
 
     @NotNull

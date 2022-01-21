@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.dto;
 
+import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
 import lombok.*;
@@ -37,8 +38,8 @@ public class UserDto {
         this.refreshToken = refreshToken;
     }
 
-    public static User toEntity(String email, String password, String nickname, String googleId, String refreshToken){
-        return User.of(email, password, nickname, googleId, refreshToken);
+    public static User toEntity(String email, String password, String nickname, String refreshToken){
+        return User.of(email, password, UserRole.ROLE_USER, LoginProvider.ORIGINAL, nickname, null, refreshToken);
     }
 
 }

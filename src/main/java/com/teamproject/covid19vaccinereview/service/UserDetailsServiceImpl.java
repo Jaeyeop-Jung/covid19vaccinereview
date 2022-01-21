@@ -29,7 +29,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                     .password(findUser.getPassword())
                     .role(findUser.getRole())
                     .nickname(findUser.getNickname())
-                    .googleId(findUser.getGoogleId())
                     .refreshToken(findUser.getRefreshToken())
                     .build();
         }

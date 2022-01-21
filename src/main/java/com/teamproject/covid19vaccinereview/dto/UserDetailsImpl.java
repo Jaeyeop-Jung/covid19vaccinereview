@@ -21,20 +21,14 @@ public class UserDetailsImpl implements UserDetails {
 
     private String nickname;
 
-    private String userPhoto;
-
-    private String googleId;
-
     private String refreshToken;
 
     @Builder
-    public UserDetailsImpl(String email, String password, UserRole role, String nickname, String userPhoto, String googleId, String refreshToken) {
+    public UserDetailsImpl(String email, String password, UserRole role, String nickname, String refreshToken) {
         this.email = email;
         this.password = password;
         this.role = role;
         this.nickname = nickname;
-        this.userPhoto = userPhoto;
-        this.googleId = googleId;
         this.refreshToken = refreshToken;
     }
 

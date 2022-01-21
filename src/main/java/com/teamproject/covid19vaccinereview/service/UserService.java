@@ -35,25 +35,6 @@ public class UserService {
     private final List<SocialOauth> socialOauthList;
 
     @Transactional
-    public UserDto findByEmail(LoginRequest loginRequest){
-        try {
-            User findUser = userRepository.findByEmail(loginRequest.getEmail()).get(0);
-
-            return UserDto.builder()
-                    .email(findUser.getEmail())
-                    .password(findUser.getPassword())
-                    .role(findUser.getRole())
-                    .nickname(findUser.getNickname())
-                    .googleId(findUser.getGoogleId())
-                    .refreshToken(findUser.getRefreshToken())
-                    .build();
-        }
-        catch (Exception e){
-            return null;
-        }
-    }
-
-    @Transactional
     public SocialOauth findSocialOauthByLoginProvider(LoginProvider loginProvider){
         return socialOauthList.stream()
                 .filter(x -> x.type() == loginProvider)
@@ -128,9 +109,10 @@ public class UserService {
     }
 
     @Transactional
-    public Map<String, String> oauthLogin(LoginProvider loginProvider, String authorizationCode){
+    public String oauthLogin(LoginProvider loginProvider, String authorizationCode){
         String responseBody = requestAccessToken(loginProvider, authorizationCode);
 
+        return responseBody;
     }
 
     @Transactional
