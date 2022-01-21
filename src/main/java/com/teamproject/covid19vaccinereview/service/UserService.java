@@ -52,6 +52,10 @@ public class UserService {
     @Transactional
     public Map<String, String> login(LoginRequest loginRequest, String userRefreshToken){
 
+        requestLoginApi(loginRequest.getAuthorizationCode());
+
+
+
         Map<String, String> token = new HashMap<>();
 
         if(jwtTokenProvider.validateToken(userRefreshToken)){
@@ -116,7 +120,9 @@ public class UserService {
     }
 
     @Transactional
-    public void requestLoginApi(){
+    public void requestLoginApi(String authorizationCode){
+
+
 
     }
 }
