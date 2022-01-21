@@ -2,6 +2,7 @@ package com.teamproject.covid19vaccinereview.service;
 
 import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.domain.User;
+import com.teamproject.covid19vaccinereview.domain.UserRole;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import com.teamproject.covid19vaccinereview.dto.UserDto;
@@ -13,7 +14,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,25 +34,6 @@ public class UserService {
     public UserDto findByEmail(LoginRequest loginRequest){
         try {
             User findUser = userRepository.findByEmail(loginRequest.getEmail()).get(0);
-
-            return UserDto.builder()
-                    .email(findUser.getEmail())
-                    .password(findUser.getPassword())
-                    .role(findUser.getRole())
-                    .nickname(findUser.getNickname())
-                    .googleId(findUser.getGoogleId())
-                    .refreshToken(findUser.getRefreshToken())
-                    .build();
-        }
-        catch (Exception e){
-            return null;
-        }
-    }
-
-    @Transactional
-    public UserDto findByGoogleId(LoginRequest loginRequest){
-        try {
-            User findUser = userRepository.findByGoogleId(loginRequest.getGoogleId()).get(0);
 
             return UserDto.builder()
                     .email(findUser.getEmail())
@@ -94,25 +78,30 @@ public class UserService {
     }
 
     @Transactional
-    public Map<String, String> saveUser(JoinRequest joinRequest){
+    public Map<String, String> saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
 
-        if(joinRequest.getProfileImageDto() != null){
-
+        if(multipartFile.isEmpty()){
+            throw new IOException("MultipartFile이 제대로 넘어오지 않았습니다");
         }
+
+        joinRequest.initJoinRequest(multipartFile);
+        ProfileImage profileImage = ProfileImage.of(
+                joinRequest.getProfileImageDto().getFileName(),
+                joinRequest.getProfileImageDto().getFileSize(),
+                joinRequest.getProfileImageDto().getFileExtension()
+        );
+        profileImageRepository.save(profileImage);
 
         User user = User.of(
                 joinRequest.getEmail(),
                 bCryptPasswordEncoder.encode(joinRequest.getPassword()),
+                UserRole.ROLE_USER,
+                joinRequest.getProvider(),
                 joinRequest.getNickname(),
-                joinRequest.getGoogleId(),
+                profileImage,
                 null
         );
-
-        // 프로필이미지 저장
-
         User savedUser = userRepository.save(user);
-        profileImageRepository.save(profileImage);
-
 
         String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser);
         String accessToken = jwtTokenProvider.generateAccessToken(savedUser);
@@ -126,37 +115,8 @@ public class UserService {
         return token;
     }
 
-
     @Transactional
-    public Map<String, String> mappingAcoount(LoginRequest loginRequest, String userRefreshToken){
-
-        Map<String, String> token = new HashMap<>();
-
-        if(jwtTokenProvider.validateToken(userRefreshToken)){
-
-            User findUser = userRepository.findByEmail(loginRequest.getEmail()).get(0);
-            findUser.changeGoogleId(loginRequest.getGoogleId());
-
-            String accessToken = jwtTokenProvider.generateAccessToken(findUser);
-            token.put("accessToken", accessToken);
-
-            return token;
-        } else{
-
-            User findUser = userRepository.findByEmail(loginRequest.getEmail()).get(0);
-            findUser.changeGoogleId(loginRequest.getGoogleId());
-
-            String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
-            String accessToken = jwtTokenProvider.generateAccessToken(findUser);
-
-            findUser.changeRefreshToken(refreshToken);
-
-            token.put("refreshToken", refreshToken);
-            token.put("accessToken", accessToken);
-
-            return token;
-        }
+    public void requestLoginApi(){
 
     }
-
 }

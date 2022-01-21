@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.domain;
 
+import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,23 +24,27 @@ public class ProfileImage {
 
     @NotNull
     @Column(name = "file_size")
-    private String fileSize;
+    private Long fileSize;
 
     @NotNull
     @Column(name = "file_extension")
     private String fileExtension;
 
-    public ProfileImage(String fileName, String fileSize, String fileExtension) {
+    public ProfileImage(String fileName, Long fileSize, String fileExtension) {
         this.fileName = fileName;
         this.fileSize = fileSize;
         this.fileExtension = fileExtension;
     }
 
-    public static ProfileImage of(String filename, String filesize, String fileExtension){
+    public static ProfileImage of(String filename, Long filesize, String fileExtension){
         return new ProfileImage(filename, filesize, fileExtension);
     }
 
-    public void changeImage(String filename, String filesize, String fileExtension){
+    public static ProfileImage from(JoinRequest joinRequest){
+        return new ProfileImage(joinRequest.getProfileImageDto().getFileName(), joinRequest.getProfileImageDto().getFileSize(), joinRequest.getProfileImageDto().getFileExtension());
+    }
+
+    public void changeImage(String filename, Long filesize, String fileExtension){
         this.fileName = filename;
         this.fileSize = filesize;
         this.fileExtension = fileExtension;

@@ -56,12 +56,6 @@ public class User extends BaseEntity{
         return new User(email, password, role, provider, nickname, profileImage, refreshToken);
     }
 
-    public static User from(JoinRequest joinRequest){
-
-        ProfileImageDto profileImageDto = joinRequest.getProfileImageDto();
-
-    }
-
     public void changePassword(String password){
         this.password = password;
     }
