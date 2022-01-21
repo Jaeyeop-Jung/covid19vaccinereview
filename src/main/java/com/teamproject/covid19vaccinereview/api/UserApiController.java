@@ -1,10 +1,8 @@
 package com.teamproject.covid19vaccinereview.api;
 
-import com.teamproject.covid19vaccinereview.domain.ProfileImage;
+import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
-import com.teamproject.covid19vaccinereview.dto.UserDto;
-import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +22,7 @@ public class UserApiController {
 
     private final UserService userService;
 
-    @PostMapping("/originlogin")
+    @PostMapping("/login")
     public @ResponseBody String originLogin(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginRequest loginRequest){
 
         Map<String, String> token = userService.login(loginRequest, request.getHeader("Refresh_Token"));
@@ -34,7 +32,7 @@ public class UserApiController {
         response.addHeader("Authorization", "Bearer " + token.get("accessToken"));
 
 
-        return "login access";
+        return "login success";
     }
 
     @PostMapping("/register")
@@ -48,6 +46,17 @@ public class UserApiController {
         // 예외 핸들러 만들기
 
         return "join";
+    }
+
+    @GetMapping("/login/{loginProvider}/callback")
+    public String callback(
+            @PathVariable(name = "loginProvider") LoginProvider loginProvider,
+            @RequestParam(name = "code") String authorizationCode){
+
+        Map<String, String> token = userService.oauthLogin(loginProvider, authorizationCode);
+
+
+        return "login success";
     }
 
 }

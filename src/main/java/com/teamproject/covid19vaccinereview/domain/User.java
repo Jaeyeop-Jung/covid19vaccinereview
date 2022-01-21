@@ -1,10 +1,6 @@
 package com.teamproject.covid19vaccinereview.domain;
 
-import com.teamproject.covid19vaccinereview.dto.JoinRequest;
-import com.teamproject.covid19vaccinereview.dto.ProfileImageDto;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -31,7 +27,7 @@ public class User extends BaseEntity{
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    private UserProvider provider;
+    private LoginProvider loginProvider;
 
     @NotNull
     private String nickname;
@@ -42,17 +38,17 @@ public class User extends BaseEntity{
 
     private String refreshToken;
 
-    public User(String email, String password, UserRole role, UserProvider provider, String nickname, ProfileImage profileImage, String refreshToken) {
+    public User(String email, String password, UserRole role, LoginProvider loginProvider, String nickname, ProfileImage profileImage, String refreshToken) {
         this.email = email;
         this.password = password;
         this.role = role;
-        this.provider = provider;
+        this.loginProvider = loginProvider;
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.refreshToken = refreshToken;
     }
 
-    public static User of(String email, String password, UserRole role, UserProvider provider, String nickname, ProfileImage profileImage, String refreshToken){
+    public static User of(String email, String password, UserRole role, LoginProvider provider, String nickname, ProfileImage profileImage, String refreshToken){
         return new User(email, password, role, provider, nickname, profileImage, refreshToken);
     }
 

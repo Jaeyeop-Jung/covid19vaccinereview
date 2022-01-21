@@ -1,7 +1,7 @@
 package com.teamproject.covid19vaccinereview.dto;
 
 
-import com.teamproject.covid19vaccinereview.domain.UserProvider;
+import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +16,7 @@ public class LoginRequest {
 
     private String password;
 
-    private UserProvider provider;
+    private LoginProvider loginProvider;
 
     private String authorizationCode;
 

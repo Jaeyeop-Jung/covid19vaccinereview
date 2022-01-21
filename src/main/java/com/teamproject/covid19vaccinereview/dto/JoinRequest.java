@@ -1,11 +1,8 @@
 package com.teamproject.covid19vaccinereview.dto;
 
-import com.teamproject.covid19vaccinereview.domain.UserProvider;
-import com.teamproject.covid19vaccinereview.domain.UserRole;
+import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
-
-import javax.annotation.PostConstruct;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -16,7 +13,7 @@ public class JoinRequest {
 
     private String password;
 
-    private UserProvider provider;
+    private LoginProvider loginProvider;
 
     private String nickname;
 

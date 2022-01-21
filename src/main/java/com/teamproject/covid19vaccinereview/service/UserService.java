@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.service;
 
+import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
@@ -9,6 +10,7 @@ import com.teamproject.covid19vaccinereview.dto.UserDto;
 import com.teamproject.covid19vaccinereview.filter.JwtTokenProvider;
 import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.repository.UserRepository;
+import com.teamproject.covid19vaccinereview.service.Oauth.SocialOauth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -18,6 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -29,6 +32,7 @@ public class UserService {
     private final ProfileImageRepository profileImageRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final List<SocialOauth> socialOauthList;
 
     @Transactional
     public UserDto findByEmail(LoginRequest loginRequest){
@@ -50,11 +54,15 @@ public class UserService {
     }
 
     @Transactional
+    public SocialOauth findSocialOauthByLoginProvider(LoginProvider loginProvider){
+        return socialOauthList.stream()
+                .filter(x -> x.type() == loginProvider)
+                .findFirst()
+                .orElseThrow( () -> new IllegalArgumentException("알 수 없는 LoginProvider 입니다."));
+    }
+
+    @Transactional
     public Map<String, String> login(LoginRequest loginRequest, String userRefreshToken){
-
-        requestLoginApi(loginRequest.getAuthorizationCode());
-
-
 
         Map<String, String> token = new HashMap<>();
 
@@ -100,7 +108,7 @@ public class UserService {
                 joinRequest.getEmail(),
                 bCryptPasswordEncoder.encode(joinRequest.getPassword()),
                 UserRole.ROLE_USER,
-                joinRequest.getProvider(),
+                joinRequest.getLoginProvider(),
                 joinRequest.getNickname(),
                 profileImage,
                 null
@@ -120,9 +128,15 @@ public class UserService {
     }
 
     @Transactional
-    public void requestLoginApi(String authorizationCode){
+    public Map<String, String> oauthLogin(LoginProvider loginProvider, String authorizationCode){
+        String responseBody = requestAccessToken(loginProvider, authorizationCode);
 
+    }
 
+    @Transactional
+    public String requestAccessToken(LoginProvider loginProvider, String authorizationCode){
 
+        SocialOauth socialOauth = findSocialOauthByLoginProvider(loginProvider);
+        return socialOauth.requestAccessToken(authorizationCode);
     }
 }
