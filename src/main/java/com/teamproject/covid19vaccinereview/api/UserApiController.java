@@ -51,7 +51,7 @@ public class UserApiController {
     @GetMapping("/login/{loginProvider}/callback")
     public String callback(
             @PathVariable(name = "loginProvider") LoginProvider loginProvider,
-            @RequestParam(name = "code") String authorizationCode){
+            @RequestParam(name = "code") String authorizationCode) throws IOException {
 
         log.info("API 서버로부터 받은 code : {}, {}", authorizationCode, loginProvider);
         String s = userService.oauthLogin(loginProvider, authorizationCode);

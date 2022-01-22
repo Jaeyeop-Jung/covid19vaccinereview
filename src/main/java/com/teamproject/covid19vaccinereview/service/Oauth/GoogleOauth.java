@@ -30,22 +30,15 @@ public class GoogleOauth implements SocialOauth{
     private String GOOGLE_TOKEN_BASE_URL;
 
     @Override
-    public String getOauthRedirectURL() {
-        return null;
-    }
-
-    @Override
     public String requestAccessToken(String authorizationCode) {
         RestTemplate restTemplate = new RestTemplate();
 
-        Map<String, Object> params = new HashMap<>();
+        Map<String, Object> params = new HashMap<>();   // 구글의 경우 body를 json 형식으로 보내기 때문에 아래와 같은 방식 채택
         params.put("code", authorizationCode);
         params.put("client_id", GOOGLE_CLIENT_ID);
         params.put("client_secret", GOOGLE_CLIENT_SECRET);
         params.put("redirect_uri", GOOGLE_CALLBACK_URL);
         params.put("grant_type", "authorization_code");
-
-        System.out.println("params = " + params);
 
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(GOOGLE_TOKEN_BASE_URL, params, String.class);
 
@@ -54,5 +47,10 @@ public class GoogleOauth implements SocialOauth{
         }
 
         return "구글 로그인 요청 처리 실패";
+    }
+
+    @Override
+    public String requestUserInfo(String accessToken) {
+        return null;
     }
 }

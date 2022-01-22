@@ -1,5 +1,9 @@
 package com.teamproject.covid19vaccinereview.service;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.domain.User;
@@ -17,6 +21,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import springfox.documentation.spring.web.json.Json;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -109,16 +114,18 @@ public class UserService {
     }
 
     @Transactional
-    public String oauthLogin(LoginProvider loginProvider, String authorizationCode){
-        String responseBody = requestAccessToken(loginProvider, authorizationCode);
+    public String oauthLogin(LoginProvider loginProvider, String authorizationCode) throws IOException {
+
+        SocialOauth socialOauth = findSocialOauthByLoginProvider(loginProvider); // Oauth 로그인 제공자 찾기
+
+        String responseBody = socialOauth.requestAccessToken(authorizationCode); // 인가code -> AccessToken
+        JsonParser jsonParser = new JsonParser();
+        JsonElement parse = jsonParser.parse(responseBody);
+        JsonObject jsonObject = (JsonObject) parse;
+
+        socialOauth.requestUserInfo(jsonObject.get("access_token").getAsString());
 
         return responseBody;
     }
 
-    @Transactional
-    public String requestAccessToken(LoginProvider loginProvider, String authorizationCode){
-
-        SocialOauth socialOauth = findSocialOauthByLoginProvider(loginProvider);
-        return socialOauth.requestAccessToken(authorizationCode);
-    }
 }
