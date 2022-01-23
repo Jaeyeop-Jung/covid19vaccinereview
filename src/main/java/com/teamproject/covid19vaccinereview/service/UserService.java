@@ -125,19 +125,30 @@ public class UserService {
         List<User> findUserList = userRepository.findByEmail(userInfo.get("email").get(0).toString());
 
         if( ( findUserList.size() )== 0){
-            // 회원가입
+            JoinRequest joinRequest = JoinRequest.builder()
+                    .email(userInfo.get("email").get(0).toString())
+                    .password(bCryptPasswordEncoder.encode(userInfo.get("email").get(0).toString()))
+                    .loginProvider((LoginProvider) userInfo.get("loginProvider").get(0))
+                    .nickname(userInfo.get("nickname").get(0).toString())
+                    .build();
+            MultipartFile multipartFile = (MultipartFile) userInfo.get("profileImage").get(0);
+
+            Map<String, String> token = saveUser(joinRequest, multipartFile);
+            return token;
+
+        } else {
+            User findUser = findUserList.get(0);
+
+            Map<String, String> token = new HashMap<>();
+
+            String accessToken = jwtTokenProvider.generateAccessToken(findUser);
+            String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
+
+            token.put("accessToken", accessToken);
+            token.put("refreshToken", refreshToken);
+
+            return token;
         }
-        User findUser = findUserList.get(0);
-
-        Map<String, String> token = new HashMap<>();
-
-        String accessToken = jwtTokenProvider.generateAccessToken(findUser);
-        String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
-
-        token.put("accessToken", accessToken);
-        token.put("refreshToken", refreshToken);
-
-        return token;
     }
 
 }
