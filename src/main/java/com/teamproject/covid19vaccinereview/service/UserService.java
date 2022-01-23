@@ -14,6 +14,7 @@ import com.teamproject.covid19vaccinereview.dto.UserDto;
 import com.teamproject.covid19vaccinereview.filter.JwtTokenProvider;
 import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.repository.UserRepository;
+import com.teamproject.covid19vaccinereview.service.File.ProfileImageUtil;
 import com.teamproject.covid19vaccinereview.service.Oauth.SocialOauth;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,6 +39,7 @@ public class UserService {
     private final ProfileImageRepository profileImageRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ProfileImageUtil profileImageUtil;
     private final List<SocialOauth> socialOauthList;
 
     @Transactional
@@ -89,6 +91,8 @@ public class UserService {
                 joinRequest.getProfileImageDto().getFileSize(),
                 joinRequest.getProfileImageDto().getFileExtension()
         );
+
+        profileImageUtil.saveProfileImage(multipartFile);
         profileImageRepository.save(profileImage);
 
         User user = User.of(
