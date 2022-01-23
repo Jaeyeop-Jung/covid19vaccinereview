@@ -2,6 +2,7 @@ package com.teamproject.covid19vaccinereview.service.Oauth;
 
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import org.apache.tomcat.util.http.fileupload.IOUtils;
+import org.springframework.util.MultiValueMap;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -11,9 +12,9 @@ import java.net.URLConnection;
 
 public interface SocialOauth {
 
-    String requestAccessToken(String authorizationCode);
+    String requestToken(String authorizationCode);
 
-    String requestUserInfo(String accessToken) throws IOException;
+    MultiValueMap<String, Object> requestUserInfo(String oauthAccessToken) throws IOException;
 
     default LoginProvider type() {
         if(this instanceof GoogleOauth){

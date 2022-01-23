@@ -20,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 import springfox.documentation.spring.web.json.Json;
 
@@ -114,18 +115,29 @@ public class UserService {
     }
 
     @Transactional
-    public String oauthLogin(LoginProvider loginProvider, String authorizationCode) throws IOException {
+    public Map<String, String> oauthLogin(LoginProvider loginProvider, String authorizationCode) throws IOException {
 
         SocialOauth socialOauth = findSocialOauthByLoginProvider(loginProvider); // Oauth 로그인 제공자 찾기
 
-        String responseBody = socialOauth.requestAccessToken(authorizationCode); // 인가code -> AccessToken
-        JsonParser jsonParser = new JsonParser();
-        JsonElement parse = jsonParser.parse(responseBody);
-        JsonObject jsonObject = (JsonObject) parse;
+        String oauthAccessToken = socialOauth.requestToken(authorizationCode); // 인가code -> AccessToken
+        MultiValueMap<String, Object> userInfo = socialOauth.requestUserInfo(oauthAccessToken);
 
-        socialOauth.requestUserInfo(jsonObject.get("access_token").getAsString());
+        List<User> findUserList = userRepository.findByEmail(userInfo.get("email").get(0).toString());
 
-        return responseBody;
+        if( ( findUserList.size() )== 0){
+            // 회원가입
+        }
+        User findUser = findUserList.get(0);
+
+        Map<String, String> token = new HashMap<>();
+
+        String accessToken = jwtTokenProvider.generateAccessToken(findUser);
+        String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
+
+        token.put("accessToken", accessToken);
+        token.put("refreshToken", refreshToken);
+
+        return token;
     }
 
 }

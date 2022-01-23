@@ -50,14 +50,17 @@ public class UserApiController {
 
     @GetMapping("/login/{loginProvider}/callback")
     public String callback(
+            HttpServletResponse response,
             @PathVariable(name = "loginProvider") LoginProvider loginProvider,
             @RequestParam(name = "code") String authorizationCode) throws IOException {
 
         log.info("API 서버로부터 받은 code : {}, {}", authorizationCode, loginProvider);
-        String s = userService.oauthLogin(loginProvider, authorizationCode);
+        Map<String, String> token = userService.oauthLogin(loginProvider, authorizationCode);
 
+        response.addHeader("Authorization", "Bearer " + token.get("accessToken"));
+        response.addHeader("Refresh_Token", "Bearer " + token.get("refreshToken"));
 
-        return s;
+        return "login success";
     }
 
 }

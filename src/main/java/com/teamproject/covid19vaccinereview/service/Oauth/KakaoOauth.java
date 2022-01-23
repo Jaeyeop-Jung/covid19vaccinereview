@@ -42,10 +42,10 @@ public class KakaoOauth implements SocialOauth{
     private String KAKAO_USERINFO_URL;
 
     @Override
-    public String requestAccessToken(String authorizationCode) {
+    public String requestToken(String authorizationCode) {
         RestTemplate restTemplate = new RestTemplate();
 
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>(); // 카카오의 경우 body 타입을 x-www-form-urlencoded 형식으로 해야함
+        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
         params.add("code", authorizationCode);
         params.add("client_id", KAKAO_CLIENT_ID);
         params.add("redirect_uri", KAKAO_CALLBACK_URL);
@@ -64,7 +64,7 @@ public class KakaoOauth implements SocialOauth{
     }
 
     @Override
-    public String requestUserInfo(String accessToken) throws IOException {
+    public MultiValueMap<String, Object> requestUserInfo(String accessToken) throws IOException {
 //        RestTemplate restTemplate = new RestTemplate();
 //
 //        HttpHeaders headers = new HttpHeaders();
