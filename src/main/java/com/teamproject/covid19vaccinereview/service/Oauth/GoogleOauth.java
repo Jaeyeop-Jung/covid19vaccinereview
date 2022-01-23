@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -81,7 +82,8 @@ public class GoogleOauth implements SocialOauth{
     public MultiValueMap<String, Object> requestUserInfo(String oauthAccessToken) throws IOException {
 
         String[] split = oauthAccessToken.split("\\.");
-        String decode = new String(Base64.getDecoder().decode(split[1]));
+        System.out.println("split[1] = " + split[1]);
+        String decode = new String(Base64Utils.decodeFromUrlSafeString(split[1]));
 
         JsonParser jsonParser = new JsonParser();
         JsonElement parse = jsonParser.parse(decode);

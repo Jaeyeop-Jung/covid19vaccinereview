@@ -19,8 +19,6 @@ public class JoinRequest {
 
     private ProfileImageDto profileImageDto;
 
-    private String googleId;
-
     public void initJoinRequest(MultipartFile multipartFile){
 
         String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
@@ -30,5 +28,14 @@ public class JoinRequest {
                 .fileSize(multipartFile.getSize())
                 .fileExtension(fileExtension)
                 .build();
+    }
+
+    @Builder
+    public JoinRequest(String email, String password, LoginProvider loginProvider, String nickname, ProfileImageDto profileImageDto) {
+        this.email = email;
+        this.password = password;
+        this.loginProvider = loginProvider;
+        this.nickname = nickname;
+        this.profileImageDto = profileImageDto;
     }
 }
