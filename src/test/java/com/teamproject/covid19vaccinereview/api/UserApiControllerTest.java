@@ -123,7 +123,7 @@ public class UserApiControllerTest {
 //
 //    }
 
-    @DisplayName("register 을 통해서 origin user 관리자 유저 가입한다. (구 originJoin")
+    @DisplayName("RestAssured test")
     @Test
     void testUser_를_테스트한다() {
         RestAssured.port = port;
