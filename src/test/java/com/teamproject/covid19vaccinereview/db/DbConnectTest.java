@@ -30,34 +30,34 @@ public class DbConnectTest {
         this.userRepository = userRepository;
     }
 
-    @Test
-    @DisplayName("DB Insert와 Auditing 테스트")
-    public void dbConnectTest(){
-
-        //given
-        User user = User.of(
-                "Test Email",
-                "Test Password",
-                "Test Nickname",
-                "Test Photo"
-                , null
-        );
-        em.persist(user);
-        em.flush();
-        em.clear();
-
-        //when
-        List<User> findUserList = userRepository.findByEmail("Test Email");
-        User findUser = findUserList.get(0);
-
-        findUser.changeNickname("changeNicknameTest");
-        em.flush();
-        em.clear();
-
-        //then
-        assertThat(user.getEmail()).isEqualTo(findUser.getEmail()); // email 값은 변경하지 않았기 때문에 같아야한다
-        assertThat(user.getLastUpdated()).isNotEqualTo(findUser.getLastUpdated()); // 변경된 시간이 달라야한다
-
-    }
+//    @Test
+//    @DisplayName("DB Insert와 Auditing 테스트")
+//    public void dbConnectTest(){
+//
+//        //given
+//        User user = User.of(
+//                "Test Email",
+//                "Test Password",
+//                "Test Nickname",
+//                "Test Photo"
+//                , null
+//        );
+//        em.persist(user);
+//        em.flush();
+//        em.clear();
+//
+//        //when
+//        List<User> findUserList = userRepository.findByEmail("Test Email");
+//        User findUser = findUserList.get(0);
+//
+//        findUser.changeNickname("changeNicknameTest");
+//        em.flush();
+//        em.clear();
+//
+//        //then
+//        assertThat(user.getEmail()).isEqualTo(findUser.getEmail()); // email 값은 변경하지 않았기 때문에 같아야한다
+//        assertThat(user.getLastUpdated()).isNotEqualTo(findUser.getLastUpdated()); // 변경된 시간이 달라야한다
+//
+//    }
 
 }
