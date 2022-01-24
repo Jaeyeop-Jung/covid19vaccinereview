@@ -3,7 +3,6 @@ package com.teamproject.covid19vaccinereview.domain;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.*;
-import lombok.extern.slf4j.Slf4j;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -31,26 +30,31 @@ public class User extends BaseEntity{
     private UserRole role = UserRole.ROLE_USER;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
+    @Column(name = "loginprovider")
+    private LoginProvider loginProvider;
+
+    @NotNull
     private String nickname;
 
-    private String userPhoto;
-
-    private String googleId;
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PROFILEIMAGE_ID")
+    private ProfileImage profileImage;
 
     private String refreshToken;
 
-    private User(String email, String password, String nickname, String userPhoto, String googleId, String refreshToken) {
+    public User(String email, String password, UserRole role, LoginProvider loginProvider, String nickname, ProfileImage profileImage, String refreshToken) {
         this.email = email;
         this.password = password;
+        this.role = role;
+        this.loginProvider = loginProvider;
         this.nickname = nickname;
-        this.userPhoto = userPhoto;
-        this.googleId = googleId;
+        this.profileImage = profileImage;
         this.refreshToken = refreshToken;
     }
 
-    public static User of(String email, String password, String nickname, String userPhoto, String googleId, String refreshToken){
-        validateEmailFormat(email);
-        return new User(email, password, nickname, userPhoto, googleId, refreshToken);
+    public static User of(String email, String password, UserRole role, LoginProvider provider, String nickname, ProfileImage profileImage, String refreshToken){
+        return new User(email, password, role, provider, nickname, profileImage, refreshToken);
     }
 
     protected static void validateEmailFormat(String email) {
@@ -69,8 +73,6 @@ public class User extends BaseEntity{
     public void changeNickname(String nickname){
         this.nickname = nickname;
     }
-
-    public void changeGoogleId(String googleId){ this.googleId = googleId; }
 
     public void changeRefreshToken(String refreshToken){ this.refreshToken = refreshToken;}
 }
