@@ -1,5 +1,9 @@
 package com.teamproject.covid19vaccinereview.api;
 
+import com.teamproject.covid19vaccinereview.domain.LoginProvider;
+import com.teamproject.covid19vaccinereview.domain.UserRole;
+import com.teamproject.covid19vaccinereview.dto.JoinRequest;
+import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import com.teamproject.covid19vaccinereview.dto.UserDto;
 import com.teamproject.covid19vaccinereview.service.UserService;
 import java.io.IOException;
@@ -8,12 +12,17 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
-
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @Slf4j
@@ -30,45 +39,26 @@ public class UserApiController {
         this.userDetailsService = userDetailsService;
     }
 
-    @PostMapping("/originlogin")
-    public @ResponseBody String originLogin(HttpServletRequest request, HttpServletResponse response, @RequestBody UserDto userDto){
-
-        Map<String, String> token = userService.login(userDto, request.getHeader("Refresh_Token"));
+    @PostMapping("/login")
+    public @ResponseBody String originLogin(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginRequest loginRequest){
+        Map<String, String> token = userService.login(loginRequest, request.getHeader("Refresh_Token"));
         if(token.get("refreshToken") != null){
             response.addHeader("Refresh_Token", "Bearer " + token.get("refreshToken"));
         }
         response.addHeader("Authorization", "Bearer " + token.get("accessToken"));
 
 
-        return "login access";
+        return "login success";
     }
 
-    @PostMapping("/googlelogin")
-    public @ResponseBody String googleLogin(@RequestBody UserDto userDto, HttpServletRequest request, HttpServletResponse response){
-
-        UserDto findUser = userService.findByGoogleId(userDto);
-
-        if(findUser != null){
-
-            Map<String, String> token = userService.login(findUser, request.getHeader("Refresh_Token"));
-            if(token.get("refreshToken") != null){
-                response.addHeader("Refresh_Token", "Bearer " + token.get("refreshToken"));
-            }
-            response.addHeader("Authorization", "Bearer " + token.get("accessToken"));
-
-            return "login Access";
-
-        } else{
-            // 구글 로그인 한적이 없으니 googleJoin으로 보낸다
-
-            return "구글 로그인을 한적 없어서 매핑되지 않음. googleJoin으로 보낸다";
-        }
-    }
-
-    @PostMapping("/originjoin")
-    public String originJoin(HttpServletResponse response, @RequestBody UserDto userDto){
-
-        Map<String, String> token = userService.saveUser(userDto);
+    /**
+     * orignjoin
+     */
+    @PostMapping("/register")
+    public String originRegister(HttpServletResponse response,
+                                 @RequestParam JoinRequest joinRequest,
+                                 @RequestPart MultipartFile multipartFile) throws IOException {
+        Map<String, String> token = userService.saveUser(joinRequest, multipartFile);
 
         response.addHeader("Authorization", "Bearer " + token.get("accessToken"));
         response.addHeader("Refresh_Token", "Bearer " + token.get("refreshToken"));
@@ -77,26 +67,25 @@ public class UserApiController {
         return "join";
     }
 
-    @PostMapping("/googlejoin")
-    public @ResponseBody String googleJoin(HttpServletRequest request, HttpServletResponse response, @RequestBody UserDto userDto) throws IOException {
+    @GetMapping("/login/{loginProvider}/callback")
+    public String callback(
+            HttpServletResponse response,
+            @PathVariable(name = "loginProvider") LoginProvider loginProvider,
+            @RequestParam(name = "code") String authorizationCode) throws IOException {
 
-        // 구글로 최초 로그인 시
-        UserDto findUser = userService.findByEmail(userDto);
-        if(findUser == null){
+        log.info("API 서버로부터 받은 code : {}, {}", authorizationCode, loginProvider);
+        Map<String, String> token = userService.oauthLogin(loginProvider, authorizationCode);
 
-            // 회원가입하고 다시 돌아오도록
+        response.addHeader("Authorization", "Bearer " + token.get("accessToken"));
+        response.addHeader("Refresh_Token", "Bearer " + token.get("refreshToken"));
 
-            return "자체 회원가입 하고 오게";
-        } else{
+        return "login success";
+    }
 
-            Map<String, String> token = userService.joinGoogle(userDto, request.getHeader("Refresh_Token"));
-            if(token.get("refreshToken") != null){
-                response.addHeader("Refresh_Token", "Bearer " + token.get("refreshToken"));
-            }
-            response.addHeader("Authorization", "Bearer " + token.get("accessToken"));
-
-            return "구글 로그인 완료";
-        }
+    @GetMapping(value = "/test")
+    public ResponseEntity<UserDto> testUser() {
+        UserDto userResponse = UserDto.of("email", "password", UserRole.ROLE_ADMIN, "nickname", "googleId", "refreshToken");
+        return ResponseEntity.ok().body(userResponse);
     }
 
 }
