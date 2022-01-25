@@ -88,7 +88,6 @@ public class GoogleOauth implements SocialOauth{
     public MultiValueMap<String, Object> requestUserInfo(String oauthAccessToken) throws IOException {
 
         String[] split = oauthAccessToken.split("\\.");
-        System.out.println("split[1] = " + split[1]);
         String decode = new String(Base64Utils.decodeFromUrlSafeString(split[1]));
 
         JsonParser jsonParser = new JsonParser();
