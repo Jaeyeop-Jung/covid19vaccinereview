@@ -20,6 +20,7 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
 import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
@@ -101,18 +102,7 @@ public class GoogleOauth implements SocialOauth{
 
         byte[] imageBytes = urlFileUtil.urlToByteArray(profileImageUrl);
 
-        File file = urlFileUtil.saveFileFromByteArray(imageBytes, PROFILEIMAGE_PATH + "/" + email + ".png");
-        if((file == null)){
-            throw new IOException("이미 같은 이름의 이미지가 있습니다.");
-        }
-        DiskFileItem diskFileItem = new DiskFileItem(email, ".png", false, file.getName(), imageBytes.length, new File(PROFILEIMAGE_PATH));
-        diskFileItem.getOutputStream();
-
-        MultipartFile multipartFile = new CommonsMultipartFile(diskFileItem);
-        System.out.println("multipartFile.getOriginalFilename() = " + multipartFile.getOriginalFilename());
-        System.out.println("multipartFile.getSize() = " + multipartFile.getSize());
-        System.out.println("profileImageUrl = " + profileImageUrl);
-        System.out.println("multipartFile.getBytes() = " + multipartFile.getBytes());
+        MultipartFile multipartFile = new MockMultipartFile(email+".png", email+".png", "png",imageBytes);
 
         MultiValueMap<String, Object> userInfo = new LinkedMultiValueMap<>();
         userInfo.add("email", email);
