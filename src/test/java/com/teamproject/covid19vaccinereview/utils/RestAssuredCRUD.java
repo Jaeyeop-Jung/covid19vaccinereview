@@ -82,4 +82,5 @@ public class RestAssuredCRUD {
             .then().log().all()
             .extract();
     }
+
 }

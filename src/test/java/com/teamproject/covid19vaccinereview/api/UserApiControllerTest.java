@@ -43,17 +43,6 @@ public class UserApiControllerTest {
         this.em = em;
     }
 
-//    private final MockMvc mockMvc;
-//    private final ObjectMapper objectMapper;
-//    private final EntityManager em;
-//
-//    @Autowired
-//    public UserApiControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, EntityManager em) {
-//        this.mockMvc = mockMvc;
-//        this.objectMapper = objectMapper;
-//        this.em = em;
-//    }
-//
 //    @Test
 //    @DisplayName("join 테스트")
 //    public void joinTest_POST() throws Exception {

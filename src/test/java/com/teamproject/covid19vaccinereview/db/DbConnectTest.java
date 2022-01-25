@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.db;
 
+import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
 import com.teamproject.covid19vaccinereview.repository.UserRepository;
@@ -30,34 +31,36 @@ public class DbConnectTest {
         this.userRepository = userRepository;
     }
 
-//    @Test
-//    @DisplayName("DB Insert와 Auditing 테스트")
-//    public void dbConnectTest(){
-//
-//        //given
-//        User user = User.of(
-//                "Test Email",
-//                "Test Password",
-//                "Test Nickname",
-//                "Test Photo"
-//                , null
-//        );
-//        em.persist(user);
-//        em.flush();
-//        em.clear();
-//
-//        //when
-//        List<User> findUserList = userRepository.findByEmail("Test Email");
-//        User findUser = findUserList.get(0);
-//
-//        findUser.changeNickname("changeNicknameTest");
-//        em.flush();
-//        em.clear();
-//
-//        //then
-//        assertThat(user.getEmail()).isEqualTo(findUser.getEmail()); // email 값은 변경하지 않았기 때문에 같아야한다
-//        assertThat(user.getLastUpdated()).isNotEqualTo(findUser.getLastUpdated()); // 변경된 시간이 달라야한다
-//
-//    }
+    @Test
+    @DisplayName("DB Insert와 Auditing 테스트")
+    public void 데이터베이스_연결_테스트(){
+
+        //given
+        User user = User.of(
+                "데이터베이스_연결_테스트",
+                "데이터베이스_연결_테스트",
+                UserRole.ROLE_USER,
+                LoginProvider.ORIGINAL,
+                "데이터베이스_연결_테스트",
+                null,
+                null
+        );
+        em.persist(user);
+        em.flush();
+        em.clear();
+
+        //when
+        List<User> findUserList = userRepository.findByEmail("데이터베이스_연결_테스트");
+        User findUser = findUserList.get(0);
+
+        findUser.changeNickname("데이터베이스_연결_테스트_완료");
+        em.flush();
+        em.clear();
+
+        //then
+        assertThat(user.getEmail()).isEqualTo(findUser.getEmail()); // email 값은 변경하지 않았기 때문에 같아야한다
+        assertThat(user.getLastUpdated()).isNotEqualTo(findUser.getLastUpdated()); // 변경된 시간이 달라야한다
+
+    }
 
 }

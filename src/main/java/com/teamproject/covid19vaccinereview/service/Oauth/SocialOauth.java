@@ -21,7 +21,10 @@ public interface SocialOauth {
             return LoginProvider.GOOGLE;
         } else if(this instanceof KakaoOauth){
             return LoginProvider.KAKAO;
-        } else{
+        } else if(this instanceof NaverOauth){
+            return LoginProvider.NAVER;
+        }
+        else{
             return null;
         }
     }
