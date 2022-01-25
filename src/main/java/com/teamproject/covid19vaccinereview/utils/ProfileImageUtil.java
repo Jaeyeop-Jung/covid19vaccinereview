@@ -1,4 +1,4 @@
-package com.teamproject.covid19vaccinereview.service.File;
+package com.teamproject.covid19vaccinereview.utils;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

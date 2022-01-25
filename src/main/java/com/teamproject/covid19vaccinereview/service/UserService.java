@@ -9,7 +9,7 @@ import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import com.teamproject.covid19vaccinereview.filter.JwtTokenProvider;
 import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.repository.UserRepository;
-import com.teamproject.covid19vaccinereview.service.File.ProfileImageUtil;
+import com.teamproject.covid19vaccinereview.utils.ProfileImageUtil;
 import com.teamproject.covid19vaccinereview.service.Oauth.SocialOauth;
 import java.io.IOException;
 import java.util.HashMap;
@@ -74,9 +74,9 @@ public class UserService {
     @Transactional
     public Map<String, String> saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
 
-        if(multipartFile.isEmpty()){
-            throw new IOException("MultipartFile이 제대로 넘어오지 않았습니다");
-        }
+//        if(multipartFile.isEmpty()){
+//            throw new IOException("MultipartFile이 제대로 넘어오지 않았습니다");
+//        }
 
         joinRequest.initJoinRequest(multipartFile);
         ProfileImage profileImage = ProfileImage.of(

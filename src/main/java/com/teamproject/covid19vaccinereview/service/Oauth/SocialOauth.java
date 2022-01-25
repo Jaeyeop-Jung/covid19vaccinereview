@@ -29,15 +29,4 @@ public interface SocialOauth {
         }
     }
 
-    default byte[] urlToByteArray(String imageUrl) throws IOException {
-
-        URL url = new URL(imageUrl);
-        URLConnection connection = url.openConnection();
-        connection.connect();
-
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        IOUtils.copy(connection.getInputStream(), byteArrayOutputStream);
-
-        return byteArrayOutputStream.toByteArray();
-    }
 }

@@ -1,14 +1,15 @@
 package com.teamproject.covid19vaccinereview.db;
 
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
+import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
+import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.repository.UserRepository;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.annotation.Commit;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -24,11 +25,13 @@ public class DbConnectTest {
 
     private final EntityManager em;
     private final UserRepository userRepository;
+    private final ProfileImageRepository profileImageRepository;
 
     @Autowired
-    public DbConnectTest(EntityManager em, UserRepository userRepository) {
+    public DbConnectTest(EntityManager em, UserRepository userRepository, ProfileImageRepository profileImageRepository) {
         this.em = em;
         this.userRepository = userRepository;
+        this.profileImageRepository = profileImageRepository;
     }
 
     @Test
@@ -36,13 +39,21 @@ public class DbConnectTest {
     public void 데이터베이스_연결_테스트(){
 
         //given
+        ProfileImage profileImage = ProfileImage.of(
+                "데이터베이스_연결_테스트",
+                1L,
+                "데이터베이스_연결_테스트"
+        );
+
+        profileImageRepository.save(profileImage);
+
         User user = User.of(
                 "데이터베이스_연결_테스트",
                 "데이터베이스_연결_테스트",
                 UserRole.ROLE_USER,
                 LoginProvider.ORIGINAL,
                 "데이터베이스_연결_테스트",
-                null,
+                profileImage,
                 null
         );
         em.persist(user);
