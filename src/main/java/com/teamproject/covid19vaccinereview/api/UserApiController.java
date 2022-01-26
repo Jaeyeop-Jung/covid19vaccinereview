@@ -56,7 +56,7 @@ public class UserApiController {
 
 
     /**
-     * methodName : originRegister
+     * methodName : originJoin
      * author : Jaeyeop Jung
      * description : ORIGINAL 계정을 가입시키고, 토큰을 발급한다.
      *
@@ -68,7 +68,7 @@ public class UserApiController {
      */
     @ApiOperation(value = "ORIGINAL 계정 회원가입", notes = "ORIGINAL 계정 회원가입을 통해 토큰 발급")
     @PostMapping("/join")
-    public String originRegister(HttpServletResponse response,
+    public String originJoin(HttpServletResponse response,
                                  @RequestPart JoinRequest joinRequest,
                                  @RequestPart MultipartFile multipartFile) throws IOException {
         Map<String, String> token = userService.saveUser(joinRequest, multipartFile);

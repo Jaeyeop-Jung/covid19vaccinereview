@@ -57,7 +57,11 @@ public class UserService {
 
             return token;
         } else{
-            User findUser = userRepository.findByEmailAndPassword(loginRequest.getEmail(), bCryptPasswordEncoder.encode(loginRequest.getPassword())).get(0);
+            if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), userRepository.findByEmail(loginRequest.getEmail()).get(0).getPassword())){
+                throw new IllegalArgumentException("비밀번호가 틀립니다.");
+            }
+
+            User findUser = userRepository.findByEmail(loginRequest.getEmail()).get(0);
 
             String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
             String accessToken = jwtTokenProvider.generateAccessToken(findUser);

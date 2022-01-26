@@ -8,6 +8,7 @@ import com.teamproject.covid19vaccinereview.aop.LoggingAspect;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
+import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import com.teamproject.covid19vaccinereview.dto.UserDto;
 import com.teamproject.covid19vaccinereview.service.UserDetailsServiceImpl;
 import com.teamproject.covid19vaccinereview.service.UserService;
@@ -57,8 +58,8 @@ public class UserApiControllerTest {
     int port;
 
     @Test
-    @DisplayName("join 테스트")
-    public void join_을_테스트한다() throws Exception {
+    @DisplayName("originJoin 테스트")
+    public void originJoin_을_테스트한다() throws Exception {
         RestAssured.port = port;
 
         JoinRequest joinRequest = JoinRequest.builder()
@@ -69,24 +70,45 @@ public class UserApiControllerTest {
                 .build();
 
         Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
-        byte[] imageBytes = FileUtil.readAsByteArray(resource.getFile());
 
-        MultipartFile multipartFile = new MockMultipartFile(joinRequest.getEmail() + ".png", joinRequest.getEmail() + ".png", ".png", imageBytes);
-
-        String joinRequestToJson = objectMapper.writeValueAsString(joinRequest);
-
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .multiPart("multipartFile", resource.getFile(), MediaType.MULTIPART_FORM_DATA_VALUE)
-                .multiPart("joinRequest", joinRequestToJson, MediaType.APPLICATION_JSON_VALUE)
+        ExtractableResponse<Response> response = RestAssured
+                .given().log().all()
+                    .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                    .multiPart("multipartFile", resource.getFile(), MediaType.MULTIPART_FORM_DATA_VALUE)
+                    .multiPart("joinRequest", objectMapper.writeValueAsString(joinRequest), MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .post("/join")
+                    .post("/join")
                 .then()
-                .log().all()
+                    .log().all()
+                    .assertThat().statusCode(200)
+                    .extract();
+        System.out.println("\n");
+    }
+
+    @Test
+    @DisplayName("originLogin 테스트")
+    public void originLogin_을_테스트한다() throws Exception {
+        RestAssured.port = port;
+
+        originJoin_을_테스트한다();
+
+        LoginRequest loginRequest = LoginRequest.builder()
+                .email("JoinTest")
+                .password("JoinTest")
+                .loginProvider(LoginProvider.ORIGINAL)
+                .build();
+
+        ExtractableResponse<Response> response = RestAssured
+                .given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(objectMapper.writeValueAsString(loginRequest))
+                .when()
+                .post("/login")
+                .then().log().all()
+                .assertThat().statusCode(200)
                 .extract();
 
     }
-
 //
 //    @Test
 //    public void loginTest_POST() throws Exception {
