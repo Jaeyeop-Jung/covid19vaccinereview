@@ -1,18 +1,17 @@
 package com.teamproject.covid19vaccinereview.api;
 
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
-import com.teamproject.covid19vaccinereview.domain.UserRole;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
-import com.teamproject.covid19vaccinereview.dto.UserDto;
 import com.teamproject.covid19vaccinereview.service.UserService;
 import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import io.swagger.annotations.ApiOperation;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,19 +25,23 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @Slf4j
+@RequiredArgsConstructor
 public class UserApiController {
 
     private final UserService userService;
-
     private final UserDetailsService userDetailsService;
 
-    @Autowired
-    public UserApiController(UserService userService,
-        UserDetailsService userDetailsService) {
-        this.userService = userService;
-        this.userDetailsService = userDetailsService;
-    }
-
+    /**
+     * methodName : originLogin
+     * author : Jaeyeop Jung
+     * description : ORIGINAL 계정에 로그인하고, 토큰을 발급한다.
+     *
+     * @param request      the HTTP request
+     * @param response     the HTTP response
+     * @param loginRequest LoginRequest : ORIGINAL 로그인에 필요한 정보
+     * @return
+     */
+    @ApiOperation(value = "ORIGINAL 계정 로그인", notes = "ORIGINAL 계정 로그인을 통해 토큰 발급")
     @PostMapping("/login")
     public @ResponseBody String originLogin(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginRequest loginRequest){
         Map<String, String> token = userService.login(loginRequest, request.getHeader("Refresh_Token"));
@@ -51,12 +54,22 @@ public class UserApiController {
         return "login success";
     }
 
+
     /**
-     * orignjoin
+     * methodName : originJoin
+     * author : Jaeyeop Jung
+     * description : ORIGINAL 계정을 가입시키고, 토큰을 발급한다.
+     *
+     * @param response      the HTTP response
+     * @param joinRequest   JoinRequest : 회원가입에 필요한 정보
+     * @param multipartFile MultipartFile : 회원 이미지 파일
+     * @return
+     * @throws IOException the io exception
      */
-    @PostMapping("/register")
-    public String originRegister(HttpServletResponse response,
-                                 @RequestParam JoinRequest joinRequest,
+    @ApiOperation(value = "ORIGINAL 계정 회원가입", notes = "ORIGINAL 계정 회원가입을 통해 토큰 발급")
+    @PostMapping("/join")
+    public String originJoin(HttpServletResponse response,
+                                 @RequestPart JoinRequest joinRequest,
                                  @RequestPart MultipartFile multipartFile) throws IOException {
         Map<String, String> token = userService.saveUser(joinRequest, multipartFile);
 
@@ -67,6 +80,7 @@ public class UserApiController {
         return "join";
     }
 
+    @ApiOperation(value = "Oauth 계정 로그인/회원가입", notes = "Oauth 계정 로그인 시도 / 계정이 없다면 회원가입 후 토큰 발급")
     @GetMapping("/login/{loginProvider}/callback")
     public String callback(
             HttpServletResponse response,
@@ -80,12 +94,6 @@ public class UserApiController {
         response.addHeader("Refresh_Token", "Bearer " + token.get("refreshToken"));
 
         return "login success";
-    }
-
-    @GetMapping(value = "/test")
-    public ResponseEntity<UserDto> testUser() {
-        UserDto userResponse = UserDto.of("email", "password", UserRole.ROLE_ADMIN, "nickname", "googleId", "refreshToken");
-        return ResponseEntity.ok().body(userResponse);
     }
 
 }

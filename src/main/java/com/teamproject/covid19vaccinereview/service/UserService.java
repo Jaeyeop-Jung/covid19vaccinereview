@@ -57,6 +57,10 @@ public class UserService {
 
             return token;
         } else{
+            if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), userRepository.findByEmail(loginRequest.getEmail()).get(0).getPassword())){
+                throw new IllegalArgumentException("비밀번호가 틀립니다.");
+            }
+
             User findUser = userRepository.findByEmail(loginRequest.getEmail()).get(0);
 
             String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
@@ -84,8 +88,6 @@ public class UserService {
                 joinRequest.getProfileImageDto().getFileSize(),
                 joinRequest.getProfileImageDto().getFileExtension()
         );
-
-        profileImageUtil.saveProfileImage(multipartFile);
         profileImageRepository.save(profileImage);
 
         User user = User.of(
@@ -98,6 +100,8 @@ public class UserService {
                 null
         );
         User savedUser = userRepository.save(user);
+
+        profileImageUtil.saveProfileImage(multipartFile, profileImage.getFileName());
 
         String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser);
         String accessToken = jwtTokenProvider.generateAccessToken(savedUser);

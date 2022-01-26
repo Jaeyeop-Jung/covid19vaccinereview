@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 public class JoinRequest {
-
+    
     private String email;
 
     private String password;
@@ -24,7 +24,7 @@ public class JoinRequest {
         String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
         this.profileImageDto = ProfileImageDto.builder()
                 .multipartFile(multipartFile)
-                .fileName(multipartFile.getOriginalFilename())
+                .fileName(getEmail() + fileExtension)
                 .fileSize(multipartFile.getSize())
                 .fileExtension(fileExtension)
                 .build();
