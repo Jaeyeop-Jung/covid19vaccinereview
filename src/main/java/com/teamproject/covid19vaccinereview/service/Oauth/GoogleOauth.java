@@ -5,16 +5,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
 
 import com.teamproject.covid19vaccinereview.utils.UrlFileUtil;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.fileupload.FileItem;
-import org.apache.commons.fileupload.FileItemFactory;
-import org.apache.commons.fileupload.disk.DiskFileItem;
-import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -27,7 +21,6 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 @Component
 @RequiredArgsConstructor

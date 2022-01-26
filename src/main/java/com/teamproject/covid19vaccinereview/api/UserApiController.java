@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +31,6 @@ import org.springframework.web.multipart.MultipartFile;
 public class UserApiController {
 
     private final UserService userService;
-
     private final UserDetailsService userDetailsService;
 
     @Autowired
@@ -39,6 +40,18 @@ public class UserApiController {
         this.userDetailsService = userDetailsService;
     }
 
+
+    /**
+     * methodName : originLogin
+     * author : Jaeyeop Jung
+     * description : *
+     *
+     * @param request      the request
+     * @param response     the response
+     * @param loginRequest the login request
+     * @return the string
+     */
+    @ApiOperation(value = "ORIGINAL 계정 로그인", notes = "ORIGINAL 계정 로그인을 통해 토큰 발급")
     @PostMapping("/login")
     public @ResponseBody String originLogin(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginRequest loginRequest){
         Map<String, String> token = userService.login(loginRequest, request.getHeader("Refresh_Token"));
@@ -51,12 +64,13 @@ public class UserApiController {
         return "login success";
     }
 
+
     /**
      * orignjoin
      */
-    @PostMapping("/register")
+    @PostMapping("/join")
     public String originRegister(HttpServletResponse response,
-                                 @RequestParam JoinRequest joinRequest,
+                                 @RequestPart JoinRequest joinRequest,
                                  @RequestPart MultipartFile multipartFile) throws IOException {
         Map<String, String> token = userService.saveUser(joinRequest, multipartFile);
 

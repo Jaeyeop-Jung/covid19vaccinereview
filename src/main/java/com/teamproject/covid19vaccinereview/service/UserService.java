@@ -74,9 +74,9 @@ public class UserService {
     @Transactional
     public Map<String, String> saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
 
-//        if(multipartFile.isEmpty()){
-//            throw new IOException("MultipartFile이 제대로 넘어오지 않았습니다");
-//        }
+        if(multipartFile.isEmpty()){
+            throw new IOException("MultipartFile이 제대로 넘어오지 않았습니다");
+        }
 
         joinRequest.initJoinRequest(multipartFile);
         ProfileImage profileImage = ProfileImage.of(
@@ -84,8 +84,6 @@ public class UserService {
                 joinRequest.getProfileImageDto().getFileSize(),
                 joinRequest.getProfileImageDto().getFileExtension()
         );
-
-        profileImageUtil.saveProfileImage(multipartFile);
         profileImageRepository.save(profileImage);
 
         User user = User.of(
@@ -98,6 +96,8 @@ public class UserService {
                 null
         );
         User savedUser = userRepository.save(user);
+
+        profileImageUtil.saveProfileImage(multipartFile, profileImage.getFileName());
 
         String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser);
         String accessToken = jwtTokenProvider.generateAccessToken(savedUser);

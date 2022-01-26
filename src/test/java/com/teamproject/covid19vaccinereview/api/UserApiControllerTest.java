@@ -5,7 +5,9 @@ import static org.mockito.Mockito.mock;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamproject.covid19vaccinereview.aop.LoggingAspect;
+import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
+import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.UserDto;
 import com.teamproject.covid19vaccinereview.service.UserDetailsServiceImpl;
 import com.teamproject.covid19vaccinereview.service.UserService;
@@ -13,6 +15,9 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import javax.persistence.EntityManager;
+
+import io.restassured.specification.MultiPartSpecification;
+import org.aspectj.util.FileUtil;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
@@ -21,8 +26,14 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.web.multipart.MultipartFile;
+
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
@@ -32,54 +43,50 @@ public class UserApiControllerTest {
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
     private final EntityManager em;
+    private final ResourceLoader resourceLoader;
+
+    @Autowired
+    public UserApiControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, EntityManager em, ResourceLoader resourceLoader) {
+        this.mockMvc = mockMvc;
+        this.objectMapper = objectMapper;
+        this.em = em;
+        this.resourceLoader = resourceLoader;
+    }
 
     @LocalServerPort
     int port;
 
-    @Autowired
-    public UserApiControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, EntityManager em) {
-        this.mockMvc = mockMvc;
-        this.objectMapper = objectMapper;
-        this.em = em;
+    @Test
+    @DisplayName("join 테스트")
+    public void join_을_테스트한다() throws Exception {
+        RestAssured.port = port;
+
+        JoinRequest joinRequest = JoinRequest.builder()
+                .email("JoinTest")
+                .password("JoinTest")
+                .loginProvider(LoginProvider.ORIGINAL)
+                .nickname("JoinTest")
+                .build();
+
+        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
+        byte[] imageBytes = FileUtil.readAsByteArray(resource.getFile());
+
+        MultipartFile multipartFile = new MockMultipartFile(joinRequest.getEmail() + ".png", joinRequest.getEmail() + ".png", ".png", imageBytes);
+
+        String joinRequestToJson = objectMapper.writeValueAsString(joinRequest);
+
+        ExtractableResponse<Response> response = RestAssured.given().log().all()
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .multiPart("multipartFile", resource.getFile(), MediaType.MULTIPART_FORM_DATA_VALUE)
+                .multiPart("joinRequest", joinRequestToJson, MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .post("/join")
+                .then()
+                .log().all()
+                .extract();
+
     }
 
-//    @Test
-//    @DisplayName("join 테스트")
-//    public void joinTest_POST() throws Exception {
-//
-//        //given
-//        String content = objectMapper.writeValueAsString(UserDto.toEntity(
-//                "joinTest_POST",
-//                "joinTest_POST",
-//                "joinTest_POST",
-//                "joinTest_POST",
-//                null,
-//                null
-//        )); // 테스트용 User 값 넣기
-//
-//        MockHttpServletRequestBuilder requst = MockMvcRequestBuilders
-//                .post("/join")
-//                .content(content)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON
-//                ); // 테스트용 Mock Request 만들기
-//
-//        //when
-//        mockMvc.perform( requst )   // 생성한 request 실행
-//                .andExpect( status().isOk() )   // Response Code = OK (200) 인지 확인
-//                .andDo( print() ); // Response 내용 출력
-//
-//        //then
-//        TypedQuery<User> query = em.createQuery(
-//                "SELECT u FROM User u " +
-//                        "where u.email = :email", User.class);
-//        query.setParameter("email", "joinTest_POST");
-//
-//        List<User> resultList = query.getResultList();
-//
-//        assertThat(resultList.get(0)).isInstanceOf(User.class); // JPQL을 이용해 email이 joinTest_POST와 같은 User 클래스를 가져와 정상 적으로 반환 되는지 확인
-//
-//    }
 //
 //    @Test
 //    public void loginTest_POST() throws Exception {
@@ -122,6 +129,7 @@ public class UserApiControllerTest {
             .get("/test")
             .then().log().all()
             .extract();
+
 
         assertThat(response.as(UserDto.class).getEmail()).isEqualTo("email");
     }

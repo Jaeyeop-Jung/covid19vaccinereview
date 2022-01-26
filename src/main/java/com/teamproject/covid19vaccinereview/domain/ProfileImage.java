@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "PROFILEIMAGE")
+@Table(name = "PROFILEIMAGE", uniqueConstraints = @UniqueConstraint(columnNames = {"file_name"}))
 public class ProfileImage {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
