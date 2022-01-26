@@ -57,7 +57,7 @@ public class UserService {
 
             return token;
         } else{
-            User findUser = userRepository.findByEmail(loginRequest.getEmail()).get(0);
+            User findUser = userRepository.findByEmailAndPassword(loginRequest.getEmail(), bCryptPasswordEncoder.encode(loginRequest.getPassword())).get(0);
 
             String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
             String accessToken = jwtTokenProvider.generateAccessToken(findUser);
