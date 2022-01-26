@@ -100,13 +100,13 @@ public class UserApiControllerTest {
 
         ExtractableResponse<Response> response = RestAssured
                 .given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(objectMapper.writeValueAsString(loginRequest))
+                    .contentType(MediaType.APPLICATION_JSON_VALUE)
+                    .body(objectMapper.writeValueAsString(loginRequest))
                 .when()
-                .post("/login")
+                    .post("/login")
                 .then().log().all()
-                .assertThat().statusCode(200)
-                .extract();
+                    .assertThat().statusCode(200)
+                    .extract();
 
     }
 //

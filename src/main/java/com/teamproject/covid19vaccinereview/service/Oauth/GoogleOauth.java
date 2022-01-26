@@ -94,7 +94,7 @@ public class GoogleOauth implements SocialOauth{
 
         byte[] imageBytes = urlFileUtil.urlToByteArray(profileImageUrl);
 
-        MultipartFile multipartFile = new MockMultipartFile(email+".png", email+".png", "png",imageBytes);
+        MultipartFile multipartFile = new MockMultipartFile(email + ".png", email + ".png", ".png",imageBytes);
 
         MultiValueMap<String, Object> userInfo = new LinkedMultiValueMap<>();
         userInfo.add("email", email);

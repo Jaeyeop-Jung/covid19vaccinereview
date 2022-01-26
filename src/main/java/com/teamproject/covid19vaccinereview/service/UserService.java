@@ -78,30 +78,44 @@ public class UserService {
     @Transactional
     public Map<String, String> saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
 
-        if(multipartFile.isEmpty()){
-            throw new IOException("MultipartFile이 제대로 넘어오지 않았습니다");
+        User savedUser;
+        if(!multipartFile.isEmpty()){    // 프로필 이미지 있는 User 저장
+
+            joinRequest.initJoinRequest(multipartFile);
+            ProfileImage profileImage = ProfileImage.of(
+                    joinRequest.getProfileImageDto().getFileName(),
+                    joinRequest.getProfileImageDto().getFileSize(),
+                    joinRequest.getProfileImageDto().getFileExtension()
+            );
+            profileImageRepository.save(profileImage);
+
+            User user = User.of(
+                    joinRequest.getEmail(),
+                    bCryptPasswordEncoder.encode(joinRequest.getPassword()),
+                    UserRole.ROLE_USER,
+                    joinRequest.getLoginProvider(),
+                    joinRequest.getNickname(),
+                    profileImage,
+                    null
+            );
+            savedUser = userRepository.save(user);
+
+            profileImageUtil.saveProfileImage(multipartFile, profileImage.getFileName());
+
+        } else {                        // 프로필 이미지 없는 User 저장
+
+            User user = User.of(
+                    joinRequest.getEmail(),
+                    bCryptPasswordEncoder.encode(joinRequest.getPassword()),
+                    UserRole.ROLE_USER,
+                    joinRequest.getLoginProvider(),
+                    joinRequest.getNickname(),
+                    null,
+                    null
+            );
+            savedUser = userRepository.save(user);
+
         }
-
-        joinRequest.initJoinRequest(multipartFile);
-        ProfileImage profileImage = ProfileImage.of(
-                joinRequest.getProfileImageDto().getFileName(),
-                joinRequest.getProfileImageDto().getFileSize(),
-                joinRequest.getProfileImageDto().getFileExtension()
-        );
-        profileImageRepository.save(profileImage);
-
-        User user = User.of(
-                joinRequest.getEmail(),
-                bCryptPasswordEncoder.encode(joinRequest.getPassword()),
-                UserRole.ROLE_USER,
-                joinRequest.getLoginProvider(),
-                joinRequest.getNickname(),
-                profileImage,
-                null
-        );
-        User savedUser = userRepository.save(user);
-
-        profileImageUtil.saveProfileImage(multipartFile, profileImage.getFileName());
 
         String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser);
         String accessToken = jwtTokenProvider.generateAccessToken(savedUser);
