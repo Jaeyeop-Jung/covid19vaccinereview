@@ -30,6 +30,14 @@ public class JwtTokenProvider {
     private final Long ACCESS_TOKEN_EXPIRE_TIME = 10 * 60 * 1000L;
     private final Long REFRESH_TOKEN_EXPIRE_TIME = 60 * 60 * 24 * 14 * 1000L;
 
+    /**
+     * methodName : generateRefreshToken
+     * author : Jaeyeop Jung
+     * description : User를 통해서 RefreshToken을 생성하고 반환한다.
+     *
+     * @param user User Entity
+     * @return RefreshToken 정보
+     */
     public String generateRefreshToken(User user){
         Date now = new Date();
 
@@ -44,6 +52,14 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * methodName : generateAccessToken
+     * author : Jaeyeop Jung
+     * description : User를 통해서 AceesToken 생성하고 반환한다.
+     *
+     * @param user User Entity
+     * @return AccessToken 정보
+     */
     public String generateAccessToken(User user){
         Date now = new Date();
 
@@ -58,6 +74,14 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    /**
+     * methodName : findUserIdByJwt
+     * author : Jaeyeop Jung
+     * description : Jwt 토큰에 담긴 Uesr.id를 찾아낸다.
+     *
+     * @param token Jwt Token
+     * @return 토큰에 담긴 User.id
+     */
     public String findUserIdByJwt(String token){
         Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
@@ -68,6 +92,14 @@ public class JwtTokenProvider {
         return userId;
     }
 
+    /**
+     * methodName : validateToken
+     * author : Jaeyeop Jung
+     * description : Token을 검증한다.
+     *
+     * @param token Jwt Token
+     * @return 검증 결과
+     */
     public boolean validateToken(String token){
         try {
             Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token);
@@ -88,6 +120,14 @@ public class JwtTokenProvider {
         return false;
     }
 
+    /**
+     * methodName : getAuthentication
+     * author : Jaeyeop Jung
+     * description : Jwt Token에 담긴 유저 정보를 DB에 검색하고, 해당 유저의 권한처리를 위해 Context에 담는 Authentication 객체를 반환한다.
+     *
+     * @param token Jwt Token
+     * @return Context에 담을 Authentication 객체
+     */
     public Authentication getAuthentication(String token){
         UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(this.findUserIdByJwt(token));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());

@@ -17,6 +17,17 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
 
     private final JwtTokenProvider jwtTokenProvider;
 
+    /**
+     * methodName : doFilter
+     * author : Jaeyeop Jung
+     * description : AccessToken을 검증하고, 해당 유저를 찾아 권한처리를 위해 Context에 담는다.
+     *
+     * @param request  the request
+     * @param response the response
+     * @param chain    the chain
+     * @throws IOException      the io exception
+     * @throws ServletException the servlet exception
+     */
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         HttpServletRequest httpRequest = (HttpServletRequest) request;

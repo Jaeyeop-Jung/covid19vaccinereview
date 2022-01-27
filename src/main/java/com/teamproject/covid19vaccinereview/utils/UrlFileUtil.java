@@ -27,17 +27,4 @@ public class UrlFileUtil {
         return byteArrayOutputStream.toByteArray();
     }
 
-    public File saveFileFromByteArray(byte[] bytes, String filePath) throws IOException {
-
-        File file = new File(filePath);
-        if(file.exists()){
-            return null;
-        }
-
-        Path path = Paths.get(filePath);
-        Files.write(path, bytes);
-
-        return file;
-    }
-
 }

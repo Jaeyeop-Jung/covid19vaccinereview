@@ -19,6 +19,14 @@ public class JoinRequest {
 
     private ProfileImageDto profileImageDto;
 
+
+    /**
+     * methodName : initJoinRequest
+     * author : Jaeyeop Jung
+     * description : FE에서 넘어온 MultipartFile을 통해 profileImageDto 초기화한다.
+     *
+     * @param multipartFile 회원 프로필 이미지 파일
+     */
     public void initJoinRequest(MultipartFile multipartFile){
 
         String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );

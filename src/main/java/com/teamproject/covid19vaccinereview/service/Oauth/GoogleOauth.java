@@ -3,6 +3,7 @@ package com.teamproject.covid19vaccinereview.service.Oauth;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.IncorrectRequestTokenException;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 
 import java.io.IOException;
@@ -66,7 +67,7 @@ public class GoogleOauth implements SocialOauth{
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(GOOGLE_TOKEN_BASE_URL, request, String.class);
 
         if(responseEntity.getStatusCode() != HttpStatus.OK){
-            return "구글 로그인 요청 처리 실패";
+            throw new IncorrectRequestTokenException("");
         }
 
         JsonParser jsonParser = new JsonParser();

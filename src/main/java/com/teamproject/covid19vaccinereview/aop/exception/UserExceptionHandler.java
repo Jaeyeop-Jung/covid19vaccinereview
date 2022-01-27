@@ -1,9 +1,6 @@
 package com.teamproject.covid19vaccinereview.aop.exception;
 
-import com.teamproject.covid19vaccinereview.aop.exception.customException.EmailDuplicateException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.NicknameDuplicateException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.NotDefineLoginProviderException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.UserNotFoundException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -78,6 +75,22 @@ public class UserExceptionHandler {
         map.put("error type", httpStatus.getReasonPhrase());
         map.put("code", "400");
         map.put("message", "정의되지 않은 LoginProvider입니다");
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
+
+    @ExceptionHandler(IncorrectRequestTokenException.class)
+    public ResponseEntity<Map<String, String>> IncorrectRequestTokenExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        log.info("Advice : notDefineLoginProviderExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "400");
+        map.put("message", "인가코드를 통한 Oauth Token 발급 요청에 오류가 있습니다");
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }

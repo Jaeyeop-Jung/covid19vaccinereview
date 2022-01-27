@@ -3,6 +3,7 @@ package com.teamproject.covid19vaccinereview.service.Oauth;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.IncorrectRequestTokenException;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.utils.UrlFileUtil;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Component;
-import org.springframework.util.Base64Utils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
@@ -58,7 +58,7 @@ public class NaverOauth implements SocialOauth {
         ResponseEntity<String> responseEntity = restTemplate.postForEntity(NAVER_TOKEN_BASE_URL, request, String.class);
 
         if(responseEntity.getStatusCode() != HttpStatus.OK){
-            return "네이버 로그인 요청 처리 실패";
+            throw new IncorrectRequestTokenException("");
         }
 
         JsonParser jsonParser = new JsonParser();

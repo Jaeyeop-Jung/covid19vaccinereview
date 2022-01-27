@@ -1,5 +1,7 @@
 package com.teamproject.covid19vaccinereview.dto;
 
+import com.teamproject.covid19vaccinereview.domain.LoginProvider;
+import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
 import lombok.*;
 import org.springframework.security.core.GrantedAuthority;
@@ -19,16 +21,22 @@ public class UserDetailsImpl implements UserDetails {
 
     private UserRole role;
 
+    private LoginProvider loginProvider;
+
     private String nickname;
+
+    private ProfileImage profileImage;
 
     private String refreshToken;
 
     @Builder
-    public UserDetailsImpl(String email, String password, UserRole role, String nickname, String refreshToken) {
+    public UserDetailsImpl(String email, String password, UserRole role, LoginProvider loginProvider, String nickname, ProfileImage profileImage, String refreshToken) {
         this.email = email;
         this.password = password;
         this.role = role;
+        this.loginProvider = loginProvider;
         this.nickname = nickname;
+        this.profileImage = profileImage;
         this.refreshToken = refreshToken;
     }
 
