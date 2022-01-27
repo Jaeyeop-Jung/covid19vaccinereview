@@ -1,5 +1,9 @@
 package com.teamproject.covid19vaccinereview.service;
 
+import com.teamproject.covid19vaccinereview.aop.exception.customException.EmailDuplicateException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.NicknameDuplicateException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.NotDefineLoginProviderException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.UserNotFoundException;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.domain.User;
@@ -40,9 +44,19 @@ public class UserService {
         return socialOauthList.stream()
                 .filter(x -> x.type() == loginProvider)
                 .findFirst()
-                .orElseThrow( () -> new IllegalArgumentException("알 수 없는 LoginProvider 입니다."));
+                .orElseThrow( () -> new NotDefineLoginProviderException("알 수 없는 LoginProvider 입니다."));
     }
 
+    /**
+     * methodName : login
+     * author : Jaeyeop Jung
+     * description : ORIGINAL 계정의 로그인 Service.
+     *               RefreshToken의 유무에 따라 로직을 분리
+     *
+     * @param loginRequest     ORIGINAL 로그인에 필요한 정보
+     * @param userRefreshToken Header에 담겨온 RefreshToken 정보
+     * @return accessToken, refreshToken
+     */
     @Transactional
     public Map<String, String> login(LoginRequest loginRequest, String userRefreshToken){
 
@@ -56,13 +70,14 @@ public class UserService {
             token.put("accessToken", accessToken);
 
             return token;
+
         } else{
 
-            if(userRepository.findByEmail(loginRequest.getEmail()).size() == 0){
-                throw new IllegalArgumentException("회원가입이 되지않은 계정입니다.");
-            }
-            else if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), userRepository.findByEmail(loginRequest.getEmail()).get(0).getPassword())){
-                throw new IllegalArgumentException("비밀번호가 틀립니다.");
+            if(userRepository.findByEmail(loginRequest.getEmail()).isEmpty() ||
+               !bCryptPasswordEncoder.matches(loginRequest.getPassword(), userRepository.findByEmail(loginRequest.getEmail()).get(0).getPassword())){
+
+                log.error("OriginLogin Fail : email = {}, password = {}", loginRequest.getEmail(), loginRequest.getPassword());
+                throw new UserNotFoundException("아이디 또는 비밀번호가 잘못됬습니다.");
             }
 
             User findUser = userRepository.findByEmail(loginRequest.getEmail()).get(0);
@@ -79,6 +94,16 @@ public class UserService {
         }
     }
 
+    /**
+     * methodName : saveUser
+     * author : Jaeyeop Jung
+     * description : 프로필 사진의 유무에 따라 로직을 분리하고 토큰을 발급한다.
+     *
+     * @param joinRequest   회원가입에 필요한 정봉
+     * @param multipartFile 회원 프로필 이미지 파일
+     * @return accessToken, refreshToken
+     * @throws IOException the io exception
+     */
     @Transactional
     public Map<String, String> saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
 
@@ -94,7 +119,15 @@ public class UserService {
                     null,
                     null
             );
+
+            if(!userRepository.findByEmail(joinRequest.getEmail()).isEmpty()){
+                throw new EmailDuplicateException("중복된 이메일이 존재");
+            } else if(!userRepository.findByEmail(joinRequest.getNickname()).isEmpty()){
+                throw new NicknameDuplicateException("");
+            }
+
             savedUser = userRepository.save(user);
+
         } else {                        // 프로필 이미지 없는 User 저장
 
             joinRequest.initJoinRequest(multipartFile);
@@ -132,6 +165,16 @@ public class UserService {
         return token;
     }
 
+    /**
+     * methodName : oauthLogin
+     * author : Jaeyeop Jung
+     * description : 회원가입의 유무에 따라 로직을 분리하고 비회원이라면 회원가입 후 토큰을 발급한다.
+     *
+     * @param loginProvider     the login provider
+     * @param authorizationCode the authorization code
+     * @return accessToken, refreshToken
+     * @throws IOException the io exception
+     */
     @Transactional
     public Map<String, String> oauthLogin(LoginProvider loginProvider, String authorizationCode) throws IOException {
 
@@ -142,7 +185,7 @@ public class UserService {
 
         List<User> findUserList = userRepository.findByEmail(userInfo.get("email").get(0).toString());
 
-        if( ( findUserList.size() ) == 0){
+        if( findUserList.isEmpty() ){ // 비회원은 회원가입을 시키고 토큰 반환
             JoinRequest joinRequest = JoinRequest.builder()
                     .email(userInfo.get("email").get(0).toString())
                     .password(bCryptPasswordEncoder.encode(userInfo.get("email").get(0).toString()))
@@ -152,9 +195,10 @@ public class UserService {
             MultipartFile multipartFile = (MultipartFile) userInfo.get("profileImage").get(0);
 
             Map<String, String> token = saveUser(joinRequest, multipartFile);
+
             return token;
 
-        } else {
+        } else {    // 회원은 바로 토큰을 반환한다.
             User findUser = findUserList.get(0);
 
             Map<String, String> token = new HashMap<>();

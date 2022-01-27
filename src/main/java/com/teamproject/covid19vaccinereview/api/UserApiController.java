@@ -38,7 +38,7 @@ public class UserApiController {
      *
      * @param request      the HTTP request
      * @param response     the HTTP response
-     * @param loginRequest LoginRequest : ORIGINAL 로그인에 필요한 정보
+     * @param loginRequest ORIGINAL 로그인에 필요한 정보
      * @return
      */
     @ApiOperation(value = "ORIGINAL 계정 로그인", notes = "ORIGINAL 계정 로그인을 통해 토큰 발급")
@@ -61,8 +61,8 @@ public class UserApiController {
      * description : ORIGINAL 계정을 가입시키고, 토큰을 발급한다.
      *
      * @param response      the HTTP response
-     * @param joinRequest   JoinRequest : 회원가입에 필요한 정보
-     * @param multipartFile MultipartFile : 회원 이미지 파일
+     * @param joinRequest   ORIGINAL 회원가입에 필요한 정보
+     * @param multipartFile 회원 프로필 이미지 파일
      * @return
      * @throws IOException the io exception
      */
@@ -80,6 +80,18 @@ public class UserApiController {
         return "join";
     }
 
+    /**
+     * methodName : callback
+     * author : Jaeyeop Jung
+     * description : Oauth 로그인을 통해 토큰을 발급한다.
+     *              (비회원이면 회원가입을 진행하고 토큰을 발급)
+     *
+     * @param response          the response
+     * @param loginProvider     the login provider
+     * @param authorizationCode Oauth 인증에 필요한 1회성 인가코드
+     * @return
+     * @throws IOException the io exception
+     */
     @ApiOperation(value = "Oauth 계정 로그인/회원가입", notes = "Oauth 계정 로그인 시도 / 계정이 없다면 회원가입 후 토큰 발급")
     @GetMapping("/login/{loginProvider}/callback")
     public String callback(
