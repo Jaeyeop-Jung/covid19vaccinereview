@@ -91,17 +91,18 @@ public class NaverOauth implements SocialOauth {
         String email = jsonObject.get("response").getAsJsonObject().get("id").getAsString();
         String nickname = jsonObject.get("response").getAsJsonObject().get("nickname").getAsString();
         String profileImageUrl = null;
-        if(jsonObject.get("response").getAsJsonObject().get("profile_image") != null){
-            profileImageUrl = jsonObject.get("response").getAsJsonObject().get("profile_image").getAsString();
-        }
-        
-        byte[] imageBytes = urlFileUtil.urlToByteArray(profileImageUrl);
+        MultipartFile multipartFile = null;
+        if (jsonObject.get("response").getAsJsonObject().get("profile_image") != null) {
 
-        MultipartFile multipartFile = new MockMultipartFile(email + ".png", email + ".png", ".png", imageBytes);
+            profileImageUrl = jsonObject.get("response").getAsJsonObject().get("profile_image").getAsString();
+            byte[] imageBytes = urlFileUtil.urlToByteArray(profileImageUrl);
+            multipartFile = new MockMultipartFile(email + ".png", email + ".png", ".png", imageBytes);
+
+        }
 
         MultiValueMap<String, Object> userInfo = new LinkedMultiValueMap<>();
         userInfo.add("email", email);
-        userInfo.add("nickname", nickname + "#" + String.format("%04d", (int)(Math.random()*1000)));
+        userInfo.add("nickname", nickname + "#" + String.format("%04d", (int) (Math.random() * 1000)));
         userInfo.add("profileImage", multipartFile);
         userInfo.add("loginProvider", LoginProvider.NAVER);
 

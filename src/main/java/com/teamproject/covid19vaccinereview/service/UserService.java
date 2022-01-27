@@ -57,7 +57,11 @@ public class UserService {
 
             return token;
         } else{
-            if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), userRepository.findByEmail(loginRequest.getEmail()).get(0).getPassword())){
+
+            if(userRepository.findByEmail(loginRequest.getEmail()).size() == 0){
+                throw new IllegalArgumentException("회원가입이 되지않은 계정입니다.");
+            }
+            else if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), userRepository.findByEmail(loginRequest.getEmail()).get(0).getPassword())){
                 throw new IllegalArgumentException("비밀번호가 틀립니다.");
             }
 
@@ -79,7 +83,19 @@ public class UserService {
     public Map<String, String> saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
 
         User savedUser;
-        if(!multipartFile.isEmpty()){    // 프로필 이미지 있는 User 저장
+        if(multipartFile == null || multipartFile.isEmpty()){    // 프로필 이미지 있는 User 저장
+
+            User user = User.of(
+                    joinRequest.getEmail(),
+                    bCryptPasswordEncoder.encode(joinRequest.getPassword()),
+                    UserRole.ROLE_USER,
+                    joinRequest.getLoginProvider(),
+                    joinRequest.getNickname(),
+                    null,
+                    null
+            );
+            savedUser = userRepository.save(user);
+        } else {                        // 프로필 이미지 없는 User 저장
 
             joinRequest.initJoinRequest(multipartFile);
             ProfileImage profileImage = ProfileImage.of(
@@ -101,19 +117,6 @@ public class UserService {
             savedUser = userRepository.save(user);
 
             profileImageUtil.saveProfileImage(multipartFile, profileImage.getFileName());
-
-        } else {                        // 프로필 이미지 없는 User 저장
-
-            User user = User.of(
-                    joinRequest.getEmail(),
-                    bCryptPasswordEncoder.encode(joinRequest.getPassword()),
-                    UserRole.ROLE_USER,
-                    joinRequest.getLoginProvider(),
-                    joinRequest.getNickname(),
-                    null,
-                    null
-            );
-            savedUser = userRepository.save(user);
 
         }
 
@@ -139,7 +142,7 @@ public class UserService {
 
         List<User> findUserList = userRepository.findByEmail(userInfo.get("email").get(0).toString());
 
-        if( ( findUserList.size() )== 0){
+        if( ( findUserList.size() ) == 0){
             JoinRequest joinRequest = JoinRequest.builder()
                     .email(userInfo.get("email").get(0).toString())
                     .password(bCryptPasswordEncoder.encode(userInfo.get("email").get(0).toString()))
