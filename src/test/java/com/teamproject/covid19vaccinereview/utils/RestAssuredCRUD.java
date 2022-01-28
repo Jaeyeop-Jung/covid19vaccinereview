@@ -1,9 +1,12 @@
 package com.teamproject.covid19vaccinereview.utils;
 
+import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.springframework.http.MediaType;
+
+import java.io.File;
 
 public class RestAssuredCRUD {
 
@@ -81,6 +84,30 @@ public class RestAssuredCRUD {
             .delete(path)
             .then().log().all()
             .extract();
+    }
+
+    public static ExtractableResponse<Response> postOriginJoin(String joinRequest, File file){
+        return RestAssured
+                .given().log().all()
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .multiPart("multipartFile", file, MediaType.MULTIPART_FORM_DATA_VALUE)
+                .multiPart("joinRequest", joinRequest, MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .post("/join")
+                .then()
+                .log().all()
+                .extract();
+    }
+
+    public static ExtractableResponse<Response> postOriginLogin(String loginRequest){
+        return  RestAssured
+                .given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .body(loginRequest)
+                .when()
+                .post("/login")
+                .then().log().all()
+                .extract();
     }
 
 }

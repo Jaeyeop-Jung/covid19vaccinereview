@@ -6,19 +6,22 @@ import static org.mockito.Mockito.mock;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamproject.covid19vaccinereview.aop.LoggingAspect;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
+import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import com.teamproject.covid19vaccinereview.dto.UserDto;
+import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
+import com.teamproject.covid19vaccinereview.repository.UserRepository;
 import com.teamproject.covid19vaccinereview.service.UserDetailsServiceImpl;
 import com.teamproject.covid19vaccinereview.service.UserService;
+import com.teamproject.covid19vaccinereview.utils.RestAssuredCRUD;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import javax.persistence.EntityManager;
 
-import io.restassured.specification.MultiPartSpecification;
-import org.aspectj.util.FileUtil;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
@@ -27,13 +30,21 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.web.server.LocalServerPort;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.event.annotation.AfterTestClass;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
@@ -43,15 +54,19 @@ public class UserApiControllerTest {
 
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
-    private final EntityManager em;
     private final ResourceLoader resourceLoader;
+    private final EntityManager em;
+    private final UserRepository userRepository;
+    private final ProfileImageRepository profileImageRepository;
 
     @Autowired
-    public UserApiControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, EntityManager em, ResourceLoader resourceLoader) {
+    public UserApiControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, ResourceLoader resourceLoader, EntityManager em, UserRepository userRepository, ProfileImageRepository profileImageRepository) {
         this.mockMvc = mockMvc;
         this.objectMapper = objectMapper;
-        this.em = em;
         this.resourceLoader = resourceLoader;
+        this.em = em;
+        this.userRepository = userRepository;
+        this.profileImageRepository = profileImageRepository;
     }
 
     @LocalServerPort
@@ -62,26 +77,23 @@ public class UserApiControllerTest {
     public void originJoin_을_테스트한다() throws Exception {
         RestAssured.port = port;
 
-        JoinRequest joinRequest = JoinRequest.builder()
-                .email("JoinTest")
-                .password("JoinTest")
-                .loginProvider(LoginProvider.ORIGINAL)
-                .nickname("JoinTest")
-                .build();
+        String testUUID = UUID.randomUUID().toString();
 
+        JoinRequest joinRequest = JoinRequest.builder()
+                .email(testUUID)
+                .password(testUUID)
+                .loginProvider(LoginProvider.ORIGINAL)
+                .nickname(testUUID)
+                .build();
         Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
 
-        ExtractableResponse<Response> response = RestAssured
-                .given().log().all()
-                    .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                    .multiPart("multipartFile", resource.getFile(), MediaType.MULTIPART_FORM_DATA_VALUE)
-                    .multiPart("joinRequest", objectMapper.writeValueAsString(joinRequest), MediaType.APPLICATION_JSON_VALUE)
-                .when()
-                    .post("/join")
-                .then()
-                    .log().all()
-                    .assertThat().statusCode(200)
-                    .extract();
+        ExtractableResponse<Response> response = RestAssuredCRUD.postOriginJoin(objectMapper.writeValueAsString(joinRequest), resource.getFile());
+
+        assertThat(response.statusCode()).isEqualTo(200);
+
+        userRepository.deleteByEmail(testUUID);
+        profileImageRepository.deleteByFileName(testUUID);
+
         System.out.println("\n");
     }
 
@@ -90,70 +102,30 @@ public class UserApiControllerTest {
     public void originLogin_을_테스트한다() throws Exception {
         RestAssured.port = port;
 
-        originJoin_을_테스트한다();
+        String testUUID = UUID.randomUUID().toString();
+
+        JoinRequest joinRequest = JoinRequest.builder()
+                .email(testUUID)
+                .password(testUUID)
+                .loginProvider(LoginProvider.ORIGINAL)
+                .nickname(testUUID)
+                .build();
+        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
+        ExtractableResponse<Response> postOriginJoinResponse = RestAssuredCRUD.postOriginJoin(objectMapper.writeValueAsString(joinRequest), resource.getFile());
 
         LoginRequest loginRequest = LoginRequest.builder()
-                .email("JoinTest")
-                .password("JoinTest")
+                .email(testUUID)
+                .password(testUUID)
                 .loginProvider(LoginProvider.ORIGINAL)
                 .build();
+        ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.postOriginLogin(objectMapper.writeValueAsString(loginRequest));
 
-        ExtractableResponse<Response> response = RestAssured
-                .given().log().all()
-                    .contentType(MediaType.APPLICATION_JSON_VALUE)
-                    .body(objectMapper.writeValueAsString(loginRequest))
-                .when()
-                    .post("/login")
-                .then().log().all()
-                    .assertThat().statusCode(200)
-                    .extract();
+        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(200);
+        assertThat(postOriginLoginResponse.statusCode()).isEqualTo(200);
 
-    }
-//
-//    @Test
-//    public void loginTest_POST() throws Exception {
-//
-//        //given
-//        String content = "" +
-//                "{\"email\": \"joinTest_POST\"," +
-//                " \"password\": \"joinTest_POST\"," +
-//                " \"nickname\": \"joinTest_POST\"," +
-//                " \"userPhoto\": \"joinTest_POST\"" +
-//                "}";
-//                // 테스트용 UserDto 값 넣기
-//
-//        System.out.println("content = " + content);
-//
-//        MockHttpServletRequestBuilder requst = MockMvcRequestBuilders
-//                .post("/loginForm")
-//                .content(content)
-//                .contentType(MediaType.APPLICATION_JSON)
-//                .accept(MediaType.APPLICATION_JSON
-//                ); // 테스트용 Mock Request 만들기
-//
-//        //when
-//        mockMvc.perform( requst )   // 생성한 request 실행
-//                .andExpect( status().isOk() )   // Response Code = OK (200) 인지 확인
-//                .andDo( print() ); // Response 내용 출력
-//
-//        //then  로그인 리턴값 확인하기 (추후 추가하기)
-//
-//
-//    }
+        userRepository.deleteByEmail(testUUID);
+        profileImageRepository.deleteByFileName(testUUID);
 
-    @DisplayName("RestAssured test")
-    @Test
-    void testUser_를_테스트한다() {
-        RestAssured.port = port;
-
-        ExtractableResponse<Response> response = RestAssured.given().log().all()
-            .when()
-            .get("/test")
-            .then().log().all()
-            .extract();
-
-
-        assertThat(response.as(UserDto.class).getEmail()).isEqualTo("email");
     }
 
 //    @DisplayName("register 을 통해서 origin user 관리자 유저 가입한다. (구 originJoin")
@@ -214,7 +186,4 @@ public class UserApiControllerTest {
 //        proxy.originRegister(new MockHttpServletResponse(), userDto);
     }
 
-    private void 요청_성공(ExtractableResponse<Response> response) {
-        assertThat(response.statusCode()).isEqualTo(HttpStatus.OK.value());
-    }
 }
