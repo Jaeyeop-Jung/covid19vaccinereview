@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.filter;
 
+import com.teamproject.covid19vaccinereview.aop.exception.customException.JwtIllegalArgumentException;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.dto.UserDetailsImpl;
 import com.teamproject.covid19vaccinereview.service.UserDetailsServiceImpl;
@@ -12,14 +13,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Date;
 
 @RequiredArgsConstructor
 @Component
 @Slf4j
-@RestControllerAdvice
 public class JwtTokenProvider {
 
     private final UserDetailsServiceImpl userDetailsService;

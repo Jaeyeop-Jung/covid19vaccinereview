@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.aop.exception;
 
+import com.teamproject.covid19vaccinereview.aop.exception.customException.JwtIllegalArgumentException;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.MalformedJwtException;
 import io.jsonwebtoken.SignatureException;
@@ -45,7 +46,7 @@ public class JwtTokenExceptionHandler {
         Map<String, String> map = new HashMap<>();
         map.put("error type", httpStatus.getReasonPhrase());
         map.put("code", "400");
-        map.put("message", "잘못된 토큰의 서명입니다. 다시 로그인 하세요");
+        map.put("message", "잘못된 토큰입니다. 다시 로그인 하세요");
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
@@ -78,6 +79,22 @@ public class JwtTokenExceptionHandler {
         map.put("error type", httpStatus.getReasonPhrase());
         map.put("code", "400");
         map.put("message", "지원하지 않는 토큰입니다. 다시 로그인 하세요");
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
+
+    @ExceptionHandler(JwtIllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> jwtIllegalArgumentExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        log.info("Advice : jwtIllegalArgumentExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "400");
+        map.put("message", "토큰이 비어있습니다. 다시 로그인 하세요");
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
