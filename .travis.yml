@@ -1,6 +1,6 @@
 language: java
 jdk:
-  - oraclejdk11
+  - openjdk11
 
 branches:
   only:
@@ -12,7 +12,6 @@ cache:
     - '$HOME/.gradle'
 
 script:
-  - "./gradlew clean build"
 
 notifications:
   email:
