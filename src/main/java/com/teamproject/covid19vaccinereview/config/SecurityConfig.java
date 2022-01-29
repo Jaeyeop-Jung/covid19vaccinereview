@@ -16,11 +16,6 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-
 @Configuration
 @EnableWebSecurity // 스프링 시큐리티 필터가(SecurityConfig.class) 스프링 필터체인에 등록이 된다.
 @EnableGlobalMethodSecurity(securedEnabled = true) // secure 어노테이션 활성화
@@ -28,6 +23,8 @@ import java.io.IOException;
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
 
     private final JwtTokenProvider jwtTokenProvider;
+    private final CustomAccessDeniedHandler customAccessDeniedHandler;
+    private final CustomEntryPoint customEntryPoint;
 
     @Bean
     public BCryptPasswordEncoder encodePwd(){
@@ -41,13 +38,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 .and()
                 .authorizeRequests()
-                .antMatchers("/user/**").access("hasRole('ROLE_USER')")
+                .antMatchers("/user/**").access("hasAnyRole('ROLE_USER', 'ROLE_ADMIN')")
                 .antMatchers("/admin/**").access("hasRole('ROLE_ADMIN')")
                 .anyRequest().permitAll()
                 .and()
                 .exceptionHandling()
-                .authenticationEntryPoint(new CustomEntryPoint())
-                .accessDeniedHandler(new CustomAccessDeniedHandler())
+                .authenticationEntryPoint(customEntryPoint)
+                .accessDeniedHandler(customAccessDeniedHandler)
 //                .formLogin()
 //                .loginPage("/login")
 //                .usernameParameter("email") // UserDtoDetailsService에 loadUserByUsername의 파라미터 이름 설정

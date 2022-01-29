@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -70,7 +71,7 @@ public class UserApiController {
     @PostMapping("/join")
     public String originJoin(HttpServletResponse response,
                                  @RequestPart JoinRequest joinRequest,
-                                 @RequestPart MultipartFile multipartFile) throws IOException {
+                                 @RequestPart @Nullable MultipartFile multipartFile) throws IOException {
         Map<String, String> token = userService.saveUser(joinRequest, multipartFile);
 
         response.addHeader("Authorization", "Bearer " + token.get("accessToken"));

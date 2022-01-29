@@ -6,6 +6,7 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.springframework.http.MediaType;
 
+import javax.print.attribute.standard.Media;
 import java.io.File;
 
 public class RestAssuredCRUD {
@@ -86,7 +87,19 @@ public class RestAssuredCRUD {
             .extract();
     }
 
-    public static ExtractableResponse<Response> postOriginJoin(String joinRequest, File file){
+    public static ExtractableResponse<Response> postOriginJoinRequest(String joinRequest){
+        return RestAssured
+                .given().log().all()
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .multiPart("joinRequest", joinRequest, MediaType.APPLICATION_JSON_VALUE)
+                .when()
+                .post("/join")
+                .then()
+                .log().all()
+                .extract();
+    }
+
+    public static ExtractableResponse<Response> postOriginJoinRequestWithProfileImage(String joinRequest, File file){
         return RestAssured
                 .given().log().all()
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -106,6 +119,17 @@ public class RestAssuredCRUD {
                 .body(loginRequest)
                 .when()
                 .post("/login")
+                .then().log().all()
+                .extract();
+    }
+
+    public static ExtractableResponse<Response> getRequestWithAccessToken(String path, String accestoken){
+        return RestAssured
+                .given().log().all()
+                .contentType(MediaType.APPLICATION_JSON_VALUE)
+                .header("Authorization", accestoken)
+                .when()
+                .get(path)
                 .then().log().all()
                 .extract();
     }

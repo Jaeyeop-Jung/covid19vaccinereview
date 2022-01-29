@@ -16,7 +16,6 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try{
-            System.out.println("JwtExceptionFilter 동작");
             filterChain.doFilter(request, response);
         } catch (MalformedJwtException e) {
             System.out.println("eeror occur");
