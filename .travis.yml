@@ -1,0 +1,23 @@
+language: java
+jdk:
+  - oraclejdk11
+  - openjdk11
+
+branches:
+  only:
+    - master
+
+cache:
+  directories:
+    - '$HOME/.m2/repository'
+    - '$HOME/.gradle'
+
+script:
+  - "./gradlew clean build"
+
+notifications:
+  email:
+    recipients:
+      - jjy5349@naver.com
+
+before_deploy:
