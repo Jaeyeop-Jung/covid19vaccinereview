@@ -14,5 +14,5 @@ notifications:
     recipients:
     - jjy5349@naver.com
 before_install:
-- openssl aes-256-cbc -K $encrypted_1116e8e6e492_key -iv $encrypted_1116e8e6e492_iv
-  -in application.yml.enc -out application.yml -d
+- openssl aes-256-cbc -K $encrypted_a6d8b8556fee_key -iv $encrypted_a6d8b8556fee_iv
+  -in application.yml.enc -out src/main/resources/application.yml -d
