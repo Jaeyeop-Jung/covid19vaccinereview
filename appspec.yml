@@ -2,7 +2,7 @@ version: 0.0
 os: linux
 files:
   - source: /
-    destination: /home/ubuntu/app/step2/zip/
+    destination: /home/ubuntu/app/step3/zip/
     overwirte: yes
 
 permissions:
@@ -12,7 +12,15 @@ permissions:
     group: ubuntu
 
 hooks:
+  AfterInstall:
+    - lcoation: stop.sh
+      timeout: 60
+      runas: ubuntu
   ApplicationStart:
-    - location: deploy.sh
+    - location: start.sh
+      timeout: 60
+      runas: ubuntu
+  ValidateService:
+    - location: health.sh
       timeout: 60
       runas: ubuntu

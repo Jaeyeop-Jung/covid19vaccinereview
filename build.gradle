@@ -5,7 +5,7 @@ plugins {
 }
 
 group = 'com.teamproject'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1-SNAPSHOT-'+new Date().format("yyyyMMddHHmmss")
 sourceCompatibility = '11'
 
 configurations {
