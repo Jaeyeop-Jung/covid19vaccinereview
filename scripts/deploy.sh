@@ -33,4 +33,4 @@ echo "> $JAR_NAME 실행"
 
 nohup java -jar \
   -Dspring.profiles.active=real1 \
-  &JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
+  $JAR_NAME > $REPOSITORY/nohup.out 2>&1 &
