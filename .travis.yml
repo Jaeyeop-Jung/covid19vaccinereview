@@ -17,3 +17,18 @@ notifications:
 before_install:
 - openssl aes-256-cbc -K $encrypted_a6d8b8556fee_key -iv $encrypted_a6d8b8556fee_iv
   -in application.yml.enc -out src/main/resources/application.yml -d
+before_deploy:
+  - zip -r covid19vaccinereview *
+  - mkdir -p deploy
+  - mv covid19vaccinereview.zip deploy/covid19vaccinereview.zip
+deploy:
+  - provider: s3
+    access_key_id: $AWS_ACCESS_KEY
+    secret_access_key: $AWS_SECRET_KEY
+
+    bucket: covid19vaccinereview
+    region: ap-northeast-2
+    skip_cleanup: true
+    acl: private
+    local_dir: deploy
+    wait-until-deployed: true

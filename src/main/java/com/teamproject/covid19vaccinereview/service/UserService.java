@@ -108,7 +108,7 @@ public class UserService {
     public Map<String, String> saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
 
         User savedUser;
-        if(multipartFile == null || multipartFile.isEmpty()){    // 프로필 이미지 있는 User 저장
+        if(multipartFile == null || multipartFile.isEmpty()){    // 프로필 이미지 없는 User 저장
 
             User user = User.of(
                     joinRequest.getEmail(),
@@ -123,12 +123,12 @@ public class UserService {
             if(!userRepository.findByEmail(joinRequest.getEmail()).isEmpty()){
                 throw new EmailDuplicateException("중복된 이메일이 존재");
             } else if(!userRepository.findByEmail(joinRequest.getNickname()).isEmpty()){
-                throw new NicknameDuplicateException("");
+                throw new NicknameDuplicateException("중복된 닉네임이 존재");
             }
 
             savedUser = userRepository.save(user);
 
-        } else {                        // 프로필 이미지 없는 User 저장
+        } else {                        // 프로필 이미지 있는 User 저장
 
             joinRequest.initJoinRequest(multipartFile);
             ProfileImage profileImage = ProfileImage.of(
@@ -136,6 +136,10 @@ public class UserService {
                     joinRequest.getProfileImageDto().getFileSize(),
                     joinRequest.getProfileImageDto().getFileExtension()
             );
+
+            if(!profileImageRepository.findByFileName(profileImage.getFileName()).isEmpty()){
+                throw new EmailDuplicateException("중복된 이메일이 존재");
+            }
             profileImageRepository.save(profileImage);
 
             User user = User.of(
@@ -147,6 +151,13 @@ public class UserService {
                     profileImage,
                     null
             );
+
+            if(!userRepository.findByEmail(joinRequest.getEmail()).isEmpty()){
+                throw new EmailDuplicateException("중복된 이메일이 존재");
+            } else if(!userRepository.findByEmail(joinRequest.getNickname()).isEmpty()){
+                throw new NicknameDuplicateException("중복된 닉네임이 존재");
+            }
+
             savedUser = userRepository.save(user);
 
             profileImageUtil.saveProfileImage(multipartFile, profileImage.getFileName());
