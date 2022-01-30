@@ -23,7 +23,7 @@ public class NginxController {
     public String nginxConfig(){
 
         List<String> profiles = Arrays.asList(env.getActiveProfiles());
-        List<String> realProfiles = Arrays.asList("real", "real1", "real2");
+        List<String> realProfiles = Arrays.asList("real1", "real2");
         String defaultProfile = profiles.isEmpty()? "default" : profiles.get(0);
 
         return profiles.stream()
