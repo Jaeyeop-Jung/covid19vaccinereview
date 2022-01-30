@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class NginxController {
 
     @GetMapping({"/nginxConfig"})
-    public @ResponseBody
-    String nginxConfig(){
+    public @ResponseBody String nginxConfig(){
         return "정상 작동";
     }
 }
