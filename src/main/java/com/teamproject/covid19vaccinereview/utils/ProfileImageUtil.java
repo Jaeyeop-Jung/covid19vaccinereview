@@ -43,7 +43,7 @@ public class ProfileImageUtil {
         }
 
         String property = System.getProperty("user.home");
-        log.info("================================= property : " + property);
+        log.info("wlsskfkghkdwp property : " + property);
 
         System.out.println(httpServletRequest.getSession().getServletContext().getRealPath("/profileimages/" + fileName));
 
