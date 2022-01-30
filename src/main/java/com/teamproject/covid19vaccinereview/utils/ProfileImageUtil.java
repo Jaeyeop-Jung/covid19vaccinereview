@@ -42,12 +42,12 @@ public class ProfileImageUtil {
             throw new ProfileImageFileDuplicateException("");
         }
 
-        String property = System.getProperty("user.home");
-        log.info("wlsskfkghkdwp property : " + property);
+        String rootPath = System.getProperty("user.home");
+        File folder = new File(rootPath + "/profileimage");
+        if(!folder.exists())
+            folder.mkdir();
 
-        System.out.println(httpServletRequest.getSession().getServletContext().getRealPath("/profileimages/" + fileName));
-
-        FileCopyUtils.copy(multipartFile.getBytes(), new File(httpServletRequest.getSession().getServletContext().getRealPath("/profileimages/" + fileName)));
+        FileCopyUtils.copy(multipartFile.getBytes(), new File(folder + "/" + fileName));
 
         return true;
     }
