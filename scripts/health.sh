@@ -9,16 +9,16 @@ IDLE_PORT=$(find_idle_port)
 
 echo "> Health Check Start!"
 echo "> IDLE_PORT: $IDLE_PORT"
-echo "> curl -s http://localhost:$IDLE_PORT/profile "
+echo "> curl -s http://127.0.0.1:$IDLE_PORT/nginxConfig "
 sleep 10
 
 for RETRY_COUNT in {1..10}
 do
-    RESPONSE=$(curl -s http://localhost:${IDLE_PORT}/nginxConfig)
+    RESPONSE=$(curl -s http://127.0.0.1:${IDLE_PORT}/nginxConfig)
     UP_COUNT=$(echo ${RESPONSE} | grep 'real' | wc -1)
 
     if [ ${UP_COUNT} -ge 1 ]
-    then
+    then # $up_count >= 1 ("real1" 문자열이 있는지 검증)
         echo "> Health check 성공"
         switch_proxy
         break
