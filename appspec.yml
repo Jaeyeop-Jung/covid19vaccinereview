@@ -4,21 +4,19 @@ files:
   - source: /
     destination: /home/ubuntu/app/step3/zip/
     overwirte: yes
-
 permissions:
   - object: /
     pattern: "**"
     owner: ubuntu
     group: ubuntu
-
 hooks:
   AfterInstall:
     - lcoation: stop.sh
-      timeout: 120
-      runas: ubuntu
+      timeout:  120
+      runas:  ubuntu
   ApplicationStart:
     - location: start.sh
-      timeout: 120
+      timeout:  120
       runas: ubuntu
   ValidateService:
     - location: health.sh
