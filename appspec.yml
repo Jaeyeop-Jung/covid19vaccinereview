@@ -14,14 +14,17 @@ hooks:
     - location: before.sh
       timeout: 120
       runas: ubuntu
+
   AfterInstall:
     - lcoation: stop.sh
       timeout:  120
       runas:  ubuntu
+
   ApplicationStart:
     - location: start.sh
       timeout:  120
       runas: ubuntu
+
   ValidateService:
     - location: health.sh
       timeout: 120
