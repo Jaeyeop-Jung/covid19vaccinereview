@@ -9,22 +9,16 @@ permissions:
     pattern: "**"
     owner: ubuntu
     group: ubuntu
+
 hooks:
-  BeforeInstall:
-    - location: before.sh
+  AfterInstall:
+    - location: stop.sh
       timeout: 120
       runas: ubuntu
-
-  AfterInstall:
-    - lcoation: stop.sh
-      timeout:  120
-      runas:  ubuntu
-
   ApplicationStart:
     - location: start.sh
-      timeout:  120
+      timeout: 120
       runas: ubuntu
-
   ValidateService:
     - location: health.sh
       timeout: 120
