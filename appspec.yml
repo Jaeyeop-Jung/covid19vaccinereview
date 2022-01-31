@@ -12,6 +12,8 @@ permissions:
     group: ubuntu
 
 hooks:
+  BeforeInstall:
+    - location:
   AfterInstall:
     - lcoation: stop.sh
       timeout: 120
