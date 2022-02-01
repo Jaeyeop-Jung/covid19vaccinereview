@@ -45,5 +45,5 @@ deploy:
     bundle_type: zip
     application: covid19vaccinereview
     deployment_group: covid19vaccinereview-group
-    region: us-east-1
+    region: ap-northeast-2
     wait-until-deployed: true
