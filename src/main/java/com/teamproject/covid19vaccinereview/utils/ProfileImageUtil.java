@@ -28,24 +28,18 @@ import java.nio.file.Path;
 @RequiredArgsConstructor
 public class ProfileImageUtil {
 
-    @Value("${file.profileimagepath}")
-    private String profileImagePath;
-
-    private final HttpServletRequest httpServletRequest;
-
     public boolean saveProfileImage(MultipartFile multipartFile, @NotNull String fileName) throws IOException {
-
-        String nameWithPath = profileImagePath + "/" + fileName;
-
-
-        if(new File(nameWithPath).exists()){
-            throw new ProfileImageFileDuplicateException("");
-        }
 
         String rootPath = System.getProperty("user.home");
         File folder = new File(rootPath + "/profileimage");
         if(!folder.exists())
             folder.mkdir();
+
+        String nameWithPath = folder.getAbsolutePath() + "/" + fileName;
+
+        if(new File(nameWithPath).exists()){
+            throw new ProfileImageFileDuplicateException("");
+        }
 
         FileCopyUtils.copy(multipartFile.getBytes(), new File(folder + "/" + fileName));
 

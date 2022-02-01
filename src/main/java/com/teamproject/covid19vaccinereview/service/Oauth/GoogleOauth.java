@@ -45,9 +45,6 @@ public class GoogleOauth implements SocialOauth{
     @Value("${oauth.google.userinfo-url}")
     private String GOOGLE_USERINFO_URL;
 
-    @Value("${file.profileimagepath}")
-    private String PROFILEIMAGE_PATH;
-
     private final UrlFileUtil urlFileUtil;
 
     @Override
