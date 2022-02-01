@@ -4,7 +4,7 @@ ABSPATH=$(readlink -f $0)
 ABSDIR=$(dirname $ABSPATH)
 source ${ABSDIR}/profile.sh
 
-REPOSITORY=/home/ubuntu/app/step3
+REPOSITORY=/home/ubuntu/build
 PROJECT_NAME=covid19vaccinereview
 
 echo "> Build 파일 복사"
