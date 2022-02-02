@@ -132,9 +132,9 @@ public class UserService {
 
             joinRequest.initJoinRequest(multipartFile);
             ProfileImage profileImage = ProfileImage.of(
-                    joinRequest.getProfileImageDto().getFileName(),
-                    joinRequest.getProfileImageDto().getFileSize(),
-                    joinRequest.getProfileImageDto().getFileExtension()
+                    joinRequest.getImageDto().getFileName(),
+                    joinRequest.getImageDto().getFileSize(),
+                    joinRequest.getImageDto().getFileExtension()
             );
 
             if(!profileImageRepository.findByFileName(profileImage.getFileName()).isEmpty()){

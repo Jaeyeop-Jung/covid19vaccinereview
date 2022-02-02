@@ -17,20 +17,20 @@ public class JoinRequest {
 
     private String nickname;
 
-    private ProfileImageDto profileImageDto;
+    private ImageDto imageDto;
 
 
     /**
      * methodName : initJoinRequest
      * author : Jaeyeop Jung
-     * description : FE에서 넘어온 MultipartFile을 통해 profileImageDto 초기화한다.
+     * description : FE에서 넘어온 MultipartFile을 통해 imageDto 초기화한다.
      *
      * @param multipartFile 회원 프로필 이미지 파일
      */
     public void initJoinRequest(MultipartFile multipartFile){
 
         String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
-        this.profileImageDto = ProfileImageDto.builder()
+        this.imageDto = ImageDto.builder()
                 .multipartFile(multipartFile)
                 .fileName(getEmail() + fileExtension)
                 .fileSize(multipartFile.getSize())
@@ -39,11 +39,11 @@ public class JoinRequest {
     }
 
     @Builder
-    public JoinRequest(String email, String password, LoginProvider loginProvider, String nickname, ProfileImageDto profileImageDto) {
+    public JoinRequest(String email, String password, LoginProvider loginProvider, String nickname, ImageDto imageDto) {
         this.email = email;
         this.password = password;
         this.loginProvider = loginProvider;
         this.nickname = nickname;
-        this.profileImageDto = profileImageDto;
+        this.imageDto = imageDto;
     }
 }

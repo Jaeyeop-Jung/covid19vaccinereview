@@ -6,7 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class ProfileImageDto {
+public class ImageDto {
     private MultipartFile multipartFile;
 
     private String fileName;
@@ -16,7 +16,7 @@ public class ProfileImageDto {
     private String fileExtension;
 
     @Builder
-    public ProfileImageDto(MultipartFile multipartFile, String fileName, Long fileSize, String fileExtension) {
+    public ImageDto(MultipartFile multipartFile, String fileName, Long fileSize, String fileExtension) {
         this.multipartFile = multipartFile;
         this.fileName = fileName;
         this.fileSize = fileSize;

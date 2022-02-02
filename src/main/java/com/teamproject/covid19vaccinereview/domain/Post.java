@@ -1,8 +1,11 @@
 package com.teamproject.covid19vaccinereview.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.hibernate.validator.constraints.br.CPF;
+import org.springframework.security.core.parameters.P;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -12,6 +15,7 @@ import java.util.List;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class Post extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -42,5 +46,16 @@ public class Post extends BaseEntity{
     @Column(name = "LIKE_NUMBER")
     private int likeNumber;
 
+    public Post(User user, Board board, String title, String content, int likeNumber) {
+        this.user = user;
+        this.board = board;
+        this.title = title;
+        this.content = content;
+        this.likeNumber = likeNumber;
+    }
+
+    public static Post of(User user, Board board, String title, String content, int likeNumber){
+        return new Post(user, board, title, content, likeNumber);
+    }
 
 }
