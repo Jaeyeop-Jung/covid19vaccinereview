@@ -28,6 +28,9 @@ public class Post extends BaseEntity{
     @JoinColumn(name = "BOARDS_ID")
     private Board board;
 
+    @OneToMany(mappedBy = "post")
+    private List<Comment> commentList = new ArrayList<>();
+
     @NotNull
     private String title;
 
