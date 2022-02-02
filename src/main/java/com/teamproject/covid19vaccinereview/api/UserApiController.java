@@ -71,7 +71,7 @@ public class UserApiController {
     @PostMapping("/join")
     public String originJoin(HttpServletResponse response,
                                  @RequestPart JoinRequest joinRequest,
-                                 @RequestPart @Nullable MultipartFile multipartFile) throws IOException {
+                                 @RequestPart(required = false) @Nullable MultipartFile multipartFile) throws IOException {
         Map<String, String> token = userService.saveUser(joinRequest, multipartFile);
 
         response.addHeader("Authorization", "Bearer " + token.get("accessToken"));

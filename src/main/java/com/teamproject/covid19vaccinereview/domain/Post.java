@@ -7,6 +7,8 @@ import org.hibernate.validator.constraints.br.CPF;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.sql.Clob;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter

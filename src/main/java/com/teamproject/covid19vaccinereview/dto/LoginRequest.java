@@ -19,6 +19,4 @@ public class LoginRequest {
 
     private LoginProvider loginProvider;
 
-    private String authorizationCode;
-
 }
