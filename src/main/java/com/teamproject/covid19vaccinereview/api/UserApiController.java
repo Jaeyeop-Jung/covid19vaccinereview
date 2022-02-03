@@ -14,14 +14,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.lang.Nullable;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
@@ -43,8 +36,8 @@ public class UserApiController {
      * @return
      */
     @ApiOperation(value = "ORIGINAL 계정 로그인", notes = "ORIGINAL 계정 로그인을 통해 토큰 발급")
-    @PostMapping("/login")
-    public @ResponseBody String originLogin(HttpServletRequest request, HttpServletResponse response, @RequestBody LoginRequest loginRequest){
+    @GetMapping("/login")
+    public @ResponseBody String originLogin(HttpServletRequest request, HttpServletResponse response, @ModelAttribute LoginRequest loginRequest){
         Map<String, String> token = userService.login(loginRequest, request.getHeader("Refresh_Token"));
         if(token.get("refreshToken") != null){
             response.addHeader("Refresh_Token", "Bearer " + token.get("refreshToken"));
@@ -68,7 +61,7 @@ public class UserApiController {
      * @throws IOException the io exception
      */
     @ApiOperation(value = "ORIGINAL 계정 회원가입", notes = "ORIGINAL 계정 회원가입을 통해 토큰 발급")
-    @PostMapping("/join")
+    @PostMapping("/user")
     public String originJoin(HttpServletResponse response,
                                  @RequestPart JoinRequest joinRequest,
                                  @RequestPart(required = false) @Nullable MultipartFile multipartFile) throws IOException {

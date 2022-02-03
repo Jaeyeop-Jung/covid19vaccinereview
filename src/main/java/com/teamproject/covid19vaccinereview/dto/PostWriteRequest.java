@@ -10,7 +10,7 @@ import java.util.Map;
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class PostWriteRequestDto {
+public class PostWriteRequest {
 
     private String title;
 
@@ -23,25 +23,27 @@ public class PostWriteRequestDto {
     private List<ImageDto> attachedImage;
 
     @Builder
-    public PostWriteRequestDto(String title, String content, String ordinalNumber, VaccineType vaccineType) {
+    public PostWriteRequest(String title, String content, String ordinalNumber, VaccineType vaccineType) {
         this.title = title;
         this.content = content;
         this.ordinalNumber = ordinalNumber;
         this.vaccineType = vaccineType;
     }
 
-    public void initPostWriteRequestDto(Map<String, MultipartFile> multipartFile) {
-        for (String key : multipartFile.keySet()) {
-            MultipartFile getMultipartFile = multipartFile.get(key);
-            String fileExtension = getMultipartFile.getOriginalFilename().substring( getMultipartFile.getOriginalFilename().lastIndexOf(".") );
+    public void initPostWriteRequestDto(List<MultipartFile> multipartFileList) {
+
+        for (MultipartFile multipartFile : multipartFileList) {
+            String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
             attachedImage.add(
                     ImageDto.builder()
-                            .multipartFile(getMultipartFile)
-                            .fileName(getMultipartFile.getOriginalFilename())
-                            .fileSize(getMultipartFile.getSize())
+                            .multipartFile(multipartFile)
+                            .fileName(multipartFile.getOriginalFilename())
+                            .fileSize(multipartFile.getSize())
                             .fileExtension(fileExtension)
                             .build()
             );
         }
+
+
     }
 }

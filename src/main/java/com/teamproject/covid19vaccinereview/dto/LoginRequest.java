@@ -10,7 +10,6 @@ import lombok.ToString;
 
 @Getter
 @ToString
-@Builder
 public class LoginRequest {
 
     private String email;
@@ -19,4 +18,10 @@ public class LoginRequest {
 
     private LoginProvider loginProvider;
 
+    @Builder
+    public LoginRequest(String email, String password, LoginProvider loginProvider) {
+        this.email = email;
+        this.password = password;
+        this.loginProvider = loginProvider;
+    }
 }
