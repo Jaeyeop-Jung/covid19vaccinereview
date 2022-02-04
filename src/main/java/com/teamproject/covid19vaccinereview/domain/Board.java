@@ -13,8 +13,9 @@ public class Board {
     @Column(name = "BOARDS_ID")
     private Long id;
 
-    @Column(name = "TYPES")
-    private String Type;
+    @Column(name = "VACCINE_TYPES")
+    @Enumerated(EnumType.STRING)
+    private VaccineType vaccineType;
 
     @Column(name = "ORDINAL_NUMBER")
     private int ordinalNumber;

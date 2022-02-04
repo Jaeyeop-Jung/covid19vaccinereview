@@ -63,8 +63,8 @@ public class UserService {
         Map<String, String> token = new HashMap<>();
 
         if(jwtTokenProvider.validateToken(userRefreshToken)){
-            String userId = jwtTokenProvider.findUserIdByJwt(userRefreshToken);
-            User findUser = userRepository.findById(Long.parseLong(userId)).get();
+            Long userId = jwtTokenProvider.findUserIdByJwt(userRefreshToken);
+            User findUser = userRepository.findById(userId).get();
 
             String accessToken = jwtTokenProvider.generateAccessToken(findUser);
             token.put("accessToken", accessToken);

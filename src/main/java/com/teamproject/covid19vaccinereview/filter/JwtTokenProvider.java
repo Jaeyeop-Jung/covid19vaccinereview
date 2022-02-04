@@ -81,12 +81,12 @@ public class JwtTokenProvider {
      * @param token Jwt Token
      * @return 토큰에 담긴 User.id
      */
-    public String findUserIdByJwt(String token){
+    public Long findUserIdByJwt(String token){
         Claims claims = Jwts.parser()
                 .setSigningKey(secretKey)
                 .parseClaimsJws(token)
                 .getBody();
-        String userId = claims.getSubject();
+        Long userId = Long.valueOf(claims.getSubject());
 
         return userId;
     }
@@ -128,7 +128,7 @@ public class JwtTokenProvider {
      * @return Context에 담을 Authentication 객체
      */
     public Authentication getAuthentication(String token){
-        UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(this.findUserIdByJwt(token));
+        UserDetailsImpl userDetails = userDetailsService.loadUserByUsername(String.valueOf(this.findUserIdByJwt(token)));
         return new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
     }
 

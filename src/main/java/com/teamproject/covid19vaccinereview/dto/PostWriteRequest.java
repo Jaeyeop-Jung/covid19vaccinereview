@@ -4,6 +4,7 @@ import com.teamproject.covid19vaccinereview.domain.VaccineType;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -16,14 +17,14 @@ public class PostWriteRequest {
 
     private String content;
 
-    private String ordinalNumber;
+    private int ordinalNumber;
 
     private VaccineType vaccineType;
 
-    private List<ImageDto> attachedImage;
+    private List<ImageDto> attachedImage = new ArrayList<>();
 
     @Builder
-    public PostWriteRequest(String title, String content, String ordinalNumber, VaccineType vaccineType) {
+    public PostWriteRequest(String title, String content, int ordinalNumber, VaccineType vaccineType) {
         this.title = title;
         this.content = content;
         this.ordinalNumber = ordinalNumber;

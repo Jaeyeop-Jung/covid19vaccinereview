@@ -2,20 +2,18 @@ package com.teamproject.covid19vaccinereview.api;
 
 import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
 import com.teamproject.covid19vaccinereview.service.PostService;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartHttpServletRequest;
 
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@ControllerAdvice
 public class PostApiController {
 
     private final PostService postService;
@@ -32,15 +30,17 @@ public class PostApiController {
 
     }
 
+
     /**
-     * methodName : postFindById
+     * methodName : postFindByPostId
      * author : Jaeyeop Jung
      * description : 특정 게시글을 조회한다. 리턴값은 FE와 상의 후에 어떻게 리턴 해줄지 정함.
      *
-     * @param id the id
+     * @param postId the post id
      */
+    @ApiOperation(value = "선택 계시글 조회", notes = "선택 게시글 조회")
     @GetMapping("/post/{id}")
-    public void postFindById(@RequestParam long id){
+    public void postFindByPostId(@RequestParam long postId){
 
     }
 

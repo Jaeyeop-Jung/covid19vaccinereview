@@ -58,7 +58,7 @@ public class UserExceptionHandler {
         Map<String, String> map = new HashMap<>();
         map.put("error type", httpStatus.getReasonPhrase());
         map.put("code", "400");
-        map.put("message", "아이디 또는 비밀번호가 잘못되었습니다");
+        map.put("message", "아이디 또는 비밀번호가 잘못되었거나 게시글 작성 중이라면 다시 로그인하세요.");
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }

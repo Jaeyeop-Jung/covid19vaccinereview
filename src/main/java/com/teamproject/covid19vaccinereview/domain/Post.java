@@ -44,18 +44,17 @@ public class Post extends BaseEntity{
 
     @NotNull
     @Column(name = "LIKE_NUMBER")
-    private int likeNumber;
+    private int likeNumber = 0;
 
-    public Post(User user, Board board, String title, String content, int likeNumber) {
+    public Post(User user, Board board, String title, String content) {
         this.user = user;
         this.board = board;
         this.title = title;
         this.content = content;
-        this.likeNumber = likeNumber;
     }
 
-    public static Post of(User user, Board board, String title, String content, int likeNumber){
-        return new Post(user, board, title, content, likeNumber);
+    public static Post of(User user, Board board, String title, String content){
+        return new Post(user, board, title, content);
     }
 
 }
