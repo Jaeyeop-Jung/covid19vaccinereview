@@ -94,4 +94,21 @@ public class UserExceptionHandler {
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
+
+    @ExceptionHandler(SamePasswordException.class)
+    public ResponseEntity<Map<String, String>> samePasswordExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        log.info("Advice : samePasswordExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "400");
+        map.put("message", "현재와 같은 비밀번호로 변경할 수 없습니다.");
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
+
 }

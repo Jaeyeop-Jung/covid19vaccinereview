@@ -43,6 +43,7 @@ import java.util.UUID;
 @DisplayName("UserApiController 테스트")
 public class UserApiControllerTest {
 
+    private final String domainUrl = "http://localhost:8080";
     private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
     private final ResourceLoader resourceLoader;
@@ -253,7 +254,7 @@ public class UserApiControllerTest {
         UserDetailsServiceImpl userDetailsService = mock(UserDetailsServiceImpl.class);
 
         AspectJProxyFactory factory = new AspectJProxyFactory(new UserApiController(
-            userService, userDetailsService
+                userService
         ));
         factory.addAspect(new LoggingAspect());
         UserApiController proxy = factory.getProxy();

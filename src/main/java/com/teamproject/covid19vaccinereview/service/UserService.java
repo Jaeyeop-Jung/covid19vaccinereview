@@ -1,15 +1,13 @@
 package com.teamproject.covid19vaccinereview.service;
 
-import com.teamproject.covid19vaccinereview.aop.exception.customException.EmailDuplicateException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.NicknameDuplicateException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.NotDefineLoginProviderException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.UserNotFoundException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.*;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
+import com.teamproject.covid19vaccinereview.dto.ModifyUserRequest;
 import com.teamproject.covid19vaccinereview.filter.JwtTokenProvider;
 import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.repository.UserRepository;
@@ -19,8 +17,12 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+
+import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.util.FileUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -58,18 +60,23 @@ public class UserService {
      * @return accessToken, refreshToken
      */
     @Transactional
-    public Map<String, String> login(LoginRequest loginRequest, String userRefreshToken){
+    public Map<String, Object> login(LoginRequest loginRequest, String userRefreshToken){
 
-        Map<String, String> token = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
 
         if(jwtTokenProvider.validateToken(userRefreshToken)){
             Long userId = jwtTokenProvider.findUserIdByJwt(userRefreshToken);
             User findUser = userRepository.findById(userId).get();
-
             String accessToken = jwtTokenProvider.generateAccessToken(findUser);
-            token.put("accessToken", accessToken);
 
-            return token;
+            response.put("accessToken", accessToken);
+            ProfileImage profileImage = findUser.getProfileImage();
+            if(profileImage != null){
+                response.put("profileimage", profileImage.getId());
+            }
+            response.put("nickname", findUser.getNickname());
+
+            return response;
 
         } else{
 
@@ -87,10 +94,15 @@ public class UserService {
 
             findUser.changeRefreshToken(refreshToken);
 
-            token.put("refreshToken", refreshToken);
-            token.put("accessToken", accessToken);
+            response.put("refreshToken", refreshToken);
+            response.put("accessToken", accessToken);
+            ProfileImage profileImage = findUser.getProfileImage();
+            if(profileImage != null){
+                response.put("profileimage", profileImage.getId());
+            }
+            response.put("nickname", findUser.getNickname());
 
-            return token;
+            return response;
         }
     }
 
@@ -105,7 +117,9 @@ public class UserService {
      * @throws IOException the io exception
      */
     @Transactional
-    public Map<String, String> saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
+    public Map<String, Object> saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
+
+        Map<String, Object> response = new HashMap<>();
 
         User savedUser;
         if(multipartFile == null || multipartFile.isEmpty()){    // 프로필 이미지 없는 User 저장
@@ -162,6 +176,7 @@ public class UserService {
 
             profileImageUtil.saveProfileImage(multipartFile, profileImage.getFileName());
 
+            response.put("profileimage", profileImage.getId());
         }
 
         String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser);
@@ -169,11 +184,11 @@ public class UserService {
 
         savedUser.changeRefreshToken(refreshToken);
 
-        Map<String, String> token = new HashMap<>();
-        token.put("refreshToken", refreshToken);
-        token.put("accessToken", accessToken);
+        response.put("refreshToken", refreshToken);
+        response.put("accessToken", accessToken);
+        response.put("nickname", savedUser.getNickname());
 
-        return token;
+        return response;
     }
 
     /**
@@ -187,7 +202,7 @@ public class UserService {
      * @throws IOException the io exception
      */
     @Transactional
-    public Map<String, String> oauthLogin(LoginProvider loginProvider, String authorizationCode) throws IOException {
+    public Map<String, Object> oauthLogin(LoginProvider loginProvider, String authorizationCode) throws IOException {
 
         SocialOauth socialOauth = findSocialOauthByLoginProvider(loginProvider); // Oauth 로그인 제공자 찾기
 
@@ -205,23 +220,117 @@ public class UserService {
                     .build();
             MultipartFile multipartFile = (MultipartFile) userInfo.get("profileImage").get(0);
 
-            Map<String, String> token = saveUser(joinRequest, multipartFile);
+            Map<String, Object> response = saveUser(joinRequest, multipartFile);
 
-            return token;
+            return response;
 
         } else {    // 회원은 바로 토큰을 반환한다.
             User findUser = findUserList.get(0);
 
-            Map<String, String> token = new HashMap<>();
+            Map<String, Object> response = new HashMap<>();
 
             String accessToken = jwtTokenProvider.generateAccessToken(findUser);
             String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
 
-            token.put("accessToken", accessToken);
-            token.put("refreshToken", refreshToken);
+            response.put("accessToken", accessToken);
+            response.put("refreshToken", refreshToken);
+            response.put("nickname", findUser.getNickname());
+            response.put("profileimage", findUser.getProfileImage().getId());
 
-            return token;
+            return response;
         }
+    }
+
+    @Transactional
+    public Map<String, Object> modify(String accessToken, MultipartFile multipartFile, ModifyUserRequest modifyUserRequest) throws IOException {
+
+        Map<String, Object> response = new HashMap<>();
+
+        if(!jwtTokenProvider.validateToken(accessToken)){
+            throw new MalformedJwtException("");
+        }
+
+        Long userId = jwtTokenProvider.findUserIdByJwt(accessToken);
+        Optional<User> findUser = userRepository.findById(userId);
+
+        if(modifyUserRequest.isChangeProfileImage() && !multipartFile.isEmpty()){
+
+            String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
+
+            if(findUser.get().getProfileImage() == null){
+
+                ProfileImage profileImage = ProfileImage.of(
+                        findUser.get().getEmail() + fileExtension,
+                        multipartFile.getSize(),
+                        fileExtension
+                );
+                profileImageRepository.save(profileImage);
+                findUser.get().changeProfileImage(profileImage);
+                profileImageUtil.saveProfileImage(multipartFile, findUser.get().getProfileImage().getFileName());
+
+            } else {
+
+                findUser.get().getProfileImage().changeImage(
+                        findUser.get().getEmail() + fileExtension,
+                        multipartFile.getSize(),
+                        fileExtension
+                );
+
+                profileImageUtil.deleteProfileImage(findUser.get().getProfileImage().getFileName());
+                profileImageUtil.saveProfileImage(multipartFile, findUser.get().getProfileImage().getFileName());
+            }
+
+        } else if(modifyUserRequest.isChangeProfileImage() && multipartFile.isEmpty()) {
+
+            if(findUser.get().getProfileImage() != null){
+                profileImageUtil.deleteProfileImage(findUser.get().getProfileImage().getFileName());
+                profileImageRepository.deleteById(findUser.get().getProfileImage().getId());
+            }
+
+        }
+
+        if(modifyUserRequest.getPassword() != null && !modifyUserRequest.getPassword().isBlank()){
+            if(bCryptPasswordEncoder.matches(modifyUserRequest.getPassword(), findUser.get().getPassword())){
+                throw new SamePasswordException("");
+            }
+            findUser.get().changePassword(bCryptPasswordEncoder.encode(modifyUserRequest.getPassword()));
+        }
+
+        if(modifyUserRequest.getNickname() != null && !modifyUserRequest.getPassword().isBlank()){
+
+            if(userRepository.findByNickname(modifyUserRequest.getPassword()).isEmpty()){
+                findUser.get().changeNickname(modifyUserRequest.getPassword());
+            } else {
+                throw new NicknameDuplicateException("");
+            }
+        }
+
+        response.put("nickname", findUser.get().getNickname());
+        if(findUser.get().getProfileImage() != null){
+            response.put("profileimage", findUser.get().getProfileImage().getId());
+        }
+
+        return response;
+    }
+
+    @Transactional
+    public String delete(String accessToken){
+
+        if(!jwtTokenProvider.validateToken(accessToken)){
+            throw new MalformedJwtException("");
+        }
+
+        Long userId = jwtTokenProvider.findUserIdByJwt(accessToken);
+        Optional<User> findUser = userRepository.findById(userId);
+        String email = findUser.get().getEmail();
+
+        if(findUser.get().getProfileImage() !=  null){
+            profileImageUtil.deleteProfileImage(findUser.get().getProfileImage().getFileName());
+            profileImageRepository.deleteById(findUser.get().getProfileImage().getId());
+        }
+        userRepository.delete(findUser.get());
+
+        return email;
     }
 
 }

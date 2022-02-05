@@ -74,5 +74,7 @@ public class User extends BaseEntity{
         this.nickname = nickname;
     }
 
+    public void changeProfileImage(ProfileImage profileImage){ this.profileImage = profileImage; }
+
     public void changeRefreshToken(String refreshToken){ this.refreshToken = refreshToken;}
 }

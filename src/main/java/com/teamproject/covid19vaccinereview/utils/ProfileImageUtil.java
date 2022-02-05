@@ -3,6 +3,7 @@ package com.teamproject.covid19vaccinereview.utils;
 import com.teamproject.covid19vaccinereview.aop.exception.customException.ProfileImageFileDuplicateException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.util.FileUtil;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -44,5 +45,23 @@ public class ProfileImageUtil {
         FileCopyUtils.copy(multipartFile.getBytes(), new File(folder + "/" + fileName));
 
         return true;
+    }
+
+    public boolean deleteProfileImage(String fileName){
+
+        String rootPath = System.getProperty("user.home");
+        File file = new File(rootPath + "/profileimage/" + fileName);
+        if(file.exists()){
+            file.delete();
+        }
+
+        return true;
+    }
+
+    public byte[] findProfileImage(String fileName) throws IOException {
+
+        String filePath = System.getProperty("user.home") + "/profileimage/" + fileName;
+        File file = new File(filePath);
+        return FileUtil.readAsByteArray(file);
     }
 }

@@ -10,6 +10,7 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.List;
@@ -40,7 +41,8 @@ public class PostApiController {
      * author : Jaeyeop Jung
      * description : 특정 게시글을 조회한다. 리턴값은 FE와 상의 후에 어떻게 리턴 해줄지 정함.
      *
-     * @param postId the post id
+     * @param id the id
+     * @return the string
      */
     @ApiOperation(value = "선택 계시글 조회", notes = "선택 게시글 조회")
     @GetMapping("/post/{id}")
@@ -62,15 +64,16 @@ public class PostApiController {
     @PostMapping("/post")
     public void postWrite(
             @RequestPart PostWriteRequest postWriteRequest,
-            @RequestPart @Nullable List<MultipartFile> multipartFileList,
+            @RequestPart(required = false) @Nullable List<MultipartFile> multipartFileList,
+            HttpServletRequest request,
             HttpServletResponse response
             ) throws IOException {
 
         if(multipartFileList != null){
             postWriteRequest.initPostWriteRequestDto(multipartFileList);
         }
-
-        long writeId = postService.write(postWriteRequest);
+        String accessToken = request.getHeader("Authorization").split(" ")[1];
+        long writeId = postService.write(accessToken, postWriteRequest);
 
         response.sendRedirect("/post/"+writeId);
     }

@@ -1,6 +1,8 @@
 package com.teamproject.covid19vaccinereview.service;
 
 import com.teamproject.covid19vaccinereview.aop.exception.customException.IncorrcetBaordException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.PostContentBlankException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.PostTitleBlankException;
 import com.teamproject.covid19vaccinereview.aop.exception.customException.UserNotFoundException;
 import com.teamproject.covid19vaccinereview.domain.Board;
 import com.teamproject.covid19vaccinereview.domain.Post;
@@ -33,11 +35,9 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final UserRepository userRepository;
     private final JwtTokenProvider jwtTokenProvider;
-    private final HttpServletRequest httpServletRequest;
 
-    public long write(PostWriteRequest postWriteRequest) {
+    public long write(String accessToken, PostWriteRequest postWriteRequest) {
 
-        String accessToken = httpServletRequest.getHeader("Authorization").split(" ")[1];
         if(!jwtTokenProvider.validateToken(accessToken)){
             throw new MalformedJwtException("");
         }
@@ -50,6 +50,12 @@ public class PostService {
         List<Board> findBoard = boardRepository.findByVaccineTypeAndOrdinalNumber(postWriteRequest.getVaccineType(), postWriteRequest.getOrdinalNumber());
         if(findBoard.isEmpty()){
             throw new IncorrcetBaordException("");
+        }
+
+        if(postWriteRequest.getTitle().isBlank()){
+            throw new PostTitleBlankException("");
+        } else if(postWriteRequest.getContent().isBlank()){
+            throw new PostContentBlankException("");
         }
 
         Post post = Post.of(
@@ -72,6 +78,5 @@ public class PostService {
         }
 
         return post.getId();
-
     }
 }
