@@ -1,13 +1,17 @@
 package com.teamproject.covid19vaccinereview.api;
 
+import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
 import com.teamproject.covid19vaccinereview.service.PostService;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.lang.Nullable;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -40,8 +44,9 @@ public class PostApiController {
      */
     @ApiOperation(value = "선택 계시글 조회", notes = "선택 게시글 조회")
     @GetMapping("/post/{id}")
-    public void postFindByPostId(@RequestParam long postId){
+    public @ResponseBody String postFindByPostId(@PathVariable(name = "id") long id){
 
+        return String.valueOf(id);
     }
 
     /**
@@ -55,16 +60,19 @@ public class PostApiController {
      */
     @ApiOperation(value = "게시글 작성", notes = "게시글 작성을 위한 VaccineType과 OrdinalNumber 필수 지정")
     @PostMapping("/post")
-    public PostWriteRequest postWrite(
+    public void postWrite(
             @RequestPart PostWriteRequest postWriteRequest,
-            @RequestPart List<MultipartFile> multipartFileList
-            ){
+            @RequestPart @Nullable List<MultipartFile> multipartFileList,
+            HttpServletResponse response
+            ) throws IOException {
 
-        postWriteRequest.initPostWriteRequestDto(multipartFileList);
-        postService.write(postWriteRequest);
+        if(multipartFileList != null){
+            postWriteRequest.initPostWriteRequestDto(multipartFileList);
+        }
 
-        return postWriteRequest;
+        long writeId = postService.write(postWriteRequest);
+
+        response.sendRedirect("/post/"+writeId);
     }
-
 
 }

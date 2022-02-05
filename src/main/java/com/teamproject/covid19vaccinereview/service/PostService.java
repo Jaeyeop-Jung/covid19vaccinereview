@@ -35,7 +35,7 @@ public class PostService {
     private final JwtTokenProvider jwtTokenProvider;
     private final HttpServletRequest httpServletRequest;
 
-    public void write(PostWriteRequest postWriteRequest) {
+    public long write(PostWriteRequest postWriteRequest) {
 
         String accessToken = httpServletRequest.getHeader("Authorization").split(" ")[1];
         if(!jwtTokenProvider.validateToken(accessToken)){
@@ -71,7 +71,7 @@ public class PostService {
             );
         }
 
-
+        return post.getId();
 
     }
 }
