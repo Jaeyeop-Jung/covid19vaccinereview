@@ -6,7 +6,7 @@ import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CreateRequestDtoUtil {
+public class UserRequestDto {
 
     public JoinRequest createJoinRequestWithUUID(String UUID){
         return JoinRequest.builder()

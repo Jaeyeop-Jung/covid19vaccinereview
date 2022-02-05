@@ -6,7 +6,6 @@ import static org.mockito.Mockito.mock;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamproject.covid19vaccinereview.aop.LoggingAspect;
-import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
@@ -15,7 +14,7 @@ import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.repository.UserRepository;
 import com.teamproject.covid19vaccinereview.service.UserDetailsServiceImpl;
 import com.teamproject.covid19vaccinereview.service.UserService;
-import com.teamproject.covid19vaccinereview.utils.CreateRequestDtoUtil;
+import com.teamproject.covid19vaccinereview.utils.UserRequestDto;
 import com.teamproject.covid19vaccinereview.utils.RestAssuredCRUD;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
@@ -33,34 +32,33 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.context.ActiveProfiles;
 
+import java.util.Map;
 import java.util.UUID;
 
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @DisplayName("UserApiController 테스트")
+@ActiveProfiles("local")
 public class UserApiControllerTest {
 
-    private final String domainUrl = "http://localhost:8080";
-    private final MockMvc mockMvc;
     private final ObjectMapper objectMapper;
     private final ResourceLoader resourceLoader;
     private final EntityManager em;
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
-    private final CreateRequestDtoUtil createRequestDtoUtil;
+    private final UserRequestDto userRequestDto;
 
     @Autowired
-    public UserApiControllerTest(MockMvc mockMvc, ObjectMapper objectMapper, ResourceLoader resourceLoader, EntityManager em, UserRepository userRepository, ProfileImageRepository profileImageRepository, CreateRequestDtoUtil createRequestDtoUtil) {
-        this.mockMvc = mockMvc;
+    public UserApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, EntityManager em, UserRepository userRepository, ProfileImageRepository profileImageRepository, UserRequestDto userRequestDto) {
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
         this.em = em;
         this.userRepository = userRepository;
         this.profileImageRepository = profileImageRepository;
-        this.createRequestDtoUtil = createRequestDtoUtil;
+        this.userRequestDto = userRequestDto;
     }
 
     @LocalServerPort
@@ -73,7 +71,7 @@ public class UserApiControllerTest {
 
         String testUUID = UUID.randomUUID().toString();
 
-        JoinRequest joinRequest = createRequestDtoUtil.createJoinRequestWithUUID(testUUID);
+        JoinRequest joinRequest = userRequestDto.createJoinRequestWithUUID(testUUID);
         Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
 
         ExtractableResponse<Response> response = RestAssuredCRUD.postOriginJoinRequestWithProfileImage(objectMapper.writeValueAsString(joinRequest), resource.getFile());
@@ -93,7 +91,7 @@ public class UserApiControllerTest {
 
         String testUUID = UUID.randomUUID().toString();
 
-        JoinRequest joinRequest = createRequestDtoUtil.createJoinRequestWithUUID(testUUID);
+        JoinRequest joinRequest = userRequestDto.createJoinRequestWithUUID(testUUID);
         Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
 
         ExtractableResponse<Response> response = RestAssuredCRUD.postOriginJoinRequestWithProfileImage(objectMapper.writeValueAsString(joinRequest), resource.getFile());
@@ -114,12 +112,13 @@ public class UserApiControllerTest {
 
         String testUUID = UUID.randomUUID().toString();
 
-        JoinRequest joinRequest = createRequestDtoUtil.createJoinRequestWithUUID(testUUID);
+        JoinRequest joinRequest = userRequestDto.createJoinRequestWithUUID(testUUID);
         Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
         ExtractableResponse<Response> postOriginJoinResponse = RestAssuredCRUD.postOriginJoinRequestWithProfileImage(objectMapper.writeValueAsString(joinRequest), resource.getFile());
 
-        LoginRequest loginRequest = createRequestDtoUtil.createLoginReqeustWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.postOriginLogin(objectMapper.writeValueAsString(loginRequest));
+        LoginRequest loginRequest = userRequestDto.createLoginReqeustWithUUID(testUUID);
+        ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
+
 
         assertThat(postOriginJoinResponse.statusCode()).isEqualTo(200);
         assertThat(postOriginLoginResponse.statusCode()).isEqualTo(200);
@@ -136,12 +135,12 @@ public class UserApiControllerTest {
 
         String testUUID = UUID.randomUUID().toString();
 
-        JoinRequest joinRequest = createRequestDtoUtil.createJoinRequestWithUUID(testUUID);
+        JoinRequest joinRequest = userRequestDto.createJoinRequestWithUUID(testUUID);
         ExtractableResponse<Response> postOriginJoinResponse = RestAssuredCRUD.postOriginJoinRequest(objectMapper.writeValueAsString(joinRequest));
         System.out.println("\n");
 
-        LoginRequest loginRequest = createRequestDtoUtil.createLoginReqeustWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.postOriginLogin(objectMapper.writeValueAsString(loginRequest));
+        LoginRequest loginRequest = userRequestDto.createLoginReqeustWithUUID(testUUID);
+        ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
         System.out.println("\n");
 
         String accessToken = postOriginLoginResponse.header("Authorization").split(" ")[1];
@@ -163,12 +162,12 @@ public class UserApiControllerTest {
 
         String testUUID = UUID.randomUUID().toString();
 
-        JoinRequest joinRequest = createRequestDtoUtil.createJoinRequestWithUUID(testUUID);
+        JoinRequest joinRequest = userRequestDto.createJoinRequestWithUUID(testUUID);
         ExtractableResponse<Response> postOriginJoinResponse = RestAssuredCRUD.postOriginJoinRequest(objectMapper.writeValueAsString(joinRequest));
         System.out.println("\n");
 
-        LoginRequest loginRequest = createRequestDtoUtil.createLoginReqeustWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.postOriginLogin(objectMapper.writeValueAsString(loginRequest));
+        LoginRequest loginRequest = userRequestDto.createLoginReqeustWithUUID(testUUID);
+        ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
         System.out.println("\n");
 
         String accessToken = postOriginLoginResponse.header("Authorization").split(" ")[1];
@@ -190,12 +189,12 @@ public class UserApiControllerTest {
 
         String testUUID = UUID.randomUUID().toString();
 
-        JoinRequest joinRequest = createRequestDtoUtil.createJoinRequestWithUUID(testUUID);
+        JoinRequest joinRequest = userRequestDto.createJoinRequestWithUUID(testUUID);
         ExtractableResponse<Response> postOriginJoinResponse = RestAssuredCRUD.postOriginJoinRequest(objectMapper.writeValueAsString(joinRequest));
         System.out.println("\n");
 
-        LoginRequest loginRequest = createRequestDtoUtil.createLoginReqeustWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.postOriginLogin(objectMapper.writeValueAsString(loginRequest));
+        LoginRequest loginRequest = userRequestDto.createLoginReqeustWithUUID(testUUID);
+        ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
         System.out.println("\n");
 
         String accessToken = postOriginLoginResponse.header("Authorization").split(" ")[1];
@@ -209,6 +208,23 @@ public class UserApiControllerTest {
         userRepository.deleteByEmail(testUUID);
         profileImageRepository.deleteByFileName(testUUID);
     }
+
+//    @Test
+//    @DisplayName("회원 비밀번호 수정 테스트")
+//    public void 회원_비밀번호_수정_를_테스트한다() throws JsonProcessingException {
+//        RestAssured.port = port;
+//
+//        String testUUID = UUID.randomUUID().toString();
+//
+//        JoinRequest joinRequest = userRequestDto.createJoinRequestWithUUID(testUUID);
+//        ExtractableResponse<Response> postOriginJoinResponse = RestAssuredCRUD.postOriginJoinRequest(objectMapper.writeValueAsString(joinRequest));
+//        System.out.println("\n");
+//
+//        String accessToken = postOriginJoinResponse.header("Authorization");
+//        userRequestDto.
+//
+//
+//    }
 
 
 //    @DisplayName("register 을 통해서 origin user 관리자 유저 가입한다. (구 originJoin")

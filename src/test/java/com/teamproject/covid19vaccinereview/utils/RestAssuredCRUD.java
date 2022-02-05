@@ -1,13 +1,17 @@
 package com.teamproject.covid19vaccinereview.utils;
 
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
+import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.springframework.http.MediaType;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.print.attribute.standard.Media;
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 
 public class RestAssuredCRUD {
 
@@ -93,7 +97,7 @@ public class RestAssuredCRUD {
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .multiPart("joinRequest", joinRequest, MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .post("/join")
+                .post("/user")
                 .then()
                 .log().all()
                 .extract();
@@ -106,19 +110,18 @@ public class RestAssuredCRUD {
                 .multiPart("multipartFile", file, MediaType.MULTIPART_FORM_DATA_VALUE)
                 .multiPart("joinRequest", joinRequest, MediaType.APPLICATION_JSON_VALUE)
                 .when()
-                .post("/join")
+                .post("/user")
                 .then()
                 .log().all()
                 .extract();
     }
 
-    public static ExtractableResponse<Response> postOriginLogin(String loginRequest){
+    public static ExtractableResponse<Response> getOriginLogin(Map loginRequest){
         return  RestAssured
                 .given().log().all()
-                .contentType(MediaType.APPLICATION_JSON_VALUE)
-                .body(loginRequest)
+                .queryParams(loginRequest)
                 .when()
-                .post("/login")
+                .get("/login")
                 .then().log().all()
                 .extract();
     }
@@ -133,5 +136,11 @@ public class RestAssuredCRUD {
                 .then().log().all()
                 .extract();
     }
+
+//    public static ExtractableResponse<Response> putRequestWithUserInfo(String accessToken, String password, String nickname, MultipartFile multipartFile){
+//        return RestAssured
+//                .given().log().all()
+//
+//    }
 
 }
