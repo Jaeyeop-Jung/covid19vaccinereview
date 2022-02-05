@@ -143,7 +143,7 @@ public class UserApiControllerTest {
         ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
         System.out.println("\n");
 
-        String accessToken = postOriginLoginResponse.header("Authorization").split(" ")[1];
+        String accessToken = postOriginLoginResponse.header("Authorization");
         ExtractableResponse<Response> requestWithAccessTokenResponse = RestAssuredCRUD.getRequestWithAccessToken("/user/test", accessToken);
         System.out.println("\n");
 
@@ -170,7 +170,7 @@ public class UserApiControllerTest {
         ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
         System.out.println("\n");
 
-        String accessToken = postOriginLoginResponse.header("Authorization").split(" ")[1];
+        String accessToken = postOriginLoginResponse.header("Authorization");
         ExtractableResponse<Response> requestWithAccessTokenResponse = RestAssuredCRUD.getRequestWithAccessToken("/admin/test", accessToken);
         System.out.println("\n");
 
@@ -197,8 +197,8 @@ public class UserApiControllerTest {
         ExtractableResponse<Response> postOriginLoginResponse = RestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
         System.out.println("\n");
 
-        String accessToken = postOriginLoginResponse.header("Authorization").split(" ")[1];
-        ExtractableResponse<Response> requestWithAccessTokenResponse = RestAssuredCRUD.getRequestWithAccessToken("/user/test", "Test");
+        String accessToken = postOriginLoginResponse.header("Authorization");
+        ExtractableResponse<Response> requestWithAccessTokenResponse = RestAssuredCRUD.getRequestWithAccessToken("/user/1", "Test");
         System.out.println("\n");
 
         assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
