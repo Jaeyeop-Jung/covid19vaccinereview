@@ -50,7 +50,6 @@ import java.util.UUID;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @DisplayName("UserApiController 테스트")
-@ActiveProfiles("local")
 public class UserApiControllerTest {
 
     private final ObjectMapper objectMapper;

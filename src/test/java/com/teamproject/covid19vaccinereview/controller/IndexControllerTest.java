@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @DisplayName("UserApiController 테스트")
-@ActiveProfiles("local")
 public class IndexControllerTest {
 
     @LocalServerPort

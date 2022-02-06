@@ -22,7 +22,6 @@ import static org.assertj.core.api.Assertions.*;
 @SpringBootTest
 @Transactional
 @DisplayName("DB 연결 테스트")
-@ActiveProfiles("local")
 public class DbConnectTest {
 
     private final EntityManager em;
