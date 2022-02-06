@@ -80,7 +80,7 @@ public class UserApiController {
     @ApiOperation(value = "ORIGINAL 계정 회원가입", notes = "ORIGINAL 계정 회원가입을 통해 토큰 발급")
     @PostMapping("/user")
     public ResponseEntity<Map<String, String>> originJoin(HttpServletResponse response,
-                                 @RequestPart JoinRequest joinRequest,
+                                 @ModelAttribute JoinRequest joinRequest,
                                  @RequestPart(required = false) @Nullable MultipartFile multipartFile) throws IOException {
 
         HttpHeaders responseHeader = new HttpHeaders();

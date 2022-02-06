@@ -15,6 +15,15 @@ import java.nio.file.Paths;
 @Component
 public class UrlFileUtil {
 
+    /**
+     * methodName : urlToByteArray
+     * author : Jaeyeop Jung
+     * description : *
+     *
+     * @param imageUrl the image url
+     * @return the byte [ ]
+     * @throws IOException the io exception
+     */
     public byte[] urlToByteArray(String imageUrl) throws IOException {
 
         URL url = new URL(imageUrl);
