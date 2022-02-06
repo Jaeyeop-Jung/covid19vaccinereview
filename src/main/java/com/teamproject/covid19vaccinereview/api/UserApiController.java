@@ -6,6 +6,7 @@ import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import com.teamproject.covid19vaccinereview.dto.ModifyUserRequest;
 import com.teamproject.covid19vaccinereview.service.UserService;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
@@ -148,9 +149,8 @@ public class UserApiController {
     public ResponseEntity<Map<String, String>> modifyUser(
             HttpServletRequest request,
             @RequestPart(required = false) @Nullable MultipartFile multipartFile,
-            @RequestPart(required = false) @Nullable ModifyUserRequest modifyUserRequest
+            @ModelAttribute ModifyUserRequest modifyUserRequest
             ) throws IOException {
-
         HttpHeaders responseHeader = new HttpHeaders();
         Map<String, String> responseBody = new HashMap<>();
 

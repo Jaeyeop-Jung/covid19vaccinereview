@@ -23,12 +23,13 @@ public class CustomAccessDeniedHandler implements AccessDeniedHandler {
 
     @Override
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException, ServletException {
+        response.setCharacterEncoding("utf-8");
         log.warn("CustomAccessDeniedHandler : User가 ADMIN 권한에 접근 시도");
 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         Map<String, String> map = new HashMap<>();
-        map.put("error type", "");
+        map.put("errortype", "Forbidden");
         map.put("code", "403");
         map.put("message", "허용하지 않는 권한에 접근하였습니다");
 

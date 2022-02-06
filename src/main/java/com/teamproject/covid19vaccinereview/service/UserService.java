@@ -121,6 +121,12 @@ public class UserService {
 
         Map<String, Object> response = new HashMap<>();
 
+        if(!userRepository.findByEmail(joinRequest.getEmail()).isEmpty()){
+            throw new EmailDuplicateException("중복된 이메일이 존재");
+        } else if(!userRepository.findByNickname(joinRequest.getNickname()).isEmpty()){
+            throw new NicknameDuplicateException("중복된 닉네임이 존재");
+        }
+
         User savedUser;
         if(multipartFile == null || multipartFile.isEmpty()){    // 프로필 이미지 없는 User 저장
 
@@ -133,13 +139,6 @@ public class UserService {
                     null,
                     null
             );
-
-            if(!userRepository.findByEmail(joinRequest.getEmail()).isEmpty()){
-                throw new EmailDuplicateException("중복된 이메일이 존재");
-            } else if(!userRepository.findByNickname(joinRequest.getNickname()).isEmpty()){
-                throw new NicknameDuplicateException("중복된 닉네임이 존재");
-            }
-
             savedUser = userRepository.save(user);
 
         } else {                        // 프로필 이미지 있는 User 저장
@@ -150,12 +149,6 @@ public class UserService {
                     joinRequest.getImageDto().getFileSize(),
                     joinRequest.getImageDto().getFileExtension()
             );
-
-            if(!profileImageRepository.findByFileName(profileImage.getFileName()).isEmpty()){
-                throw new EmailDuplicateException("중복된 이메일이 존재");
-            } else if(!userRepository.findByNickname(joinRequest.getNickname()).isEmpty()){
-                throw new NicknameDuplicateException("중복된 닉네임이 존재");
-            }
             profileImageRepository.save(profileImage);
 
             User user = User.of(
@@ -291,17 +284,25 @@ public class UserService {
 
         }
 
-        if(modifyUserRequest.getPassword() != null && !modifyUserRequest.getPassword().isBlank()){
-            if(bCryptPasswordEncoder.matches(modifyUserRequest.getPassword(), findUser.get().getPassword())){
+        if(modifyUserRequest.getPassword() != null && modifyUserRequest.getPassword().length() != 0){
+
+            if(modifyUserRequest.getPassword().isBlank()){
+                throw new BlankPasswordException("");
+            } else if(bCryptPasswordEncoder.matches(modifyUserRequest.getPassword(), findUser.get().getPassword())){
                 throw new SamePasswordException("");
             }
+
             findUser.get().changePassword(bCryptPasswordEncoder.encode(modifyUserRequest.getPassword()));
         }
 
-        if(modifyUserRequest.getNickname() != null && !modifyUserRequest.getPassword().isBlank()){
+        if(modifyUserRequest.getNickname() != null && modifyUserRequest.getNickname().length() != 0){
 
-            if(userRepository.findByNickname(modifyUserRequest.getPassword()).isEmpty()){
-                findUser.get().changeNickname(modifyUserRequest.getPassword());
+            if(modifyUserRequest.getNickname().isBlank()){
+                throw new BlankNicknameException("");
+            }
+
+            if(userRepository.findByNickname(modifyUserRequest.getNickname()).isEmpty()){
+                findUser.get().changeNickname(modifyUserRequest.getNickname());
             } else {
                 throw new NicknameDuplicateException("");
             }

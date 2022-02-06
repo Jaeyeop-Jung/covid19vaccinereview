@@ -42,7 +42,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
         HttpServletResponse httpResponse = (HttpServletResponse) response;
 
         String token = null;
-        if(httpRequest.getHeader("Authorization") != null){
+        if(httpRequest.getHeader("Authorization") != null && httpRequest.getHeader("Authorization").startsWith("Bearer ")){
             token = httpRequest.getHeader("Authorization").split(" ")[1];
         }
 

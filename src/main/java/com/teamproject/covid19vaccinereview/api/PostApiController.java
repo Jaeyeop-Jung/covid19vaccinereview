@@ -63,7 +63,7 @@ public class PostApiController {
     @ApiOperation(value = "게시글 작성", notes = "게시글 작성을 위한 VaccineType과 OrdinalNumber 필수 지정")
     @PostMapping("/post")
     public void postWrite(
-            @RequestPart PostWriteRequest postWriteRequest,
+            @ModelAttribute PostWriteRequest postWriteRequest,
             @RequestPart(required = false) @Nullable List<MultipartFile> multipartFileList,
             HttpServletRequest request,
             HttpServletResponse response

@@ -45,5 +45,4 @@ public class ProfileImage extends BaseEntity{
         this.fileSize = fileSize;
         this.fileExtension = fileExtension;
     }
-
 }

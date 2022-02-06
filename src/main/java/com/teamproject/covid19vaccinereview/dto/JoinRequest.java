@@ -39,11 +39,10 @@ public class JoinRequest {
     }
 
     @Builder
-    public JoinRequest(String email, String password, LoginProvider loginProvider, String nickname, ImageDto imageDto) {
+    public JoinRequest(String email, String password, LoginProvider loginProvider, String nickname) {
         this.email = email;
         this.password = password;
         this.loginProvider = loginProvider;
         this.nickname = nickname;
-        this.imageDto = imageDto;
     }
 }

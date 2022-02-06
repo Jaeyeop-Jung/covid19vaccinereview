@@ -25,7 +25,7 @@ public class ProfileImageService {
         if(findProfileImage.isEmpty()){
             throw new ProfileImageNotFoundException("");
         }
-        byte[] profileImageData = profileImageUtil.findProfileImage(findProfileImage.get().getFileName());
+        byte[] profileImageData = profileImageUtil.fileToBytes(findProfileImage.get().getFileName());
 
         return profileImageData;
     }

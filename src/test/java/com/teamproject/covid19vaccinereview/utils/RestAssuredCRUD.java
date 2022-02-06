@@ -1,16 +1,11 @@
 package com.teamproject.covid19vaccinereview.utils;
 
-import com.teamproject.covid19vaccinereview.dto.JoinRequest;
-import com.teamproject.covid19vaccinereview.dto.LoginRequest;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.springframework.http.MediaType;
-import org.springframework.web.multipart.MultipartFile;
 
-import javax.print.attribute.standard.Media;
 import java.io.File;
-import java.util.HashMap;
 import java.util.Map;
 
 public class RestAssuredCRUD {
@@ -91,11 +86,10 @@ public class RestAssuredCRUD {
             .extract();
     }
 
-    public static ExtractableResponse<Response> postOriginJoinRequest(String joinRequest){
+    public static ExtractableResponse<Response> postOriginUser(Map joinRequest){
         return RestAssured
                 .given().log().all()
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .multiPart("joinRequest", joinRequest, MediaType.APPLICATION_JSON_VALUE)
+                .queryParams(joinRequest)
                 .when()
                 .post("/user")
                 .then()
@@ -103,12 +97,12 @@ public class RestAssuredCRUD {
                 .extract();
     }
 
-    public static ExtractableResponse<Response> postOriginJoinRequestWithProfileImage(String joinRequest, File file){
+    public static ExtractableResponse<Response> postOriginUserWithProfileImage(Map joinRequest, File file){
         return RestAssured
                 .given().log().all()
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
                 .multiPart("multipartFile", file, MediaType.MULTIPART_FORM_DATA_VALUE)
-                .multiPart("joinRequest", joinRequest, MediaType.APPLICATION_JSON_VALUE)
+                .queryParams(joinRequest)
                 .when()
                 .post("/user")
                 .then()
@@ -126,7 +120,7 @@ public class RestAssuredCRUD {
                 .extract();
     }
 
-    public static ExtractableResponse<Response> getRequestWithAccessToken(String path, String accestoken){
+    public static ExtractableResponse<Response> getWithAccessToken(String path, String accestoken){
         return RestAssured
                 .given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)
@@ -137,10 +131,29 @@ public class RestAssuredCRUD {
                 .extract();
     }
 
-//    public static ExtractableResponse<Response> putRequestWithUserInfo(String accessToken, String password, String nickname, MultipartFile multipartFile){
-//        return RestAssured
-//                .given().log().all()
-//
-//    }
+    public static ExtractableResponse<Response> putWithUserInfo(String accessToken, String password, String nickname, File file, boolean changeProfileImage){
+        return RestAssured
+                .given().log().all()
+                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                .header("Authorization", accessToken)
+                .param("password", password)
+                .param("nickname", nickname)
+                .param("changeProfileImage", changeProfileImage)
+                .multiPart("multipartFile", file, MediaType.MULTIPART_FORM_DATA_VALUE)
+                .when()
+                .put("/user")
+                .then().log().all()
+                .extract();
+    }
+
+    public static ExtractableResponse<Response> deleteWithAccessToken(String accessToken){
+        return RestAssured
+                .given().log().all()
+                .header("Authorization", accessToken)
+                .when()
+                .delete("/user")
+                .then().log().all()
+                .extract();
+    }
 
 }

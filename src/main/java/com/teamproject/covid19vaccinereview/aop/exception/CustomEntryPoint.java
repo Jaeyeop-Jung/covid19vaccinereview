@@ -23,14 +23,17 @@ public class CustomEntryPoint implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        response.setCharacterEncoding("utf-8");
         log.warn("CustomEntryPoint : 잘못된 토큰으로 페이지 요청");
 
         response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
         Map<String, String> map = new HashMap<>();
-        map.put("error type", "");
+        map.put("errortype", "Forbidden");
         map.put("code", "403");
         map.put("message", "잘못된 토큰으로 접근하였습니다. 다시 로그인 해주세요");
+
+        System.out.println("objectMapper.writeValueAsString(map) = " + objectMapper.writeValueAsString(map));
 
         response.getWriter().write(objectMapper.writeValueAsString(map));
     }

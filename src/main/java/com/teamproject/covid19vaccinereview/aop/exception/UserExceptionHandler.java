@@ -19,13 +19,13 @@ public class UserExceptionHandler {
     public ResponseEntity<Map<String, String>> emailDuplicateExceptionHandler(Exception e){
 
         HttpHeaders responseHeader = new HttpHeaders();
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        HttpStatus httpStatus = HttpStatus.PAYMENT_REQUIRED;
 
         log.info("Advice : emailDuplicateExceptionHandler");
 
         Map<String, String> map = new HashMap<>();
         map.put("error type", httpStatus.getReasonPhrase());
-        map.put("code", "400");
+        map.put("code", "402");
         map.put("message", "중복된 이메일이 존재합니다.");
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
@@ -35,13 +35,13 @@ public class UserExceptionHandler {
     public ResponseEntity<Map<String, String>> nicknameDuplicateExceptionHandler(Exception e){
 
         HttpHeaders responseHeader = new HttpHeaders();
-        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+        HttpStatus httpStatus = HttpStatus.PAYMENT_REQUIRED;
 
         log.info("Advice : emailDuplicateExceptionHandler");
 
         Map<String, String> map = new HashMap<>();
         map.put("error type", httpStatus.getReasonPhrase());
-        map.put("code", "400");
+        map.put("code", "402");
         map.put("message", "중복된 닉네임이 존재합니다.");
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
@@ -95,6 +95,22 @@ public class UserExceptionHandler {
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
 
+    @ExceptionHandler(BlankPasswordException.class)
+    public ResponseEntity<Map<String, String>> blankPasswordExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        log.info("Advice : blankPasswordExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "400");
+        map.put("message", "비밀번호가 공백으로만 이루어져 있습니다.");
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
+
     @ExceptionHandler(SamePasswordException.class)
     public ResponseEntity<Map<String, String>> samePasswordExceptionHandler(Exception e){
 
@@ -107,6 +123,22 @@ public class UserExceptionHandler {
         map.put("error type", httpStatus.getReasonPhrase());
         map.put("code", "400");
         map.put("message", "현재와 같은 비밀번호로 변경할 수 없습니다.");
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
+
+    @ExceptionHandler(BlankNicknameException.class)
+    public ResponseEntity<Map<String, String>> blankNicknameExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        log.info("Advice : blankNicknameExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "400");
+        map.put("message", "닉네임이 공백으로만 이루어져 있습니다.");
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
