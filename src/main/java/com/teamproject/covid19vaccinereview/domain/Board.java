@@ -13,8 +13,8 @@ public class Board {
     @Column(name = "BOARDS_ID")
     private Long id;
 
-    @Column(name = "TYPES")
-    private String Type;
+    @Column(name = "VACCINE_TYPES")
+    private String vaccineType;
 
     @Column(name = "ORDINAL_NUMBER")
     private int ordinalNumber;
