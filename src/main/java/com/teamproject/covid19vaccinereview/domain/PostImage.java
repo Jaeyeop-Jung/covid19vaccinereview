@@ -7,10 +7,11 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Getter
-public class Image extends BaseEntity{
+@Table(name = "POSTIMAGE")
+public class PostImage extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "IMAGE_ID")
+    @Column(name = "POSTIMAGE_ID")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
