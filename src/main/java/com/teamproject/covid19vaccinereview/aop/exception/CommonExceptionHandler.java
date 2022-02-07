@@ -37,7 +37,7 @@ public class CommonExceptionHandler {
 
         Map<String, String> map = new HashMap<>();
         map.put("error type", httpStatus.getReasonPhrase());
-        map.put("code", "400");
+        map.put("code", "402");
         map.put("message", "필수 파라미터를 다시 확인해주세요 : " + e.getMessage());
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);

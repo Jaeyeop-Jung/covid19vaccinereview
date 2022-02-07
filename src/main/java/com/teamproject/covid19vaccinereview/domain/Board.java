@@ -1,11 +1,14 @@
 package com.teamproject.covid19vaccinereview.domain;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
 @Getter
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "BOARDS")
 public class Board {
 
@@ -19,5 +22,14 @@ public class Board {
 
     @Column(name = "ORDINAL_NUMBER")
     private int ordinalNumber;
+
+    public Board(VaccineType vaccineType, int ordinalNumber) {
+        this.vaccineType = vaccineType;
+        this.ordinalNumber = ordinalNumber;
+    }
+
+    public static Board of(VaccineType vaccineType, int ordinalNumber){
+        return new Board(vaccineType, ordinalNumber);
+    }
 
 }

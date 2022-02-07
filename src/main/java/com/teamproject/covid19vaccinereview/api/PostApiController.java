@@ -3,17 +3,26 @@ package com.teamproject.covid19vaccinereview.api;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
 import com.teamproject.covid19vaccinereview.service.PostService;
+import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -21,7 +30,11 @@ import java.util.List;
 @ControllerAdvice
 public class PostApiController {
 
+    @Value("${domain-url}")
+    private String domainUrl;
+
     private final PostService postService;
+    private final BindingParameterUtil bindingParameterUtil;
 
 
     /**
@@ -62,20 +75,26 @@ public class PostApiController {
      */
     @ApiOperation(value = "게시글 작성", notes = "게시글 작성을 위한 VaccineType과 OrdinalNumber 필수 지정")
     @PostMapping("/post")
-    public void postWrite(
-            @ModelAttribute PostWriteRequest postWriteRequest,
+    public ResponseEntity<Map<String, String>> postWrite(
+            @ModelAttribute @Valid PostWriteRequest postWriteRequest,
+            BindingResult bindingResult,
             @RequestPart(required = false) @Nullable List<MultipartFile> multipartFileList,
-            HttpServletRequest request,
-            HttpServletResponse response
+            HttpServletRequest request
             ) throws IOException {
+        bindingParameterUtil.checkParameterBindingException(bindingResult);
 
-        if(multipartFileList != null){
+        HttpHeaders responseHeader = new HttpHeaders();
+        Map<String, String> responseBody = new HashMap<>();
+        
+        if(multipartFileList != null && !multipartFileList.get(0).isEmpty()){
             postWriteRequest.initPostWriteRequestDto(multipartFileList);
         }
         String accessToken = request.getHeader("Authorization").split(" ")[1];
         long writeId = postService.write(accessToken, postWriteRequest);
 
-        response.sendRedirect("/post/"+writeId);
+        responseBody.put("location", domainUrl + "/post/" + writeId);
+
+        return new ResponseEntity<>(responseBody, responseHeader, HttpStatus.PERMANENT_REDIRECT);
     }
 
 }

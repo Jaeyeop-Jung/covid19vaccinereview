@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
@@ -36,16 +37,7 @@ public class UserApiController {
     private String domainUrl;
 
     private final UserService userService;
-
-    public void checkParameterBindingException(BindingResult bindingResult){
-        if(bindingResult.hasErrors()){
-            StringBuilder stringBuilder = new StringBuilder();
-            bindingResult.getFieldErrors().forEach(
-                    error -> stringBuilder.append(error.getField() + " ")
-            );
-            throw new ParameterBindingException(stringBuilder.toString());
-        }
-    }
+    private final BindingParameterUtil bindingParameterUtil;
 
     /**
      * methodName : originLogin
@@ -59,7 +51,7 @@ public class UserApiController {
     @ApiOperation(value = "ORIGINAL 계정 로그인", notes = "ORIGINAL 계정 로그인을 통해 토큰 발급. loginProvider는 정해진 문자열만 입력 바랍니다.")
     @GetMapping("/login")
     public ResponseEntity<Map<String, String>> originLogin(HttpServletRequest request, @ModelAttribute @Valid LoginRequest loginRequest, BindingResult bindingResult){
-        checkParameterBindingException(bindingResult);
+        bindingParameterUtil.checkParameterBindingException(bindingResult);
 
         HttpHeaders responseHeader = new HttpHeaders();
         Map<String, String> responseBody = new HashMap<>();
@@ -98,7 +90,7 @@ public class UserApiController {
             @ModelAttribute @Valid JoinRequest joinRequest,
             BindingResult bindingResult,
             @RequestPart(required = false) @Nullable MultipartFile multipartFile) throws IOException {
-        checkParameterBindingException(bindingResult);
+        bindingParameterUtil.checkParameterBindingException(bindingResult);
 
         HttpHeaders responseHeader = new HttpHeaders();
         Map<String, String> responseBody = new HashMap<>();
@@ -168,7 +160,7 @@ public class UserApiController {
             @ModelAttribute ModifyUserRequest modifyUserRequest,
             BindingResult bindingResult
             ) throws IOException {
-        checkParameterBindingException(bindingResult);
+        bindingParameterUtil.checkParameterBindingException(bindingResult);
 
         HttpHeaders responseHeader = new HttpHeaders();
         Map<String, String> responseBody = new HashMap<>();
