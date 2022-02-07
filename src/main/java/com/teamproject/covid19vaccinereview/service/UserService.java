@@ -22,7 +22,6 @@ import java.util.Optional;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.aspectj.util.FileUtil;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -248,7 +247,7 @@ public class UserService {
         Long userId = jwtTokenProvider.findUserIdByJwt(accessToken);
         Optional<User> findUser = userRepository.findById(userId);
 
-        if(modifyUserRequest.isChangeProfileImage() && !multipartFile.isEmpty()){
+        if(modifyUserRequest.isWantToChangeProfileImage() && !multipartFile.isEmpty()){
 
             String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
 
@@ -275,7 +274,7 @@ public class UserService {
                 profileImageUtil.saveProfileImage(multipartFile, findUser.get().getProfileImage().getFileName());
             }
 
-        } else if(modifyUserRequest.isChangeProfileImage() && multipartFile.isEmpty()) {
+        } else if(modifyUserRequest.isWantToChangeProfileImage() && multipartFile.isEmpty()) {
 
             if(findUser.get().getProfileImage() != null){
                 profileImageUtil.deleteProfileImage(findUser.get().getProfileImage().getFileName());
