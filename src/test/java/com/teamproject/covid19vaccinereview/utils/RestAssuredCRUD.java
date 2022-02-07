@@ -138,7 +138,7 @@ public class RestAssuredCRUD {
                 .header("Authorization", accessToken)
                 .param("password", password)
                 .param("nickname", nickname)
-                .param("changeProfileImage", changeProfileImage)
+                .param("wantToChangeProfileImage", changeProfileImage)
                 .multiPart("multipartFile", file, MediaType.MULTIPART_FORM_DATA_VALUE)
                 .when()
                 .put("/user")
