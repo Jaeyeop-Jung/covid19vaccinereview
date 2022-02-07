@@ -159,13 +159,6 @@ public class UserService {
                     profileImage,
                     null
             );
-
-            if(!userRepository.findByEmail(joinRequest.getEmail()).isEmpty()){
-                throw new EmailDuplicateException("중복된 이메일이 존재");
-            } else if(!userRepository.findByNickname(joinRequest.getNickname()).isEmpty()){
-                throw new NicknameDuplicateException("중복된 닉네임이 존재");
-            }
-
             savedUser = userRepository.save(user);
 
             profileImageUtil.saveProfileImage(multipartFile, profileImage.getFileName());
