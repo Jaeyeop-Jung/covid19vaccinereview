@@ -9,17 +9,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
+
 @Getter
 @ToString
 public class LoginRequest {
 
     @ApiParam(required = true)
+    @Email
     private String email;
 
     @ApiParam(required = true)
+    @NotNull
     private String password;
 
     @ApiParam(required = true)
+    @NotNull
     private LoginProvider loginProvider;
 
     @Builder

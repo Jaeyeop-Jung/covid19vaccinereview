@@ -33,8 +33,6 @@ public class CustomEntryPoint implements AuthenticationEntryPoint {
         map.put("code", "403");
         map.put("message", "잘못된 토큰으로 접근하였습니다. 다시 로그인 해주세요");
 
-        System.out.println("objectMapper.writeValueAsString(map) = " + objectMapper.writeValueAsString(map));
-
         response.getWriter().write(objectMapper.writeValueAsString(map));
     }
 }

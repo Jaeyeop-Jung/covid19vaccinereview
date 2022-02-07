@@ -143,4 +143,20 @@ public class UserExceptionHandler {
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
 
+    @ExceptionHandler(IncorrectDeleteUserRequestException.class)
+    public ResponseEntity<Map<String, String>> incorrectDeleteUserRequestExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        log.info("Advice : incorrectDeleteUserRequestExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "400");
+        map.put("message", "잘못된 토큰으로 접근하였거나, 이미 삭제된 유저입니다.");
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
+
 }

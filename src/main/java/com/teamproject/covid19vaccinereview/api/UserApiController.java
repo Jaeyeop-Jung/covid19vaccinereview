@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.api;
 
+import com.teamproject.covid19vaccinereview.aop.exception.customException.ParameterBindingException;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
@@ -11,6 +12,7 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiImplicitParam;
@@ -23,6 +25,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,6 +39,16 @@ public class UserApiController {
 
     private final UserService userService;
 
+    public void checkParameterBindingException(BindingResult bindingResult){
+        if(bindingResult.hasErrors()){
+            StringBuilder stringBuilder = new StringBuilder();
+            bindingResult.getFieldErrors().forEach(
+                    error -> stringBuilder.append(error.getField() + " ")
+            );
+            throw new ParameterBindingException(stringBuilder.toString());
+        }
+    }
+
     /**
      * methodName : originLogin
      * author : Jaeyeop Jung
@@ -47,7 +60,8 @@ public class UserApiController {
      */
     @ApiOperation(value = "ORIGINAL 계정 로그인", notes = "ORIGINAL 계정 로그인을 통해 토큰 발급. loginProvider는 정해진 문자열만 입력 바랍니다.")
     @GetMapping("/login")
-    public ResponseEntity<Map<String, String>> originLogin(HttpServletRequest request, @ModelAttribute LoginRequest loginRequest){
+    public ResponseEntity<Map<String, String>> originLogin(HttpServletRequest request, @ModelAttribute @Valid LoginRequest loginRequest, BindingResult bindingResult){
+        checkParameterBindingException(bindingResult);
 
         HttpHeaders responseHeader = new HttpHeaders();
         Map<String, String> responseBody = new HashMap<>();
@@ -74,17 +88,19 @@ public class UserApiController {
      * author : Jaeyeop Jung
      * description : ORIGINAL 계정을 가입시키고, 토큰을 발급한다.
      *
-     * @param response      the HTTP response
      * @param joinRequest   ORIGINAL 회원가입에 필요한 정보
      * @param multipartFile 회원 프로필 이미지 파일
+     * @param bindingResult the binding result
      * @return response entity
      * @throws IOException the io exception
      */
     @ApiOperation(value = "ORIGINAL 계정 회원가입", notes = "ORIGINAL 계정 회원가입을 통해 토큰 발급. loginProvider는 정해진 문자열만 입력 바랍니다.")
     @PostMapping("/user")
-    public ResponseEntity<Map<String, String>> originJoin(HttpServletResponse response,
-                                 @ModelAttribute JoinRequest joinRequest,
-                                 @RequestPart(required = false) @Nullable MultipartFile multipartFile) throws IOException {
+    public ResponseEntity<Map<String, String>> originJoin(
+            @ModelAttribute @Valid JoinRequest joinRequest,
+            BindingResult bindingResult,
+            @RequestPart(required = false) @Nullable MultipartFile multipartFile) throws IOException {
+        checkParameterBindingException(bindingResult);
 
         HttpHeaders responseHeader = new HttpHeaders();
         Map<String, String> responseBody = new HashMap<>();
@@ -151,8 +167,11 @@ public class UserApiController {
     public ResponseEntity<Map<String, String>> modifyUser(
             HttpServletRequest request,
             @RequestPart(required = false) @Nullable MultipartFile multipartFile,
-            @ModelAttribute ModifyUserRequest modifyUserRequest
+            @ModelAttribute ModifyUserRequest modifyUserRequest,
+            BindingResult bindingResult
             ) throws IOException {
+        checkParameterBindingException(bindingResult);
+
         HttpHeaders responseHeader = new HttpHeaders();
         Map<String, String> responseBody = new HashMap<>();
 

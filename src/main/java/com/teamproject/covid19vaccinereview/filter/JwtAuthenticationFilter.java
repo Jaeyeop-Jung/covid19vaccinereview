@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.filter;
 
+import com.teamproject.covid19vaccinereview.repository.UserRepository;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +47,7 @@ public class JwtAuthenticationFilter extends GenericFilterBean {
             token = httpRequest.getHeader("Authorization").split(" ")[1];
         }
 
-        if( token != null && jwtTokenProvider.validateToken(token)) {
+        if( token != null && jwtTokenProvider.validateToken(token) ) {
             Authentication authentication = jwtTokenProvider.getAuthentication(token);
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }

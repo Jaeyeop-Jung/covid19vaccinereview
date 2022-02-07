@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.config;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamproject.covid19vaccinereview.aop.exception.CustomAccessDeniedHandler;
 import com.teamproject.covid19vaccinereview.aop.exception.CustomEntryPoint;
 import com.teamproject.covid19vaccinereview.filter.JwtAuthenticationFilter;
@@ -25,6 +26,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final JwtTokenProvider jwtTokenProvider;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
     private final CustomEntryPoint customEntryPoint;
+    private final ObjectMapper objectMapper;
 
     @Bean
     public BCryptPasswordEncoder encodePwd(){
@@ -55,7 +57,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .httpBasic().disable()
                 .formLogin().disable()
                 .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(new JwtExceptionFilter(), JwtAuthenticationFilter.class);
+                .addFilterBefore(new JwtExceptionFilter(objectMapper), JwtAuthenticationFilter.class);
 
     }
 }

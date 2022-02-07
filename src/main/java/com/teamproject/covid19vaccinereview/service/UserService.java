@@ -323,6 +323,10 @@ public class UserService {
         }
 
         Long userId = jwtTokenProvider.findUserIdByJwt(accessToken);
+        if(!userRepository.existsById(userId)){
+            throw new IncorrectDeleteUserRequestException("");
+        }
+
         Optional<User> findUser = userRepository.findById(userId);
         String email = findUser.get().getEmail();
 

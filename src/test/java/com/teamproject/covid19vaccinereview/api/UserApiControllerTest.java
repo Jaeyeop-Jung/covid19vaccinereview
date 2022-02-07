@@ -222,7 +222,7 @@ public class UserApiControllerTest {
         System.out.println("\n");
 
         ExtractableResponse<Response> changePasswordTestResponse = RestAssuredCRUD.putWithUserInfo(accessToken, "putTest", null, resource.getFile(), false);
-        boolean isChanged = bCryptPasswordEncoder.matches("putTest", userRepository.findByEmail(testUUID).get(0).getPassword());
+        boolean isChanged = bCryptPasswordEncoder.matches("putTest", userRepository.findByEmail(testUUID + "@" + testUUID + ".com").get(0).getPassword());
 
         assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(blankPasswordTestResponse.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
@@ -274,8 +274,8 @@ public class UserApiControllerTest {
 
         assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(changeProfileImageResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(userRepository.findByEmail(testUUID).get(0).getProfileImage().getFileSize()).isEqualTo(changedResource.contentLength());
-        assertThat(profileImageUtil.fileToBytes( profileImageRepository.findByFileName(testUUID + ".png").get(0).getFileName() ))
+        assertThat(userRepository.findByEmail(testUUID + "@" + testUUID + ".com").get(0).getProfileImage().getFileSize()).isEqualTo(changedResource.contentLength());
+        assertThat(profileImageUtil.fileToBytes( profileImageRepository.findByFileName(testUUID + "@" + testUUID + ".com" + ".png").get(0).getFileName() ))
                 .isEqualTo(FileUtil.readAsByteArray(changedResource.getFile()));
     }
 
@@ -300,8 +300,8 @@ public class UserApiControllerTest {
 
         assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(deleteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(deletedEmail).isEqualTo(testUUID);
-        assertThat(userRepository.existsByEmail(testUUID)).isFalse();
+        assertThat(deletedEmail).isEqualTo(testUUID + "@" + testUUID + ".com");
+        assertThat(userRepository.existsByEmail(testUUID + "@" + testUUID + ".com")).isFalse();
     }
 
 
@@ -356,7 +356,7 @@ public class UserApiControllerTest {
         UserDto userDto = UserDto.builder()
             .nickname("nickname")
             .password("password")
-            .email("email")
+            .email("email@email.com")
             .role(UserRole.ROLE_ADMIN).build();
 
         // multipart 확인 후 파라미터 테스트 되도록 수정

@@ -10,7 +10,7 @@ public class CreateUserRequestUtil {
 
     public JoinRequest createJoinRequestWithUUID(String UUID){
         return JoinRequest.builder()
-                .email(UUID)
+                .email(UUID + "@" + UUID + ".com")
                 .password(UUID)
                 .loginProvider(LoginProvider.ORIGINAL)
                 .nickname(UUID)
@@ -19,7 +19,7 @@ public class CreateUserRequestUtil {
 
     public LoginRequest createLoginReqeustWithUUID(String UUID){
         return LoginRequest.builder()
-                .email(UUID)
+                .email(UUID + "@" + UUID + ".com")
                 .password(UUID)
                 .loginProvider(LoginProvider.ORIGINAL)
                 .build();

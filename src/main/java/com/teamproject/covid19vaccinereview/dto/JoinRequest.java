@@ -3,7 +3,12 @@ package com.teamproject.covid19vaccinereview.dto;
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import io.swagger.annotations.ApiParam;
 import lombok.*;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.validation.Valid;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotNull;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -11,15 +16,20 @@ import org.springframework.web.multipart.MultipartFile;
 public class JoinRequest {
 
     @ApiParam(required = true)
+    @Email
+    @NotNull
     private String email;
 
     @ApiParam(required = true)
+    @NotNull
     private String password;
 
     @ApiParam(required = true)
+    @NotNull
     private LoginProvider loginProvider;
 
     @ApiParam(required = true)
+    @NotNull
     private String nickname;
 
     @ApiParam(hidden = true)
