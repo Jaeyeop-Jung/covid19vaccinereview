@@ -13,7 +13,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -43,7 +45,7 @@ public class UserApiController {
      * @param loginRequest ORIGINAL 로그인에 필요한 정보
      * @return response entity
      */
-    @ApiOperation(value = "ORIGINAL 계정 로그인", notes = "ORIGINAL 계정 로그인을 통해 토큰 발급")
+    @ApiOperation(value = "ORIGINAL 계정 로그인", notes = "ORIGINAL 계정 로그인을 통해 토큰 발급. loginProvider는 정해진 문자열만 입력 바랍니다.")
     @GetMapping("/login")
     public ResponseEntity<Map<String, String>> originLogin(HttpServletRequest request, @ModelAttribute LoginRequest loginRequest){
 
@@ -78,7 +80,7 @@ public class UserApiController {
      * @return response entity
      * @throws IOException the io exception
      */
-    @ApiOperation(value = "ORIGINAL 계정 회원가입", notes = "ORIGINAL 계정 회원가입을 통해 토큰 발급")
+    @ApiOperation(value = "ORIGINAL 계정 회원가입", notes = "ORIGINAL 계정 회원가입을 통해 토큰 발급. loginProvider는 정해진 문자열만 입력 바랍니다.")
     @PostMapping("/user")
     public ResponseEntity<Map<String, String>> originJoin(HttpServletResponse response,
                                  @ModelAttribute JoinRequest joinRequest,
@@ -144,7 +146,7 @@ public class UserApiController {
         return new ResponseEntity<>(responseBody, responseHeader, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "회원정보 수정", notes = "회원정보를 수정한다.")
+    @ApiOperation(value = "회원정보 수정", notes = "회원정보를 수정한다. 헤더에 원하는 계정 토큰을 꼭 담아주세요. wantToChangeProfileImage를 꼭 넣어주세요.")
     @PutMapping("/user")
     public ResponseEntity<Map<String, String>> modifyUser(
             HttpServletRequest request,
@@ -167,7 +169,7 @@ public class UserApiController {
         return new ResponseEntity<>(responseBody, responseHeader, HttpStatus.OK);
     }
 
-    @ApiOperation(value = "회원정보 삭제", notes = "회원정보를 삭제한다.")
+    @ApiOperation(value = "회원정보 삭제", notes = "회원정보를 삭제한다. 헤더에 원하는 계정 토큰을 꼭 담아주세요.")
     @DeleteMapping("/user")
     public ResponseEntity<Map<String, String>> deleteUser(HttpServletRequest request){
 

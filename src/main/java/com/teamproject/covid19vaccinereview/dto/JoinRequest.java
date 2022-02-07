@@ -1,6 +1,7 @@
 package com.teamproject.covid19vaccinereview.dto;
 
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
+import io.swagger.annotations.ApiParam;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,15 +9,20 @@ import org.springframework.web.multipart.MultipartFile;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
 public class JoinRequest {
-    
+
+    @ApiParam(required = true)
     private String email;
 
+    @ApiParam(required = true)
     private String password;
 
+    @ApiParam(required = true)
     private LoginProvider loginProvider;
 
+    @ApiParam(required = true)
     private String nickname;
 
+    @ApiParam(hidden = true)
     private ImageDto imageDto;
 
 

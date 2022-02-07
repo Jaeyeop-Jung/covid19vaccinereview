@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.dto;
 
+import io.swagger.annotations.ApiParam;
 import lombok.*;
 
 @Getter
@@ -11,12 +12,13 @@ public class ModifyUserRequest {
 
     private String nickname;
 
-    private boolean changeProfileImage;
+    @ApiParam(required = true)
+    private boolean wantToChangeProfileImage;
 
     @Builder
-    public ModifyUserRequest(String password, String nickname, boolean changeProfileImage) {
+    public ModifyUserRequest(String password, String nickname, boolean wantToChangeProfileImage) {
         this.password = password;
         this.nickname = nickname;
-        this.changeProfileImage = changeProfileImage;
+        this.wantToChangeProfileImage = wantToChangeProfileImage;
     }
 }

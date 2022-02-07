@@ -2,6 +2,7 @@ package com.teamproject.covid19vaccinereview.dto;
 
 
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
+import io.swagger.annotations.ApiParam;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,10 +13,13 @@ import lombok.ToString;
 @ToString
 public class LoginRequest {
 
+    @ApiParam(required = true)
     private String email;
 
+    @ApiParam(required = true)
     private String password;
 
+    @ApiParam(required = true)
     private LoginProvider loginProvider;
 
     @Builder
