@@ -28,6 +28,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -39,6 +41,18 @@ public class UserService {
     private final JwtTokenProvider jwtTokenProvider;
     private final ProfileImageUtil profileImageUtil;
     private final List<SocialOauth> socialOauthList;
+
+    @Transactional(readOnly = true)
+    public User loginUser(HttpServletRequest request) {
+        String accessToken = request.getHeader("Authorization").split(" ")[1];
+
+        if(!jwtTokenProvider.validateToken(accessToken)){
+            throw new MalformedJwtException("");
+        }
+
+        return userRepository.findById(jwtTokenProvider.findUserIdByJwt(accessToken))
+                .orElseThrow(() -> new UserNotFoundException(""));
+    }
 
     @Transactional
     public SocialOauth findSocialOauthByLoginProvider(LoginProvider loginProvider){

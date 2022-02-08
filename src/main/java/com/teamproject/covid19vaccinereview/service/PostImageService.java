@@ -10,6 +10,7 @@ import com.teamproject.covid19vaccinereview.utils.ProfileImageUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -22,6 +23,7 @@ public class PostImageService {
     private final PostImageRepository postImageRepository;
     private final ProfileImageUtil profileImageUtil;
 
+    @Transactional
     public byte[] findPostImageById(long id) throws IOException {
 
         PostImage findPostImage = postImageRepository.findById(id)

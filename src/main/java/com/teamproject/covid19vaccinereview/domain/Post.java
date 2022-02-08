@@ -38,6 +38,9 @@ public class Post extends BaseEntity{
     @Lob
     private String content;
 
+    @OneToMany(mappedBy = "post")
+    private List<PostImage> postImageList = new ArrayList<>();
+
     @NotNull
     @Column(name = "VIEW_COUNT")
     private int viewCount = 0;

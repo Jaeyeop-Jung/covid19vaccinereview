@@ -1,14 +1,13 @@
 package com.teamproject.covid19vaccinereview.api;
 
-import com.teamproject.covid19vaccinereview.domain.LoginProvider;
+import com.teamproject.covid19vaccinereview.dto.FindPostByIdResponse;
 import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
+import com.teamproject.covid19vaccinereview.dto.PostWriteResponse;
 import com.teamproject.covid19vaccinereview.service.PostService;
 import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
@@ -17,22 +16,15 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
-import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
 @ControllerAdvice
 public class PostApiController {
-
-    @Value("${domain-url}")
-    private String domainUrl;
 
     private final PostService postService;
     private final BindingParameterUtil bindingParameterUtil;
@@ -60,10 +52,11 @@ public class PostApiController {
      */
     @ApiOperation(value = "선택 계시글 조회", notes = "선택 게시글 조회")
     @GetMapping("/post/{id}")
-    public String postFindByPostId(@PathVariable(name = "id") @NotNull long id){
+    public ResponseEntity<FindPostByIdResponse> postFindByPostId(@PathVariable(name = "id") @NotNull long id){
 
+        FindPostByIdResponse findFindPostByIdResponse = postService.findPostById(id);
 
-        return String.valueOf(id);
+        return ResponseEntity.ok(findFindPostByIdResponse);
     }
 
     /**
@@ -77,26 +70,17 @@ public class PostApiController {
      */
     @ApiOperation(value = "게시글 작성", notes = "게시글 작성을 위한 VaccineType과 OrdinalNumber 필수 지정")
     @PostMapping("/post")
-    public ResponseEntity<Map<String, String>> postWrite(
+    public ResponseEntity<PostWriteResponse> postWrite(
             @ModelAttribute @Valid PostWriteRequest postWriteRequest,
             BindingResult bindingResult,
             @RequestPart(required = false) @Nullable List<MultipartFile> multipartFileList,
             HttpServletRequest request
-            ) throws IOException {
+            ) {
         bindingParameterUtil.checkParameterBindingException(bindingResult);
 
-        HttpHeaders responseHeader = new HttpHeaders();
-        Map<String, String> responseBody = new HashMap<>();
-        
-        if(multipartFileList != null && !multipartFileList.get(0).isEmpty()){
-            postWriteRequest.initPostWriteRequestDto(multipartFileList);
-        }
-        String accessToken = request.getHeader("Authorization").split(" ")[1];
-        long writeId = postService.write(accessToken, postWriteRequest);
+        PostWriteResponse postWriteResponse = postService.write(request, postWriteRequest, multipartFileList);
 
-        responseBody.put("location", domainUrl + "/post/" + writeId);
-
-        return new ResponseEntity<>(responseBody, responseHeader, HttpStatus.PERMANENT_REDIRECT);
+        return new ResponseEntity<>(postWriteResponse, HttpStatus.PERMANENT_REDIRECT);
     }
 
 }
