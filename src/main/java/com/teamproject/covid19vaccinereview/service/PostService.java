@@ -18,6 +18,7 @@ import com.teamproject.covid19vaccinereview.repository.UserRepository;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
@@ -42,15 +43,11 @@ public class PostService {
             throw new MalformedJwtException("");
         }
 
-        Optional<User> findUserOptional = userRepository.findById(jwtTokenProvider.findUserIdByJwt(accessToken));
-        if(findUserOptional.isEmpty()){
-            throw new UserNotFoundException("");
-        }
+        User findUser = userRepository.findById(jwtTokenProvider.findUserIdByJwt(accessToken))
+                .orElseThrow(() -> new UserNotFoundException(""));
 
-        List<Board> findBoard = boardRepository.findByVaccineTypeAndOrdinalNumber(postWriteRequest.getVaccineType(), postWriteRequest.getOrdinalNumber());
-        if(findBoard.isEmpty()){
-            throw new IncorrcetBaordException("");
-        }
+        Board findBoard = boardRepository.findByVaccineTypeAndOrdinalNumber(postWriteRequest.getVaccineType(), postWriteRequest.getOrdinalNumber())
+                .orElseThrow(() -> new IncorrcetBaordException(""));
 
         if(postWriteRequest.getTitle().isBlank()){
             throw new PostTitleBlankException("");
@@ -59,8 +56,8 @@ public class PostService {
         }
 
         Post post = Post.of(
-                findUserOptional.get(),
-                findBoard.get(0),
+                findUser,
+                findBoard,
                 postWriteRequest.getTitle(),
                 postWriteRequest.getContent()
         );
@@ -79,4 +76,6 @@ public class PostService {
 
         return post.getId();
     }
+
+
 }

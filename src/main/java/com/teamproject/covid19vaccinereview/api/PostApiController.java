@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
@@ -59,7 +60,8 @@ public class PostApiController {
      */
     @ApiOperation(value = "선택 계시글 조회", notes = "선택 게시글 조회")
     @GetMapping("/post/{id}")
-    public @ResponseBody String postFindByPostId(@PathVariable(name = "id") long id){
+    public String postFindByPostId(@PathVariable(name = "id") @NotNull long id){
+
 
         return String.valueOf(id);
     }

@@ -3,16 +3,19 @@ package com.teamproject.covid19vaccinereview.utils;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
+import io.restassured.specification.RequestSpecification;
 import org.springframework.http.MediaType;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 public class PostRestAssuredCRUD {
 
-    public static ExtractableResponse<Response> postPostWrite(Map postWriteRequest){
+    public static ExtractableResponse<Response> postPostWrite(String accessToken, Map postWriteRequest){
         return RestAssured
                 .given().log().all()
+                .header("Authorization", accessToken)
                 .queryParams(postWriteRequest)
                 .when()
                 .post("/post")
@@ -21,16 +24,20 @@ public class PostRestAssuredCRUD {
                 .extract();
     }
 
-    public static ExtractableResponse<Response> postPostWriteWithPostImage(Map postWriteRequest, File[] file){
-        return RestAssured
-                .given().log().all()
-                .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                .multiPart("multipartFile", file, MediaType.MULTIPART_FORM_DATA_VALUE)
-                .queryParams(postWriteRequest)
-                .when()
-                .post("/user")
-                .then()
-                .log().all()
+    public static ExtractableResponse<Response> postPostWriteWithPostImage(String accessToken, Map postWriteRequest, List<File> fileList) {
+
+        RequestSpecification reqeust =
+                RestAssured.given().log().all()
+                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                        .header("Authorization", accessToken)
+                        .queryParams(postWriteRequest);
+        for (File file : fileList) {
+            reqeust.multiPart("multipartFileList", file, MediaType.MULTIPART_FORM_DATA_VALUE);
+        }
+
+        return reqeust.when()
+                .post("/post")
+                .then().log().all()
                 .extract();
     }
 }

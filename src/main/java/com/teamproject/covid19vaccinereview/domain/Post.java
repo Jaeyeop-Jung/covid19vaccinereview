@@ -3,13 +3,9 @@ package com.teamproject.covid19vaccinereview.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.validator.constraints.br.CPF;
-import org.springframework.security.core.parameters.P;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.sql.Clob;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,8 +39,12 @@ public class Post extends BaseEntity{
     private String content;
 
     @NotNull
-    @Column(name = "LIKE_NUMBER")
-    private int likeNumber = 0;
+    @Column(name = "VIEW_COUNT")
+    private int viewCount = 0;
+
+    @NotNull
+    @Column(name = "LIKE_COUNT")
+    private int likeCount = 0;
 
     public Post(User user, Board board, String title, String content) {
         this.user = user;
