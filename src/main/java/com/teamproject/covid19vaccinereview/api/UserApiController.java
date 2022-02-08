@@ -4,6 +4,7 @@ import com.teamproject.covid19vaccinereview.aop.exception.customException.Parame
 import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
+import com.teamproject.covid19vaccinereview.dto.LoginResponse;
 import com.teamproject.covid19vaccinereview.dto.ModifyUserRequest;
 import com.teamproject.covid19vaccinereview.service.UserService;
 import java.io.IOException;
@@ -58,26 +59,26 @@ public class UserApiController {
      */
     @ApiOperation(value = "ORIGINAL 계정 로그인", notes = "ORIGINAL 계정 로그인을 통해 토큰 발급. loginProvider는 정해진 문자열만 입력 바랍니다.")
     @GetMapping("/login")
-    public ResponseEntity<Map<String, String>> originLogin(HttpServletRequest request, @ModelAttribute @Valid LoginRequest loginRequest, BindingResult bindingResult){
+    public ResponseEntity<LoginResponse> originLogin(HttpServletRequest request, @ModelAttribute @Valid LoginRequest loginRequest, BindingResult bindingResult){
         checkParameterBindingException(bindingResult);
 
-        HttpHeaders responseHeader = new HttpHeaders();
-        Map<String, String> responseBody = new HashMap<>();
+//        HttpHeaders responseHeader = new HttpHeaders();
+//        Map<String, String> responseBody = new HashMap<>();
 
-        Map<String, Object> serviceResponse = userService.login(loginRequest, request.getHeader("Refresh_Token"));
-        if(serviceResponse.get("refreshToken") != null){
-            responseHeader.add("Refresh_Token", "Bearer " + serviceResponse.get("refreshToken"));
-        }
-        responseHeader.add("Authorization", "Bearer " + serviceResponse.get("accessToken"));
+        LoginResponse loginResponse = userService.login(loginRequest, request.getHeader("Refresh_Token"));
+//        if(serviceResponse.get("refreshToken") != null){
+//            responseHeader.add("Refresh_Token", "Bearer " + serviceResponse.get("refreshToken"));
+//        }
+//        responseHeader.add("Authorization", "Bearer " + serviceResponse.get("accessToken"));
+//
+//        if(serviceResponse.get("profileimage") != null){
+//            responseBody.put("profileimage", domainUrl + "/profileimage/" + serviceResponse.get("profileimage").toString());
+//        } else {
+//            responseBody.put("profileimage", null);
+//        }
+//        responseBody.put("nickname", serviceResponse.get("nickname").toString());
 
-        if(serviceResponse.get("profileimage") != null){
-            responseBody.put("profileimage", domainUrl + "/profileimage/" + serviceResponse.get("profileimage").toString());
-        } else {
-            responseBody.put("profileimage", null);
-        }
-        responseBody.put("nickname", serviceResponse.get("nickname").toString());
-
-        return new ResponseEntity<>(responseBody, responseHeader, HttpStatus.OK);
+        return ResponseEntity.ok(loginResponse);
     }
 
 

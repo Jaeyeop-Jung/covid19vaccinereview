@@ -7,6 +7,7 @@ import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.LoginRequest;
+import com.teamproject.covid19vaccinereview.dto.LoginResponse;
 import com.teamproject.covid19vaccinereview.dto.ModifyUserRequest;
 import com.teamproject.covid19vaccinereview.filter.JwtTokenProvider;
 import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
@@ -22,6 +23,7 @@ import java.util.Optional;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,9 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 @Slf4j
 public class UserService {
+
+    @Value("${domain-url}")
+    private String domainUrl;
 
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
@@ -59,23 +64,18 @@ public class UserService {
      * @return accessToken, refreshToken
      */
     @Transactional
-    public Map<String, Object> login(LoginRequest loginRequest, String userRefreshToken){
-
-        Map<String, Object> response = new HashMap<>();
+    public LoginResponse login(LoginRequest loginRequest, String userRefreshToken){
 
         if(jwtTokenProvider.validateToken(userRefreshToken)){
             Long userId = jwtTokenProvider.findUserIdByJwt(userRefreshToken);
-            User findUser = userRepository.findById(userId).get();
-            String accessToken = jwtTokenProvider.generateAccessToken(findUser);
+            User findUser = userRepository.findById(userId)
+                    .orElseThrow(() -> new UserNotFoundException(""));
 
-            response.put("accessToken", accessToken);
-            ProfileImage profileImage = findUser.getProfileImage();
-            if(profileImage != null){
-                response.put("profileimage", profileImage.getId());
-            }
-            response.put("nickname", findUser.getNickname());
-
-            return response;
+            return LoginResponse.builder()
+                    .authorization(jwtTokenProvider.generateAccessToken(findUser))
+                    .nickname(findUser.getNickname())
+                    .profileImageURL(domainUrl + "/profileimage/" + findUser.getProfileImage().getId())
+                    .build();
 
         } else{
 
@@ -87,21 +87,25 @@ public class UserService {
             }
 
             User findUser = userRepository.findByEmail(loginRequest.getEmail()).get(0);
-
             String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
-            String accessToken = jwtTokenProvider.generateAccessToken(findUser);
 
             findUser.changeRefreshToken(refreshToken);
 
-            response.put("refreshToken", refreshToken);
-            response.put("accessToken", accessToken);
             ProfileImage profileImage = findUser.getProfileImage();
             if(profileImage != null){
-                response.put("profileimage", profileImage.getId());
+                return LoginResponse.builder()
+                        .authorization(jwtTokenProvider.generateAccessToken(findUser))
+                        .refreshToken(jwtTokenProvider.generateRefreshToken(findUser))
+                        .nickname(findUser.getNickname())
+                        .profileImageURL(domainUrl + "/profileimage/" + findUser.getProfileImage().getId())
+                        .build();
             }
-            response.put("nickname", findUser.getNickname());
 
-            return response;
+            return LoginResponse.builder()
+                    .authorization(jwtTokenProvider.generateAccessToken(findUser))
+                    .refreshToken(jwtTokenProvider.generateRefreshToken(findUser))
+                    .nickname(findUser.getNickname())
+                    .build();
         }
     }
 
