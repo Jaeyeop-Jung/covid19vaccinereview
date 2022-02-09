@@ -100,7 +100,7 @@ public class UserApiController {
         return ResponseEntity.ok(loginResponse);
     }
 
-    @ApiOperation(value = "회원정보 수정", notes = "회원정보를 수정한다. 헤더에 원하는 계정 accessToken을 꼭 담아주세요.(Authorization : Bearer ey...) wantToChangeProfileImage를 꼭 넣어주세요.")
+    @ApiOperation(value = "회원정보 수정", notes = "회원정보를 수정한다. 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...). wantToChangeProfileImage를 꼭 넣어주세요.")
     @PutMapping("/user")
     public ResponseEntity<UserModifyResponse> modifyUser(
             HttpServletRequest request,
@@ -115,7 +115,7 @@ public class UserApiController {
         return ResponseEntity.ok(userModifyResponse);
     }
 
-    @ApiOperation(value = "회원정보 삭제", notes = "회원정보를 삭제한다. 헤더에 원하는 계정 accessToken을 꼭 담아주세요.(Authorization : Bearer ey...)")
+    @ApiOperation(value = "회원정보 삭제", notes = "회원정보를 삭제한다. 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
     @DeleteMapping("/user")
     public ResponseEntity<Map<String, String>> deleteUser(
             HttpServletRequest request

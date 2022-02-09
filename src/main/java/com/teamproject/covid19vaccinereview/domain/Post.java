@@ -64,4 +64,21 @@ public class Post extends BaseEntity{
         this.viewCount += 1;
     }
 
+    public void increaseLikeCount(){
+        this.likeCount += 1;
+    }
+
+    public void changeBoard(Board board){
+        this.board = board;
+    }
+
+    public void changeTitle(String title){
+        this.title = title;
+    }
+
+    public void changeContent(String content){
+        this.content = content;
+    }
+
+
 }

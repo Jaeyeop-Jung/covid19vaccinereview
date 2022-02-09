@@ -1,6 +1,7 @@
 package com.teamproject.covid19vaccinereview.api;
 
 import com.teamproject.covid19vaccinereview.dto.FindPostByIdResponse;
+import com.teamproject.covid19vaccinereview.dto.ModifyPostRequest;
 import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
 import com.teamproject.covid19vaccinereview.dto.PostWriteResponse;
 import com.teamproject.covid19vaccinereview.service.PostService;
@@ -68,7 +69,7 @@ public class PostApiController {
      * @param multipartFileList the multipart file list
      * @return the post write request
      */
-    @ApiOperation(value = "게시글 작성", notes = "게시글 작성을 위한 VaccineType과 OrdinalNumber 필수 지정. 헤더에 원하는 계정 accessToken을 꼭 담아주세요.(Authorization : Bearer ey...)")
+    @ApiOperation(value = "게시글 작성", notes = "게시글 작성을 위한 VaccineType과 OrdinalNumber 필수 지정. 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
     @PostMapping("/post")
     public ResponseEntity<PostWriteResponse> postWrite(
             @ModelAttribute @Valid PostWriteRequest postWriteRequest,
@@ -83,4 +84,18 @@ public class PostApiController {
         return new ResponseEntity<>(postWriteResponse, HttpStatus.PERMANENT_REDIRECT);
     }
 
+    @ApiOperation(value = "게시글 수정", notes = "게시글 수정이 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요.")
+    @PutMapping("/post")
+    public ResponseEntity<FindPostByIdResponse> modifyPost(
+            @ModelAttribute @Valid ModifyPostRequest modifyPostRequest,
+            BindingResult bindingResult,
+            @RequestPart(required = false) @Nullable List<MultipartFile> multipartFileList,
+            HttpServletRequest request
+    ){
+        bindingParameterUtil.checkParameterBindingException(bindingResult);
+
+        FindPostByIdResponse modifiedPostResponse = postService.modifyPost(request, modifyPostRequest, multipartFileList);
+
+        return ResponseEntity.ok(modifiedPostResponse);
+    }
 }

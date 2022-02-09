@@ -1,14 +1,11 @@
 package com.teamproject.covid19vaccinereview.service;
 
 import com.teamproject.covid19vaccinereview.aop.exception.customException.*;
-import com.teamproject.covid19vaccinereview.dto.PostWriteResponse;
+import com.teamproject.covid19vaccinereview.dto.*;
 import com.teamproject.covid19vaccinereview.domain.Board;
 import com.teamproject.covid19vaccinereview.domain.Post;
 import com.teamproject.covid19vaccinereview.domain.PostImage;
 import com.teamproject.covid19vaccinereview.domain.User;
-import com.teamproject.covid19vaccinereview.dto.ImageDto;
-import com.teamproject.covid19vaccinereview.dto.FindPostByIdResponse;
-import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
 import com.teamproject.covid19vaccinereview.repository.BoardRepository;
 import com.teamproject.covid19vaccinereview.repository.PostImageRepository;
 import com.teamproject.covid19vaccinereview.repository.PostRepository;
@@ -36,6 +33,20 @@ public class PostService {
     private final PostImageRepository postImageRepository;
     private final UserService userService;
 
+    @Transactional(readOnly = true)
+    public void checkUserAuthorization(HttpServletRequest request, ModifyPostRequest modifyPostRequest){
+
+        User findUserByAccessToken = userService.getLoginUserByAccessToken(request);
+        User writer = postRepository.findById(modifyPostRequest.getId())
+                .orElseThrow(() -> new PostLostUserConnectionException("")).getUser();
+
+        System.out.println("findUserByAccessToken = " + findUserByAccessToken.getId());
+        System.out.println("writer.getId() = " + writer.getId());
+
+        if(!findUserByAccessToken.equals(writer)){
+            throw new UnAuthorizedUserException("");
+        }
+    }
 
     @Transactional
     public PostWriteResponse write(HttpServletRequest request, PostWriteRequest postWriteRequest, List<MultipartFile> multipartFileList) {
@@ -93,5 +104,14 @@ public class PostService {
                 .viewCount(findPost.getViewCount())
                 .likeCount(findPost.getLikeCount())
                 .build();
+    }
+
+    @Transactional
+    public FindPostByIdResponse modifyPost(HttpServletRequest request, ModifyPostRequest modifyPostRequest, List<MultipartFile> multipartFileList) {
+
+        checkUserAuthorization(request, modifyPostRequest);
+
+
+        return FindPostByIdResponse.builder().build();
     }
 }
