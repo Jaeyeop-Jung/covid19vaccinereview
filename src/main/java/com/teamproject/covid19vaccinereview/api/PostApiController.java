@@ -68,7 +68,7 @@ public class PostApiController {
      * @param multipartFileList the multipart file list
      * @return the post write request
      */
-    @ApiOperation(value = "게시글 작성", notes = "게시글 작성을 위한 VaccineType과 OrdinalNumber 필수 지정")
+    @ApiOperation(value = "게시글 작성", notes = "게시글 작성을 위한 VaccineType과 OrdinalNumber 필수 지정. 헤더에 원하는 계정 accessToken을 꼭 담아주세요.(Authorization : Bearer ey...)")
     @PostMapping("/post")
     public ResponseEntity<PostWriteResponse> postWrite(
             @ModelAttribute @Valid PostWriteRequest postWriteRequest,
