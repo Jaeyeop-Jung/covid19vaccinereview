@@ -27,8 +27,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Slf4j
 @RequiredArgsConstructor
 public class UserApiController {
-    @Value("${domain-url}")
-    private String domainUrl;
 
     private final UserService userService;
     private final BindingParameterUtil bindingParameterUtil;
