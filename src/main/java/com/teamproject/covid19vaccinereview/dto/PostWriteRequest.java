@@ -1,9 +1,12 @@
 package com.teamproject.covid19vaccinereview.dto;
 
 import com.teamproject.covid19vaccinereview.domain.VaccineType;
+import io.swagger.annotations.ApiParam;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,14 +16,25 @@ import java.util.Map;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class PostWriteRequest {
 
+    @NotBlank
+    @NotNull
+    @ApiParam(required = true)
     private String title;
 
+    @NotBlank
+    @NotNull
+    @ApiParam(required = true)
     private String content;
 
+    @NotNull
+    @ApiParam(required = true)
     private int ordinalNumber;
 
+    @NotNull
+    @ApiParam(required = true)
     private VaccineType vaccineType;
 
+    @ApiParam(hidden = true)
     private List<ImageDto> attachedImage = new ArrayList<>();
 
     @Builder

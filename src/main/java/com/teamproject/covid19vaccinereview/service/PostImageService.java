@@ -1,7 +1,10 @@
 package com.teamproject.covid19vaccinereview.service;
 
+import com.teamproject.covid19vaccinereview.aop.exception.customException.PostImageNotFoundException;
 import com.teamproject.covid19vaccinereview.aop.exception.customException.ProfileImageNotFoundException;
+import com.teamproject.covid19vaccinereview.domain.PostImage;
 import com.teamproject.covid19vaccinereview.domain.ProfileImage;
+import com.teamproject.covid19vaccinereview.repository.PostImageRepository;
 import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.utils.ProfileImageUtil;
 import lombok.RequiredArgsConstructor;
@@ -15,20 +18,19 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class ProfileImageService {
+public class PostImageService {
 
-    private final ProfileImageRepository profileImageRepository;
+    private final PostImageRepository postImageRepository;
     private final ProfileImageUtil profileImageUtil;
 
     @Transactional
-    public byte[] findProfileImageById(long id) throws IOException {
+    public byte[] findPostImageById(long id) throws IOException {
 
-        ProfileImage findProfileImage = profileImageRepository.findById(id)
-                .orElseThrow(() -> new ProfileImageNotFoundException(""));
+        PostImage findPostImage = postImageRepository.findById(id)
+                .orElseThrow(() -> new PostImageNotFoundException(""));
 
-        byte[] profileImageData = profileImageUtil.fileToBytes(findProfileImage.getFileName());
+        byte[] profileImageData = profileImageUtil.fileToBytes(findPostImage.getFileName());
 
         return profileImageData;
     }
-
 }

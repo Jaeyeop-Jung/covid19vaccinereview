@@ -1,18 +1,23 @@
 package com.teamproject.covid19vaccinereview.api;
 
-import com.teamproject.covid19vaccinereview.domain.LoginProvider;
+import com.teamproject.covid19vaccinereview.dto.FindPostByIdResponse;
 import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
+import com.teamproject.covid19vaccinereview.dto.PostWriteResponse;
 import com.teamproject.covid19vaccinereview.service.PostService;
+import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 @RestController
@@ -22,6 +27,7 @@ import java.util.List;
 public class PostApiController {
 
     private final PostService postService;
+    private final BindingParameterUtil bindingParameterUtil;
 
 
     /**
@@ -46,9 +52,11 @@ public class PostApiController {
      */
     @ApiOperation(value = "선택 계시글 조회", notes = "선택 게시글 조회")
     @GetMapping("/post/{id}")
-    public @ResponseBody String postFindByPostId(@PathVariable(name = "id") long id){
+    public ResponseEntity<FindPostByIdResponse> postFindByPostId(@PathVariable(name = "id") @NotNull long id){
 
-        return String.valueOf(id);
+        FindPostByIdResponse findFindPostByIdResponse = postService.findPostById(id);
+
+        return ResponseEntity.ok(findFindPostByIdResponse);
     }
 
     /**
@@ -62,20 +70,17 @@ public class PostApiController {
      */
     @ApiOperation(value = "게시글 작성", notes = "게시글 작성을 위한 VaccineType과 OrdinalNumber 필수 지정")
     @PostMapping("/post")
-    public void postWrite(
-            @ModelAttribute PostWriteRequest postWriteRequest,
+    public ResponseEntity<PostWriteResponse> postWrite(
+            @ModelAttribute @Valid PostWriteRequest postWriteRequest,
+            BindingResult bindingResult,
             @RequestPart(required = false) @Nullable List<MultipartFile> multipartFileList,
-            HttpServletRequest request,
-            HttpServletResponse response
-            ) throws IOException {
+            HttpServletRequest request
+            ) {
+        bindingParameterUtil.checkParameterBindingException(bindingResult);
 
-        if(multipartFileList != null){
-            postWriteRequest.initPostWriteRequestDto(multipartFileList);
-        }
-        String accessToken = request.getHeader("Authorization").split(" ")[1];
-        long writeId = postService.write(accessToken, postWriteRequest);
+        PostWriteResponse postWriteResponse = postService.write(request, postWriteRequest, multipartFileList);
 
-        response.sendRedirect("/post/"+writeId);
+        return new ResponseEntity<>(postWriteResponse, HttpStatus.PERMANENT_REDIRECT);
     }
 
 }

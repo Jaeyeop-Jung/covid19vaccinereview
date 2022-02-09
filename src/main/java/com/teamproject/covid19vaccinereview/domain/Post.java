@@ -3,13 +3,9 @@ package com.teamproject.covid19vaccinereview.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.validator.constraints.br.CPF;
-import org.springframework.security.core.parameters.P;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.sql.Clob;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -42,9 +38,16 @@ public class Post extends BaseEntity{
     @Lob
     private String content;
 
+    @OneToMany(mappedBy = "post")
+    private List<PostImage> postImageList = new ArrayList<>();
+
     @NotNull
-    @Column(name = "LIKE_NUMBER")
-    private int likeNumber = 0;
+    @Column(name = "VIEW_COUNT")
+    private int viewCount = 0;
+
+    @NotNull
+    @Column(name = "LIKE_COUNT")
+    private int likeCount = 0;
 
     public Post(User user, Board board, String title, String content) {
         this.user = user;
@@ -55,6 +58,10 @@ public class Post extends BaseEntity{
 
     public static Post of(User user, Board board, String title, String content){
         return new Post(user, board, title, content);
+    }
+
+    public void updateViewCount(){
+        this.viewCount += 1;
     }
 
 }

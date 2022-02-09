@@ -30,11 +30,8 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     @Transactional
     public UserDetailsImpl loadUserByUsername(String id) {  // 원래는 UserDetails을 반환형으로 하지만 자식 객체인 UserDto를 반환하게함 ( UserDto의 필드들을 사용하기 위해 )
 
-        if(!userRepository.existsById(Long.parseLong(id))){
-            throw new IncorrectDeleteUserRequestException("");
-        }
-
-        User findUser = userRepository.findById(Long.parseLong(id)).get();
+        User findUser = userRepository.findById(Long.parseLong(id))
+                .orElseThrow(() -> new IncorrectDeleteUserRequestException(""));
 
         if(findUser != null){
             return UserDetailsImpl.builder()

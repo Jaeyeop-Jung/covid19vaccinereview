@@ -1,66 +1,56 @@
 package com.teamproject.covid19vaccinereview.service;
 
-import com.teamproject.covid19vaccinereview.aop.exception.customException.IncorrcetBaordException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.PostContentBlankException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.PostTitleBlankException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.UserNotFoundException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.*;
+import com.teamproject.covid19vaccinereview.dto.PostWriteResponse;
 import com.teamproject.covid19vaccinereview.domain.Board;
 import com.teamproject.covid19vaccinereview.domain.Post;
 import com.teamproject.covid19vaccinereview.domain.PostImage;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.dto.ImageDto;
+import com.teamproject.covid19vaccinereview.dto.FindPostByIdResponse;
 import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
-import com.teamproject.covid19vaccinereview.filter.JwtTokenProvider;
 import com.teamproject.covid19vaccinereview.repository.BoardRepository;
 import com.teamproject.covid19vaccinereview.repository.PostImageRepository;
 import com.teamproject.covid19vaccinereview.repository.PostRepository;
-import com.teamproject.covid19vaccinereview.repository.UserRepository;
-import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.parameters.P;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PostService {
 
+    @Value("${domain-url}")
+    private String domainUrl;
+
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
-    private final UserRepository userRepository;
-    private final JwtTokenProvider jwtTokenProvider;
+    private final UserService userService;
 
-    public long write(String accessToken, PostWriteRequest postWriteRequest) {
 
-        if(!jwtTokenProvider.validateToken(accessToken)){
-            throw new MalformedJwtException("");
+    @Transactional
+    public PostWriteResponse write(HttpServletRequest request, PostWriteRequest postWriteRequest, List<MultipartFile> multipartFileList) {
+        User findUser = userService.getLoginUserByAccessToken(request);
+
+        if(multipartFileList != null && !multipartFileList.get(0).isEmpty()){
+            postWriteRequest.initPostWriteRequestDto(multipartFileList);
         }
 
-        Optional<User> findUserOptional = userRepository.findById(jwtTokenProvider.findUserIdByJwt(accessToken));
-        if(findUserOptional.isEmpty()){
-            throw new UserNotFoundException("");
-        }
-
-        List<Board> findBoard = boardRepository.findByVaccineTypeAndOrdinalNumber(postWriteRequest.getVaccineType(), postWriteRequest.getOrdinalNumber());
-        if(findBoard.isEmpty()){
-            throw new IncorrcetBaordException("");
-        }
-
-        if(postWriteRequest.getTitle().isBlank()){
-            throw new PostTitleBlankException("");
-        } else if(postWriteRequest.getContent().isBlank()){
-            throw new PostContentBlankException("");
-        }
+        Board findBoard = boardRepository.findByVaccineTypeAndOrdinalNumber(postWriteRequest.getVaccineType(), postWriteRequest.getOrdinalNumber())
+                .orElseThrow(() -> new IncorrcetBaordException(""));
 
         Post post = Post.of(
-                findUserOptional.get(),
-                findBoard.get(0),
+                findUser,
+                findBoard,
                 postWriteRequest.getTitle(),
                 postWriteRequest.getContent()
         );
@@ -77,6 +67,31 @@ public class PostService {
             );
         }
 
-        return post.getId();
+        return PostWriteResponse.builder()
+                .id(post.getId())
+                .location(domainUrl + "/post/" + post.getId())
+                .build();
+    }
+
+    @Transactional
+    public FindPostByIdResponse findPostById(long id){
+
+        Post findPost = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException(""));
+
+        findPost.updateViewCount();
+
+        return FindPostByIdResponse.builder()
+                .writer(findPost.getUser().getNickname())
+                .title(findPost.getTitle())
+                .content(findPost.getContent())
+                .postImageUrlList(
+                        findPost.getPostImageList().stream()
+                                .map(postImage -> domainUrl + "/postimage/" + String.valueOf(postImage.getId()))
+                                .collect(Collectors.toList())
+                )
+                .viewCount(findPost.getViewCount())
+                .likeCount(findPost.getLikeCount())
+                .build();
     }
 }
