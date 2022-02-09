@@ -60,4 +60,8 @@ public class Post extends BaseEntity{
         return new Post(user, board, title, content);
     }
 
+    public void updateViewCount(){
+        this.viewCount += 1;
+    }
+
 }

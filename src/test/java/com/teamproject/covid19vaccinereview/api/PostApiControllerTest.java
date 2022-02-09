@@ -1,20 +1,13 @@
 package com.teamproject.covid19vaccinereview.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.teamproject.covid19vaccinereview.domain.Board;
 import com.teamproject.covid19vaccinereview.domain.VaccineType;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
 import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
 import com.teamproject.covid19vaccinereview.repository.BoardRepository;
 import com.teamproject.covid19vaccinereview.repository.PostRepository;
-import com.teamproject.covid19vaccinereview.repository.UserRepository;
-import com.teamproject.covid19vaccinereview.utils.CreatePostRequestUtil;
-import com.teamproject.covid19vaccinereview.utils.CreateUserRequestUtil;
-import com.teamproject.covid19vaccinereview.utils.PostRestAssuredCRUD;
-import com.teamproject.covid19vaccinereview.utils.UserRestAssuredCRUD;
+import com.teamproject.covid19vaccinereview.utils.*;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
@@ -22,7 +15,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
@@ -42,12 +34,8 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@DisplayName("UserApiController 테스트")
-@ActiveProfiles("local")
+@DisplayName("PostApiController 테스트")
 public class PostApiControllerTest {
-
-    @Value("${domain-url}")
-    private String domainUrl;
 
     private final ObjectMapper objectMapper;
     private final ResourceLoader resourceLoader;
@@ -55,15 +43,17 @@ public class PostApiControllerTest {
     private final CreatePostRequestUtil createPostRequestUtil;
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
+    private final JsonParseUtil jsonParseUtil;
 
     @Autowired
-    public PostApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, CreatePostRequestUtil createPostRequestUtil, BoardRepository boardRepository, PostRepository postRepository, CreateUserRequestUtil createUserRequestUtil) {
+    public PostApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, CreatePostRequestUtil createPostRequestUtil, BoardRepository boardRepository, PostRepository postRepository, CreateUserRequestUtil createUserRequestUtil, JsonParseUtil jsonParseUtil) {
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
         this.createPostRequestUtil = createPostRequestUtil;
         this.boardRepository = boardRepository;
         this.postRepository = postRepository;
         this.createUserRequestUtil = createUserRequestUtil;
+        this.jsonParseUtil = jsonParseUtil;
     }
 
     @LocalServerPort
@@ -71,6 +61,8 @@ public class PostApiControllerTest {
 
     @AfterEach
     void afterEach(){
+        boardRepository.deleteAll();
+        postRepository.deleteAll();
     }
 
     @Test
@@ -106,7 +98,7 @@ public class PostApiControllerTest {
         JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
         ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
 
-        String accessToken = postUserResponse.header("Authorization");
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
 
         PostWriteRequest postWriteRequest = PostWriteRequest.builder()
                 .title("")
@@ -135,7 +127,7 @@ public class PostApiControllerTest {
         JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
         ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
 
-        String accessToken = postUserResponse.header("Authorization");
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
 
         PostWriteRequest postWriteRequest = PostWriteRequest.builder()
                 .title(testUUID)
@@ -165,8 +157,9 @@ public class PostApiControllerTest {
         boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
 
         PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
 
-        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWrite(postUserResponse.header("Authorization"), objectMapper.convertValue(postWriteRequestWithUUID, Map.class));
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWrite(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class));
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
@@ -187,15 +180,45 @@ public class PostApiControllerTest {
         boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
 
         PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
         Resource resource1 = resourceLoader.getResource("classpath:profileimage/testimage.png");
         Resource resource2 = resourceLoader.getResource("classpath:profileimage/testimage2.png");
         List<File> fileList = new ArrayList<>();
         fileList.add(resource1.getFile());
         fileList.add(resource2.getFile());
 
-        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWriteWithPostImage(postUserResponse.header("Authorization"), objectMapper.convertValue(postWriteRequestWithUUID, Map.class), fileList);
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWriteWithPostImage(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class), fileList);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+    }
+
+    @Test
+    @DisplayName("글 조회시 조회수 증가 테스트")
+    public void 글_조회시에_조히수_증가_를_테스트한다(){
+        RestAssured.port = port;
+
+        String testUUID = UUID.randomUUID().toString();
+        VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
+        int randomOrdinalNumber = (int)( Math.random() * 100 );
+
+        JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
+
+        boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
+
+        PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
+
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWrite(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class));
+
+        Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
+        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(postId);
+
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(jsonParseUtil.getJsonValue(getPostByIdResponse, "title")).isEqualTo(testUUID);
+        assertThat(jsonParseUtil.getJsonValue(getPostByIdResponse, "viewCount")).isEqualTo(String.valueOf(1));
+
     }
 }

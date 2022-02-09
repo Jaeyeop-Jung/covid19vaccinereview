@@ -40,4 +40,14 @@ public class PostRestAssuredCRUD {
                 .then().log().all()
                 .extract();
     }
+
+    public static ExtractableResponse<Response> getPostById(long id){
+        return RestAssured
+                .given().log().all()
+                .when()
+                .get("/post/" + id)
+                .then()
+                .log().all()
+                .extract();
+    }
 }

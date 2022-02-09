@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -62,16 +63,15 @@ public class DbConnectTest {
         em.clear();
 
         //when
-        List<User> findUserList = userRepository.findByEmail("데이터베이스_연결_테스트");
-        User findUser = findUserList.get(0);
+        Optional<User> findUser = userRepository.findByEmail("데이터베이스_연결_테스트");
 
-        findUser.changeNickname("데이터베이스_연결_테스트_완료");
+        findUser.get().changeNickname("데이터베이스_연결_테스트_완료");
         em.flush();
         em.clear();
 
         //then
-        assertThat(user.getEmail()).isEqualTo(findUser.getEmail()); // email 값은 변경하지 않았기 때문에 같아야한다
-        assertThat(user.getLastUpdated()).isNotEqualTo(findUser.getLastUpdated()); // 변경된 시간이 달라야한다
+        assertThat(user.getEmail()).isEqualTo(findUser.get().getEmail()); // email 값은 변경하지 않았기 때문에 같아야한다
+        assertThat(user.getLastUpdated()).isNotEqualTo(findUser.get().getLastUpdated()); // 변경된 시간이 달라야한다
 
     }
 

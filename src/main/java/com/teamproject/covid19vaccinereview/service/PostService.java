@@ -39,7 +39,7 @@ public class PostService {
 
     @Transactional
     public PostWriteResponse write(HttpServletRequest request, PostWriteRequest postWriteRequest, List<MultipartFile> multipartFileList) {
-        User findUser = userService.loginUser(request);
+        User findUser = userService.getLoginUserByAccessToken(request);
 
         if(multipartFileList != null && !multipartFileList.get(0).isEmpty()){
             postWriteRequest.initPostWriteRequestDto(multipartFileList);
@@ -73,11 +73,13 @@ public class PostService {
                 .build();
     }
 
-    @Transactional(readOnly = true)
+    @Transactional
     public FindPostByIdResponse findPostById(long id){
 
         Post findPost = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException(""));
+
+        findPost.updateViewCount();
 
         return FindPostByIdResponse.builder()
                 .writer(findPost.getUser().getNickname())

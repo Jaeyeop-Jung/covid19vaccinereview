@@ -5,9 +5,7 @@ import com.teamproject.covid19vaccinereview.domain.LoginProvider;
 import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
-import com.teamproject.covid19vaccinereview.dto.JoinRequest;
-import com.teamproject.covid19vaccinereview.dto.LoginRequest;
-import com.teamproject.covid19vaccinereview.dto.ModifyUserRequest;
+import com.teamproject.covid19vaccinereview.dto.*;
 import com.teamproject.covid19vaccinereview.filter.JwtTokenProvider;
 import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.repository.UserRepository;
@@ -22,6 +20,7 @@ import java.util.Optional;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +34,9 @@ import javax.servlet.http.HttpServletRequest;
 @Slf4j
 public class UserService {
 
+    @Value("${domain-url}")
+    private String domainUrl;
+
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -43,7 +45,7 @@ public class UserService {
     private final List<SocialOauth> socialOauthList;
 
     @Transactional(readOnly = true)
-    public User loginUser(HttpServletRequest request) {
+    public User getLoginUserByAccessToken(HttpServletRequest request) {
         String accessToken = request.getHeader("Authorization").split(" ")[1];
 
         if(!jwtTokenProvider.validateToken(accessToken)){
@@ -54,7 +56,19 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException(""));
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
+    public User getLoginUserByRefreshToken(HttpServletRequest request) {
+        String refreshToken = request.getHeader("refreshToken");
+
+        if(!jwtTokenProvider.validateToken(refreshToken)){
+            throw new MalformedJwtException("");
+        }
+
+        return userRepository.findById(jwtTokenProvider.findUserIdByJwt(refreshToken))
+                .orElseThrow(() -> new UserNotFoundException(""));
+    }
+
+    @Transactional(readOnly = true)
     public SocialOauth findSocialOauthByLoginProvider(LoginProvider loginProvider){
         return socialOauthList.stream()
                 .filter(x -> x.type() == loginProvider)
@@ -62,60 +76,56 @@ public class UserService {
                 .orElseThrow( () -> new NotDefineLoginProviderException("알 수 없는 LoginProvider 입니다."));
     }
 
+    @Transactional(readOnly = true)
+    public LoginResponse createLoginResponse(User user, String refreshToken){
+
+        ProfileImage profileImage = user.getProfileImage();
+        if(profileImage != null){
+            return LoginResponse.builder()
+                    .accessToken("Bearer " + jwtTokenProvider.generateAccessToken(user))
+                    .refreshToken(refreshToken)
+                    .nickname(user.getNickname())
+                    .profileImageUrl(domainUrl + "/profileimage/" + profileImage.getId())
+                    .build();
+        } else {
+            return LoginResponse.builder()
+                    .accessToken("Bearer " + jwtTokenProvider.generateAccessToken(user))
+                    .refreshToken(refreshToken)
+                    .nickname(user.getNickname())
+                    .build();
+        }
+    }
+
     /**
      * methodName : login
      * author : Jaeyeop Jung
      * description : ORIGINAL 계정의 로그인 Service.
-     *               RefreshToken의 유무에 따라 로직을 분리
+     * RefreshToken의 유무에 따라 로직을 분리
      *
-     * @param loginRequest     ORIGINAL 로그인에 필요한 정보
-     * @param userRefreshToken Header에 담겨온 RefreshToken 정보
-     * @return accessToken, refreshToken
+     * @param request      HttpRequest
+     * @param loginRequest ORIGINAL 로그인에 필요한 정보
+     * @return LoginResponse
      */
     @Transactional
-    public Map<String, Object> login(LoginRequest loginRequest, String userRefreshToken){
+    public LoginResponse login(HttpServletRequest request, LoginRequest loginRequest){
 
-        Map<String, Object> response = new HashMap<>();
+        if(request.getHeader("refreshToken") != null){
+            User findUser = getLoginUserByRefreshToken(request);
 
-        if(jwtTokenProvider.validateToken(userRefreshToken)){
-            Long userId = jwtTokenProvider.findUserIdByJwt(userRefreshToken);
-            User findUser = userRepository.findById(userId).get();
-            String accessToken = jwtTokenProvider.generateAccessToken(findUser);
-
-            response.put("accessToken", accessToken);
-            ProfileImage profileImage = findUser.getProfileImage();
-            if(profileImage != null){
-                response.put("profileimage", profileImage.getId());
-            }
-            response.put("nickname", findUser.getNickname());
-
-            return response;
+            return createLoginResponse(findUser, null);
 
         } else{
 
-            if(userRepository.findByEmail(loginRequest.getEmail()).isEmpty() ||
-               !bCryptPasswordEncoder.matches(loginRequest.getPassword(), userRepository.findByEmail(loginRequest.getEmail()).get(0).getPassword())){
-
-                log.error("OriginLogin Fail : email = {}, password = {}", loginRequest.getEmail(), loginRequest.getPassword());
+            User findUser = userRepository.findByEmail(loginRequest.getEmail())
+                    .orElseThrow(() -> new UserNotFoundException("아이디 또는 비밀번호가 잘못됬습니다."));
+            if(!bCryptPasswordEncoder.matches(loginRequest.getPassword(), findUser.getPassword())){
                 throw new UserNotFoundException("아이디 또는 비밀번호가 잘못됬습니다.");
             }
 
-            User findUser = userRepository.findByEmail(loginRequest.getEmail()).get(0);
-
             String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
-            String accessToken = jwtTokenProvider.generateAccessToken(findUser);
-
             findUser.changeRefreshToken(refreshToken);
 
-            response.put("refreshToken", refreshToken);
-            response.put("accessToken", accessToken);
-            ProfileImage profileImage = findUser.getProfileImage();
-            if(profileImage != null){
-                response.put("profileimage", profileImage.getId());
-            }
-            response.put("nickname", findUser.getNickname());
-
-            return response;
+            return createLoginResponse(findUser, refreshToken);
         }
     }
 
@@ -130,29 +140,28 @@ public class UserService {
      * @throws IOException the io exception
      */
     @Transactional
-    public Map<String, Object> saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
+    public LoginResponse saveUser(JoinRequest joinRequest, MultipartFile multipartFile) throws IOException {
 
-        Map<String, Object> response = new HashMap<>();
-
-        if(!userRepository.findByEmail(joinRequest.getEmail()).isEmpty()){
+        if(userRepository.existsByEmail(joinRequest.getEmail())){
             throw new EmailDuplicateException("중복된 이메일이 존재");
-        } else if(!userRepository.findByNickname(joinRequest.getNickname()).isEmpty()){
+        } else if(userRepository.existsByNickname(joinRequest.getNickname())){
             throw new NicknameDuplicateException("중복된 닉네임이 존재");
         }
 
         User savedUser;
         if(multipartFile == null || multipartFile.isEmpty()){    // 프로필 이미지 없는 User 저장
 
-            User user = User.of(
-                    joinRequest.getEmail(),
-                    bCryptPasswordEncoder.encode(joinRequest.getPassword()),
-                    UserRole.ROLE_USER,
-                    joinRequest.getLoginProvider(),
-                    joinRequest.getNickname(),
-                    null,
-                    null
+            savedUser = userRepository.save(
+                    User.of(
+                            joinRequest.getEmail(),
+                            bCryptPasswordEncoder.encode(joinRequest.getPassword()),
+                            UserRole.ROLE_USER,
+                            joinRequest.getLoginProvider(),
+                            joinRequest.getNickname(),
+                            null,
+                            null
+                    )
             );
-            savedUser = userRepository.save(user);
 
         } else {                        // 프로필 이미지 있는 User 저장
 
@@ -164,32 +173,25 @@ public class UserService {
             );
             profileImageRepository.save(profileImage);
 
-            User user = User.of(
-                    joinRequest.getEmail(),
-                    bCryptPasswordEncoder.encode(joinRequest.getPassword()),
-                    UserRole.ROLE_USER,
-                    joinRequest.getLoginProvider(),
-                    joinRequest.getNickname(),
-                    profileImage,
-                    null
+            savedUser = userRepository.save(
+                    User.of(
+                            joinRequest.getEmail(),
+                            bCryptPasswordEncoder.encode(joinRequest.getPassword()),
+                            UserRole.ROLE_USER,
+                            joinRequest.getLoginProvider(),
+                            joinRequest.getNickname(),
+                            profileImage,
+                            null
+                    )
             );
-            savedUser = userRepository.save(user);
 
             profileImageUtil.saveProfileImage(multipartFile, profileImage.getFileName());
-
-            response.put("profileimage", profileImage.getId());
         }
 
         String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser);
-        String accessToken = jwtTokenProvider.generateAccessToken(savedUser);
-
         savedUser.changeRefreshToken(refreshToken);
 
-        response.put("refreshToken", refreshToken);
-        response.put("accessToken", accessToken);
-        response.put("nickname", savedUser.getNickname());
-
-        return response;
+        return createLoginResponse(savedUser, refreshToken);
     }
 
     /**
@@ -203,147 +205,144 @@ public class UserService {
      * @throws IOException the io exception
      */
     @Transactional
-    public Map<String, Object> oauthLogin(LoginProvider loginProvider, String authorizationCode) throws IOException {
+    public LoginResponse oauthLogin(LoginProvider loginProvider, String authorizationCode) throws IOException {
 
         SocialOauth socialOauth = findSocialOauthByLoginProvider(loginProvider); // Oauth 로그인 제공자 찾기
 
         String oauthAccessToken = socialOauth.requestToken(authorizationCode); // 인가code -> AccessToken
         MultiValueMap<String, Object> userInfo = socialOauth.requestUserInfo(oauthAccessToken);
 
-        List<User> findUserList = userRepository.findByEmail(userInfo.get("email").get(0).toString());
+        Optional<User> findUser = userRepository.findByEmail(userInfo.get("email").get(0).toString());
 
-        if( findUserList.isEmpty() ){ // 비회원은 회원가입을 시키고 토큰 반환
+        if( findUser.isPresent() ){ // 회원은 바로 토큰 반환
+            Map<String, Object> response = new HashMap<>();
+
+            String refreshToken = jwtTokenProvider.generateRefreshToken(findUser.get());
+            findUser.get().changeRefreshToken(refreshToken);
+
+            return createLoginResponse(findUser.get(), refreshToken);
+
+        } else {    // 비회원은 회원가입을 하고 토큰을 반환한다.
+
             JoinRequest joinRequest = JoinRequest.builder()
                     .email(userInfo.get("email").get(0).toString())
                     .password(bCryptPasswordEncoder.encode(userInfo.get("email").get(0).toString()))
                     .loginProvider((LoginProvider) userInfo.get("loginProvider").get(0))
                     .nickname(userInfo.get("nickname").get(0).toString())
                     .build();
-            MultipartFile multipartFile = (MultipartFile) userInfo.get("profileImage").get(0);
 
-            Map<String, Object> response = saveUser(joinRequest, multipartFile);
+            LoginResponse loginResponse = saveUser(joinRequest, (MultipartFile) userInfo.get("profileImage").get(0));
 
-            return response;
-
-        } else {    // 회원은 바로 토큰을 반환한다.
-            User findUser = findUserList.get(0);
-
-            Map<String, Object> response = new HashMap<>();
-
-            String accessToken = jwtTokenProvider.generateAccessToken(findUser);
-            String refreshToken = jwtTokenProvider.generateRefreshToken(findUser);
-
-            response.put("accessToken", accessToken);
-            response.put("refreshToken", refreshToken);
-            response.put("nickname", findUser.getNickname());
-            response.put("profileimage", findUser.getProfileImage().getId());
-
-            return response;
+            return loginResponse;
         }
+
     }
 
     @Transactional
-    public Map<String, Object> modify(String accessToken, MultipartFile multipartFile, ModifyUserRequest modifyUserRequest) throws IOException {
+    public UserModifyResponse modify(HttpServletRequest request, MultipartFile multipartFile, UserModifyRequest userModifyRequest) throws IOException {
 
         Map<String, Object> response = new HashMap<>();
 
-        if(!jwtTokenProvider.validateToken(accessToken)){
+        if(!jwtTokenProvider.validateToken(request.getHeader("Authorization").split(" ")[1])){
             throw new MalformedJwtException("");
         }
 
-        Long userId = jwtTokenProvider.findUserIdByJwt(accessToken);
-        Optional<User> findUser = userRepository.findById(userId);
+        User findUser = getLoginUserByAccessToken(request);
 
-        if(modifyUserRequest.isWantToChangeProfileImage() && !multipartFile.isEmpty()){
+        if(userModifyRequest.isWantToChangeProfileImage() && !multipartFile.isEmpty()){ // 프로필 이미지 수정
 
             String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
 
-            if(findUser.get().getProfileImage() == null){
+            if(findUser.getProfileImage() == null){
 
                 ProfileImage profileImage = ProfileImage.of(
-                        findUser.get().getEmail() + fileExtension,
+                        findUser.getEmail() + fileExtension,
                         multipartFile.getSize(),
                         fileExtension
                 );
                 profileImageRepository.save(profileImage);
-                findUser.get().changeProfileImage(profileImage);
-                profileImageUtil.saveProfileImage(multipartFile, findUser.get().getProfileImage().getFileName());
+                findUser.changeProfileImage(profileImage);
+
+                profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
+                profileImageUtil.saveProfileImage(multipartFile, findUser.getProfileImage().getFileName());
 
             } else {
 
-                findUser.get().getProfileImage().changeImage(
-                        findUser.get().getEmail() + fileExtension,
+                findUser.getProfileImage().changeImage(
+                        findUser.getEmail() + fileExtension,
                         multipartFile.getSize(),
                         fileExtension
                 );
 
-                profileImageUtil.deleteProfileImage(findUser.get().getProfileImage().getFileName());
-                profileImageUtil.saveProfileImage(multipartFile, findUser.get().getProfileImage().getFileName());
+                profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
+                profileImageUtil.saveProfileImage(multipartFile, findUser.getProfileImage().getFileName());
             }
 
-        } else if(modifyUserRequest.isWantToChangeProfileImage() && multipartFile.isEmpty()) {
+        } else if(userModifyRequest.isWantToChangeProfileImage() && multipartFile.isEmpty()) {
 
-            if(findUser.get().getProfileImage() != null){
-                profileImageUtil.deleteProfileImage(findUser.get().getProfileImage().getFileName());
-                profileImageRepository.deleteById(findUser.get().getProfileImage().getId());
+            if(findUser.getProfileImage() != null){
+                profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
+                profileImageRepository.deleteById(findUser.getProfileImage().getId());
             }
 
         }
 
-        if(modifyUserRequest.getPassword() != null && modifyUserRequest.getPassword().length() != 0){
+        if(userModifyRequest.getPassword() != null && userModifyRequest.getPassword().length() != 0){   // 비밀번호 수정
 
-            if(modifyUserRequest.getPassword().isBlank()){
+            if(userModifyRequest.getPassword().isBlank()){
                 throw new BlankPasswordException("");
-            } else if(bCryptPasswordEncoder.matches(modifyUserRequest.getPassword(), findUser.get().getPassword())){
+            } else if(bCryptPasswordEncoder.matches(userModifyRequest.getPassword(), findUser.getPassword())){
                 throw new SamePasswordException("");
             }
 
-            findUser.get().changePassword(bCryptPasswordEncoder.encode(modifyUserRequest.getPassword()));
+            findUser.changePassword(bCryptPasswordEncoder.encode(userModifyRequest.getPassword()));
         }
 
-        if(modifyUserRequest.getNickname() != null && modifyUserRequest.getNickname().length() != 0){
+        if(userModifyRequest.getNickname() != null && userModifyRequest.getNickname().length() != 0){   // 닉네임 수정
 
-            if(modifyUserRequest.getNickname().isBlank()){
+            if(userModifyRequest.getNickname().isBlank()){
                 throw new BlankNicknameException("");
             }
 
-            if(userRepository.findByNickname(modifyUserRequest.getNickname()).isEmpty()){
-                findUser.get().changeNickname(modifyUserRequest.getNickname());
+            if(userRepository.findByNickname(userModifyRequest.getNickname()).isEmpty()){
+                findUser.changeNickname(userModifyRequest.getNickname());
             } else {
                 throw new NicknameDuplicateException("");
             }
         }
 
-        response.put("nickname", findUser.get().getNickname());
-        if(findUser.get().getProfileImage() != null){
-            response.put("profileimage", findUser.get().getProfileImage().getId());
-        }
+        if(findUser.getProfileImage() != null){
+            return UserModifyResponse.builder()
+                    .nickname(findUser.getNickname())
+                    .profileImageUrl(domainUrl + "/profileimage/" + findUser.getProfileImage().getId())
+                    .build();
 
-        return response;
+        } else {
+            return UserModifyResponse.builder()
+                    .nickname(findUser.getNickname())
+                    .build();
+        }
     }
 
     @Transactional
-    public String delete(String accessToken){
+    public String delete(HttpServletRequest request){
 
-        if(!jwtTokenProvider.validateToken(accessToken)){
-            throw new MalformedJwtException("");
+        User findUser = getLoginUserByAccessToken(request);
+
+//        if(!userRepository.existsById(userId)){
+//            throw new IncorrectDeleteUserRequestException("");
+//        }
+
+//        Optional<User> findUser = userRepository.findById(userId);
+//        String email = findUser.get().getEmail();
+
+        if(findUser.getProfileImage() !=  null){
+            profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
+            profileImageRepository.deleteById(findUser.getProfileImage().getId());
         }
+        userRepository.delete(findUser);
 
-        Long userId = jwtTokenProvider.findUserIdByJwt(accessToken);
-        if(!userRepository.existsById(userId)){
-            throw new IncorrectDeleteUserRequestException("");
-        }
-
-        Optional<User> findUser = userRepository.findById(userId);
-        String email = findUser.get().getEmail();
-
-        if(findUser.get().getProfileImage() !=  null){
-            profileImageUtil.deleteProfileImage(findUser.get().getProfileImage().getFileName());
-            profileImageRepository.deleteById(findUser.get().getProfileImage().getId());
-        }
-        userRepository.delete(findUser.get());
-
-        return email;
+        return findUser.getEmail();
     }
 
 }
