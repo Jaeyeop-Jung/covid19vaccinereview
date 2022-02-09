@@ -25,6 +25,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.ObjectUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -249,7 +250,14 @@ public class UserService {
 
         User findUser = getLoginUserByAccessToken(request);
 
-        if(userModifyRequest.isWantToChangeProfileImage() && !multipartFile.isEmpty()){ // 프로필 이미지 수정
+        if(userModifyRequest.isWantToChangeProfileImage() && (ObjectUtils.isEmpty(multipartFile) || multipartFile.getOriginalFilename().isBlank())) {
+
+            if(findUser.getProfileImage() != null){
+                profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
+                profileImageRepository.deleteById(findUser.getProfileImage().getId());
+            }
+
+        } else if(userModifyRequest.isWantToChangeProfileImage() && !ObjectUtils.isEmpty(multipartFile)){ // 프로필 이미지 수정
 
             String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
 
@@ -276,13 +284,6 @@ public class UserService {
 
                 profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
                 profileImageUtil.saveProfileImage(multipartFile, findUser.getProfileImage().getFileName());
-            }
-
-        } else if(userModifyRequest.isWantToChangeProfileImage() && multipartFile.isEmpty()) {
-
-            if(findUser.getProfileImage() != null){
-                profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
-                profileImageRepository.deleteById(findUser.getProfileImage().getId());
             }
 
         }
@@ -328,13 +329,6 @@ public class UserService {
     public String delete(HttpServletRequest request){
 
         User findUser = getLoginUserByAccessToken(request);
-
-//        if(!userRepository.existsById(userId)){
-//            throw new IncorrectDeleteUserRequestException("");
-//        }
-
-//        Optional<User> findUser = userRepository.findById(userId);
-//        String email = findUser.get().getEmail();
 
         if(findUser.getProfileImage() !=  null){
             profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
