@@ -61,8 +61,12 @@ public class UserService {
     public User getLoginUserByRefreshToken(HttpServletRequest request) {
         String refreshToken = request.getHeader("refreshToken");
 
-        if(!jwtTokenProvider.validateToken(refreshToken)){
-            throw new MalformedJwtException("");
+        if(refreshToken == null || refreshToken.isBlank()) {
+            return null;
+        }
+
+        if(!jwtTokenProvider.validateToken(refreshToken) || userRepository.existsByRefreshToken(refreshToken)){
+            throw new MalformedJwtException("refreshToken : " + refreshToken);
         }
 
         return userRepository.findById(jwtTokenProvider.findUserIdByJwt(refreshToken))
@@ -110,7 +114,7 @@ public class UserService {
     @Transactional
     public LoginResponse login(HttpServletRequest request, LoginRequest loginRequest){
 
-        if(request.getHeader("refreshToken") != null){
+        if( getLoginUserByRefreshToken(request) != null){
             User findUser = getLoginUserByRefreshToken(request);
 
             return createLoginResponse(findUser, null);

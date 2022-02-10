@@ -40,9 +40,6 @@ public class PostService {
         User writer = postRepository.findById(modifyPostRequest.getId())
                 .orElseThrow(() -> new PostLostUserConnectionException("")).getUser();
 
-        System.out.println("findUserByAccessToken = " + findUserByAccessToken.getId());
-        System.out.println("writer.getId() = " + writer.getId());
-
         if(!findUserByAccessToken.equals(writer)){
             throw new UnAuthorizedUserException("");
         }
@@ -110,6 +107,10 @@ public class PostService {
     public FindPostByIdResponse modifyPost(HttpServletRequest request, ModifyPostRequest modifyPostRequest, List<MultipartFile> multipartFileList) {
 
         checkUserAuthorization(request, modifyPostRequest);
+        if(multipartFileList != null && !multipartFileList.get(0).isEmpty()){
+            modifyPostRequest.initPostWriteRequestDto(multipartFileList);
+        }
+
 
 
         return FindPostByIdResponse.builder().build();

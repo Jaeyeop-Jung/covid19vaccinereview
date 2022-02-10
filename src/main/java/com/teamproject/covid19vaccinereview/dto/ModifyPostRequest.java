@@ -20,22 +20,12 @@ public class ModifyPostRequest {
     @ApiParam(required = true)
     private long id;
 
-    @NotBlank
-    @NotNull
-    @ApiParam(required = true)
     private String title;
 
-    @NotBlank
-    @NotNull
-    @ApiParam(required = true)
     private String content;
 
-    @NotNull
-    @ApiParam(required = true)
     private int ordinalNumber;
 
-    @NotNull
-    @ApiParam(required = true)
     private VaccineType vaccineType;
 
     @ApiParam(hidden = true)

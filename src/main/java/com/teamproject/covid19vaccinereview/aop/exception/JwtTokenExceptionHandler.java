@@ -46,7 +46,7 @@ public class JwtTokenExceptionHandler {
         Map<String, String> map = new HashMap<>();
         map.put("error type", httpStatus.getReasonPhrase());
         map.put("code", "400");
-        map.put("message", "잘못된 토큰입니다. 다시 로그인 하세요");
+        map.put("message", "잘못된 토큰입니다. 다시 로그인 하세요. " + e.getMessage());
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
