@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -76,7 +77,7 @@ public class PostApiController {
             BindingResult bindingResult,
             @RequestPart(required = false) @Nullable List<MultipartFile> multipartFileList,
             HttpServletRequest request
-            ) {
+            ) throws IOException {
         bindingParameterUtil.checkParameterBindingException(bindingResult);
 
         PostWriteResponse postWriteResponse = postService.write(request, postWriteRequest, multipartFileList);
@@ -85,8 +86,9 @@ public class PostApiController {
     }
 
     @ApiOperation(value = "게시글 수정", notes = "게시글 수정이 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요.")
-    @PutMapping("/post")
-    public ResponseEntity<FindPostByIdResponse> modifyPost(
+    @PutMapping("/post/{id}")
+    public ResponseEntity<PostWriteResponse> modifyPost(
+            @PathVariable(name = "id") @NotNull long id,
             @ModelAttribute @Valid ModifyPostRequest modifyPostRequest,
             BindingResult bindingResult,
             @RequestPart(required = false) @Nullable List<MultipartFile> multipartFileList,
@@ -94,8 +96,8 @@ public class PostApiController {
     ){
         bindingParameterUtil.checkParameterBindingException(bindingResult);
 
-        FindPostByIdResponse modifiedPostResponse = postService.modifyPost(request, modifyPostRequest, multipartFileList);
+        PostWriteResponse postModifyResponse = postService.modifyPost(request, id, modifyPostRequest, multipartFileList);
 
-        return ResponseEntity.ok(modifiedPostResponse);
+        return new ResponseEntity<>(postModifyResponse, HttpStatus.PERMANENT_REDIRECT);
     }
 }

@@ -14,9 +14,6 @@ import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.BindingResult;
@@ -102,17 +99,17 @@ public class UserApiController {
 
     @ApiOperation(value = "회원정보 수정", notes = "회원정보를 수정한다. 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...). wantToChangeProfileImage를 꼭 넣어주세요.")
     @PutMapping("/user")
-    public ResponseEntity<UserModifyResponse> modifyUser(
+    public ResponseEntity<ModifyUserResponse> modifyUser(
             HttpServletRequest request,
             @RequestPart(required = false) @Nullable MultipartFile multipartFile,
-            @ModelAttribute UserModifyRequest userModifyRequest,
+            @ModelAttribute ModifyUserRequest modifyUserRequest,
             BindingResult bindingResult
             ) throws IOException {
         bindingParameterUtil.checkParameterBindingException(bindingResult);
 
-        UserModifyResponse userModifyResponse = userService.modify(request, multipartFile, userModifyRequest);
+        ModifyUserResponse modifyUserResponse = userService.modify(request, multipartFile, modifyUserRequest);
 
-        return ResponseEntity.ok(userModifyResponse);
+        return ResponseEntity.ok(modifyUserResponse);
     }
 
     @ApiOperation(value = "회원정보 삭제", notes = "회원정보를 삭제한다. 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")

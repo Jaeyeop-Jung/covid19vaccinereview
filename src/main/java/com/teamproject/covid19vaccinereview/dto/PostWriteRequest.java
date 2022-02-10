@@ -10,6 +10,7 @@ import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Getter
 @ToString
@@ -49,10 +50,11 @@ public class PostWriteRequest {
 
         for (MultipartFile multipartFile : multipartFileList) {
             String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
+            String fileName = multipartFile.getOriginalFilename().substring(0, multipartFile.getOriginalFilename().lastIndexOf(".")) + ".UUID=" + UUID.randomUUID().toString() + fileExtension;
             attachedImage.add(
                     ImageDto.builder()
                             .multipartFile(multipartFile)
-                            .fileName(multipartFile.getOriginalFilename())
+                            .fileName(fileName)
                             .fileSize(multipartFile.getSize())
                             .fileExtension(fileExtension)
                             .build()

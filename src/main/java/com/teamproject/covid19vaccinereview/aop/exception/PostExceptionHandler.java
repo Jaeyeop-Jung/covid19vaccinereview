@@ -15,7 +15,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class PostExceptionHandler {
 
-    @ExceptionHandler(PostTitleBlankException.class)
+    @ExceptionHandler(BlankPostTitleException.class)
     public ResponseEntity<Map<String, String>> postTitleBlankExceptionHandler(Exception e){
 
         HttpHeaders responseHeader = new HttpHeaders();
@@ -31,7 +31,7 @@ public class PostExceptionHandler {
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
 
-    @ExceptionHandler(PostContentBlankException.class)
+    @ExceptionHandler(BlankPostContentException.class)
     public ResponseEntity<Map<String, String>> postContentBlankExceptionHandler(Exception e){
 
         HttpHeaders responseHeader = new HttpHeaders();

@@ -9,7 +9,7 @@ import com.teamproject.covid19vaccinereview.dto.*;
 import com.teamproject.covid19vaccinereview.filter.JwtTokenProvider;
 import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
 import com.teamproject.covid19vaccinereview.repository.UserRepository;
-import com.teamproject.covid19vaccinereview.utils.ProfileImageUtil;
+import com.teamproject.covid19vaccinereview.utils.ImageFileUtil;
 import com.teamproject.covid19vaccinereview.service.Oauth.SocialOauth;
 import java.io.IOException;
 import java.util.HashMap;
@@ -42,7 +42,7 @@ public class UserService {
     private final ProfileImageRepository profileImageRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final ProfileImageUtil profileImageUtil;
+    private final ImageFileUtil imageFileUtil;
     private final List<SocialOauth> socialOauthList;
 
     @Transactional(readOnly = true)
@@ -190,7 +190,7 @@ public class UserService {
                     )
             );
 
-            profileImageUtil.saveProfileImage(multipartFile, profileImage.getFileName());
+            imageFileUtil.saveProfileImage(multipartFile, profileImage.getFileName());
         }
 
         String refreshToken = jwtTokenProvider.generateRefreshToken(savedUser);
@@ -220,7 +220,6 @@ public class UserService {
         Optional<User> findUser = userRepository.findByEmail(userInfo.get("email").get(0).toString());
 
         if( findUser.isPresent() ){ // 회원은 바로 토큰 반환
-            Map<String, Object> response = new HashMap<>();
 
             String refreshToken = jwtTokenProvider.generateRefreshToken(findUser.get());
             findUser.get().changeRefreshToken(refreshToken);
@@ -244,7 +243,7 @@ public class UserService {
     }
 
     @Transactional
-    public UserModifyResponse modify(HttpServletRequest request, MultipartFile multipartFile, UserModifyRequest userModifyRequest) throws IOException {
+    public ModifyUserResponse modify(HttpServletRequest request, MultipartFile multipartFile, ModifyUserRequest modifyUserRequest) throws IOException {
 
         Map<String, Object> response = new HashMap<>();
 
@@ -254,14 +253,14 @@ public class UserService {
 
         User findUser = getLoginUserByAccessToken(request);
 
-        if(userModifyRequest.isWantToChangeProfileImage() && (ObjectUtils.isEmpty(multipartFile) || multipartFile.getOriginalFilename().isBlank())) {
+        if(modifyUserRequest.isWantToChangeProfileImage() && (ObjectUtils.isEmpty(multipartFile) || multipartFile.getOriginalFilename().isBlank())) {
 
             if(findUser.getProfileImage() != null){
-                profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
+                imageFileUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
                 profileImageRepository.deleteById(findUser.getProfileImage().getId());
             }
 
-        } else if(userModifyRequest.isWantToChangeProfileImage() && !ObjectUtils.isEmpty(multipartFile)){ // 프로필 이미지 수정
+        } else if(modifyUserRequest.isWantToChangeProfileImage() && !ObjectUtils.isEmpty(multipartFile)){ // 프로필 이미지 수정
 
             String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
 
@@ -275,8 +274,8 @@ public class UserService {
                 profileImageRepository.save(profileImage);
                 findUser.changeProfileImage(profileImage);
 
-                profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
-                profileImageUtil.saveProfileImage(multipartFile, findUser.getProfileImage().getFileName());
+                imageFileUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
+                imageFileUtil.saveProfileImage(multipartFile, findUser.getProfileImage().getFileName());
 
             } else {
 
@@ -286,44 +285,44 @@ public class UserService {
                         fileExtension
                 );
 
-                profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
-                profileImageUtil.saveProfileImage(multipartFile, findUser.getProfileImage().getFileName());
+                imageFileUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
+                imageFileUtil.saveProfileImage(multipartFile, findUser.getProfileImage().getFileName());
             }
 
         }
 
-        if(userModifyRequest.getPassword() != null && userModifyRequest.getPassword().length() != 0){   // 비밀번호 수정
+        if(modifyUserRequest.getPassword() != null && modifyUserRequest.getPassword().length() != 0){   // 비밀번호 수정
 
-            if(userModifyRequest.getPassword().isBlank()){
+            if(modifyUserRequest.getPassword().isBlank()){
                 throw new BlankPasswordException("");
-            } else if(bCryptPasswordEncoder.matches(userModifyRequest.getPassword(), findUser.getPassword())){
+            } else if(bCryptPasswordEncoder.matches(modifyUserRequest.getPassword(), findUser.getPassword())){
                 throw new SamePasswordException("");
             }
 
-            findUser.changePassword(bCryptPasswordEncoder.encode(userModifyRequest.getPassword()));
+            findUser.changePassword(bCryptPasswordEncoder.encode(modifyUserRequest.getPassword()));
         }
 
-        if(userModifyRequest.getNickname() != null && userModifyRequest.getNickname().length() != 0){   // 닉네임 수정
+        if(modifyUserRequest.getNickname() != null && modifyUserRequest.getNickname().length() != 0){   // 닉네임 수정
 
-            if(userModifyRequest.getNickname().isBlank()){
+            if(modifyUserRequest.getNickname().isBlank()){
                 throw new BlankNicknameException("");
             }
 
-            if(userRepository.findByNickname(userModifyRequest.getNickname()).isEmpty()){
-                findUser.changeNickname(userModifyRequest.getNickname());
+            if(userRepository.findByNickname(modifyUserRequest.getNickname()).isEmpty()){
+                findUser.changeNickname(modifyUserRequest.getNickname());
             } else {
                 throw new NicknameDuplicateException("");
             }
         }
 
         if(findUser.getProfileImage() != null){
-            return UserModifyResponse.builder()
+            return ModifyUserResponse.builder()
                     .nickname(findUser.getNickname())
                     .profileImageUrl(domainUrl + "/profileimage/" + findUser.getProfileImage().getId())
                     .build();
 
         } else {
-            return UserModifyResponse.builder()
+            return ModifyUserResponse.builder()
                     .nickname(findUser.getNickname())
                     .build();
         }
@@ -335,7 +334,7 @@ public class UserService {
         User findUser = getLoginUserByAccessToken(request);
 
         if(findUser.getProfileImage() !=  null){
-            profileImageUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
+            imageFileUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
             profileImageRepository.deleteById(findUser.getProfileImage().getId());
         }
         userRepository.delete(findUser);
