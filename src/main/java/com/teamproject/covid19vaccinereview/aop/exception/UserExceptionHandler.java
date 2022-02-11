@@ -159,4 +159,20 @@ public class UserExceptionHandler {
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
 
+    @ExceptionHandler(UnAuthorizedUserException.class)
+    public ResponseEntity<Map<String, String>> unAuthorizedUserExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.UNAUTHORIZED;
+
+        log.info("Advice : unAuthorizedUserExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "401");
+        map.put("message", "권한이 없는 사용자의 요청입니다.");
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
+
 }

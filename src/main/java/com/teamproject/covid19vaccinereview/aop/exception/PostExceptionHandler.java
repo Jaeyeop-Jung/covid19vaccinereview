@@ -1,9 +1,6 @@
 package com.teamproject.covid19vaccinereview.aop.exception;
 
-import com.teamproject.covid19vaccinereview.aop.exception.customException.EmailDuplicateException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.PostContentBlankException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.PostNotFoundException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.PostTitleBlankException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -18,7 +15,7 @@ import java.util.Map;
 @RestControllerAdvice
 public class PostExceptionHandler {
 
-    @ExceptionHandler(PostTitleBlankException.class)
+    @ExceptionHandler(BlankPostTitleException.class)
     public ResponseEntity<Map<String, String>> postTitleBlankExceptionHandler(Exception e){
 
         HttpHeaders responseHeader = new HttpHeaders();
@@ -34,7 +31,7 @@ public class PostExceptionHandler {
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
 
-    @ExceptionHandler(PostContentBlankException.class)
+    @ExceptionHandler(BlankPostContentException.class)
     public ResponseEntity<Map<String, String>> postContentBlankExceptionHandler(Exception e){
 
         HttpHeaders responseHeader = new HttpHeaders();
@@ -62,6 +59,22 @@ public class PostExceptionHandler {
         map.put("error type", httpStatus.getReasonPhrase());
         map.put("code", "400");
         map.put("message", "해당 id의 글을 찾지 못했습니다.");
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
+
+    @ExceptionHandler(PostLostUserConnectionException.class)
+    public ResponseEntity<Map<String, String>> postLostUserConnectionExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        log.info("Advice : postLostUserConnectionExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "400");
+        map.put("message", "해당 글의 작성자를 찾지 못했습니다.");
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }

@@ -5,9 +5,6 @@ import static org.mockito.Mockito.mock;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.teamproject.covid19vaccinereview.aop.LoggingAspect;
 import com.teamproject.covid19vaccinereview.domain.UserRole;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
@@ -55,11 +52,11 @@ public class UserApiControllerTest {
     private final ProfileImageRepository profileImageRepository;
     private final CreateUserRequestUtil createUserRequestUtil;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
-    private final ProfileImageUtil profileImageUtil;
+    private final ImageFileUtil imageFileUtil;
     private final JsonParseUtil jsonParseUtil;
 
     @Autowired
-    public UserApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, EntityManager em, UserRepository userRepository, ProfileImageRepository profileImageRepository, CreateUserRequestUtil createUserRequestUtil, BCryptPasswordEncoder bCryptPasswordEncoder, ProfileImageUtil profileImageUtil, JsonParseUtil jsonParseUtil) {
+    public UserApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, EntityManager em, UserRepository userRepository, ProfileImageRepository profileImageRepository, CreateUserRequestUtil createUserRequestUtil, BCryptPasswordEncoder bCryptPasswordEncoder, ImageFileUtil imageFileUtil, JsonParseUtil jsonParseUtil) {
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
         this.em = em;
@@ -67,7 +64,7 @@ public class UserApiControllerTest {
         this.profileImageRepository = profileImageRepository;
         this.createUserRequestUtil = createUserRequestUtil;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
-        this.profileImageUtil = profileImageUtil;
+        this.imageFileUtil = imageFileUtil;
         this.jsonParseUtil = jsonParseUtil;
     }
 
@@ -257,7 +254,7 @@ public class UserApiControllerTest {
         assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(changeProfileImageResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(userRepository.findByEmail(testUUID + "@" + testUUID + ".com").get().getProfileImage().getFileSize()).isEqualTo(changedResource.contentLength());
-        assertThat(profileImageUtil.fileToBytes( profileImageRepository.findByFileName(testUUID + "@" + testUUID + ".com" + ".png").get(0).getFileName() ))
+        assertThat(imageFileUtil.profileImageFileToBytes( profileImageRepository.findByFileName(testUUID + "@" + testUUID + ".com" + ".png").get(0).getFileName() ))
                 .isEqualTo(FileUtil.readAsByteArray(changedResource.getFile()));
     }
 

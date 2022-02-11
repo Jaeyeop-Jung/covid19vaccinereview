@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.domain;
 
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.*;
@@ -51,6 +52,19 @@ public class User extends BaseEntity{
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.refreshToken = refreshToken;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return getId().equals(user.getId()) && getEmail().equals(user.getEmail()) && getPassword().equals(user.getPassword()) && getRole() == user.getRole() && getLoginProvider() == user.getLoginProvider() && getNickname().equals(user.getNickname()) && Objects.equals(getProfileImage(), user.getProfileImage()) && Objects.equals(getRefreshToken(), user.getRefreshToken());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getEmail(), getPassword(), getRole(), getLoginProvider(), getNickname(), getProfileImage(), getRefreshToken());
     }
 
     public static User of(String email, String password, UserRole role, LoginProvider provider, String nickname, ProfileImage profileImage, String refreshToken){

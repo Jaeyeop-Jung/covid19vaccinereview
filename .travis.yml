@@ -39,7 +39,7 @@ deploy:
 - provider: s3
   access_key_id: "$AWS_ACCESS_KEY"
   secret_access_key: "$AWS_SECRET_KEY"
-  bucket: covid19vaccinereview
+  bucket: covid19vaccinereviewbucket
   region: ap-northeast-2
   skip_cleanup: true
   acl: private
@@ -48,7 +48,7 @@ deploy:
 - provider: codedeploy
   access_key_id: "$AWS_ACCESS_KEY"
   secret_access_key: "$AWS_SECRET_KEY"
-  bucket: covid19vaccinereview
+  bucket: covid19vaccinereviewbucket
   key: covid19vaccinereview.zip
   bundle_type: zip
   application: covid19vaccinereview

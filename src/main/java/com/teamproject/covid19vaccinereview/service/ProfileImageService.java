@@ -3,14 +3,13 @@ package com.teamproject.covid19vaccinereview.service;
 import com.teamproject.covid19vaccinereview.aop.exception.customException.ProfileImageNotFoundException;
 import com.teamproject.covid19vaccinereview.domain.ProfileImage;
 import com.teamproject.covid19vaccinereview.repository.ProfileImageRepository;
-import com.teamproject.covid19vaccinereview.utils.ProfileImageUtil;
+import com.teamproject.covid19vaccinereview.utils.ImageFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +17,7 @@ import java.util.Optional;
 public class ProfileImageService {
 
     private final ProfileImageRepository profileImageRepository;
-    private final ProfileImageUtil profileImageUtil;
+    private final ImageFileUtil imageFileUtil;
 
     @Transactional
     public byte[] findProfileImageById(long id) throws IOException {
@@ -26,7 +25,7 @@ public class ProfileImageService {
         ProfileImage findProfileImage = profileImageRepository.findById(id)
                 .orElseThrow(() -> new ProfileImageNotFoundException(""));
 
-        byte[] profileImageData = profileImageUtil.fileToBytes(findProfileImage.getFileName());
+        byte[] profileImageData = imageFileUtil.profileImageFileToBytes(findProfileImage.getFileName());
 
         return profileImageData;
     }

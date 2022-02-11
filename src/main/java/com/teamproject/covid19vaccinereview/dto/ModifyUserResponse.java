@@ -5,14 +5,14 @@ import lombok.*;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
-public class UserModifyResponse {
+public class ModifyUserResponse {
 
     private String nickname;
 
     private String profileImageUrl;
 
     @Builder
-    public UserModifyResponse(String nickname, String profileImageUrl) {
+    public ModifyUserResponse(String nickname, String profileImageUrl) {
         this.nickname = nickname;
         this.profileImageUrl = profileImageUrl;
     }

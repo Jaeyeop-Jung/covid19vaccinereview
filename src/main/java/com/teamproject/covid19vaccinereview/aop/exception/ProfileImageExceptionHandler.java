@@ -28,7 +28,7 @@ public class ProfileImageExceptionHandler {
         Map<String, String> map = new HashMap<>();
         map.put("error type", httpStatus.getReasonPhrase());
         map.put("code", "400");
-        map.put("message", "중복된 프로필 이미지 파일이 존재합니다");
+        map.put("message", "중복된 프로필 이미지 파일이 존재합니다. DB에 User가 없지만 프로필 이미지 파일이 존재하는지 확인해보십시오.");
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }

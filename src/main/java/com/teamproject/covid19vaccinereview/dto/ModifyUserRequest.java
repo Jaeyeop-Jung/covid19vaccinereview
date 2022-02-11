@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class UserModifyRequest {
+public class ModifyUserRequest {
 
     @NotBlank
     private String password;
@@ -22,7 +22,7 @@ public class UserModifyRequest {
     private boolean wantToChangeProfileImage;
 
     @Builder
-    public UserModifyRequest(String password, String nickname, boolean wantToChangeProfileImage) {
+    public ModifyUserRequest(String password, String nickname, boolean wantToChangeProfileImage) {
         this.password = password;
         this.nickname = nickname;
         this.wantToChangeProfileImage = wantToChangeProfileImage;
