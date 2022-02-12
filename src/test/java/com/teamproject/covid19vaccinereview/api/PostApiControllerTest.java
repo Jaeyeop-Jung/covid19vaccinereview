@@ -303,15 +303,6 @@ public class PostApiControllerTest {
         JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
         ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
 
-//        Board preBoard = boardRepository.save(Board.of(preRandomVaccineType, preRandomOrdinalNumber));
-//        em.createNativeQuery("INSERT INTO boards (vaccine_types, ordinal_number) VALUES (:1, :2)")
-//                .setParameter("1", preRandomVaccineType.toString())
-//                .setParameter("2", preRandomOrdinalNumber)
-//                .executeUpdate();
-
-//        List<Board> all = boardRepository.findAll();
-//        System.out.println("all.get(0).getVaccineType() + all.get(0).getOrdinalNumber() = " + all.get(0).getVaccineType() + all.get(0).getOrdinalNumber());
-
         ExtractableResponse<Response> postPreBoardResponse = BoardRestAssuredCRUD.postBoard(preRandomVaccineType, preRandomOrdinalNumber);
 
         PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, preRandomVaccineType, preRandomOrdinalNumber);
@@ -330,10 +321,11 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> putBoardPostById = PostRestAssuredCRUD.putTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyBoard, null);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPreBoardResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
-//        assertThat(postRepository.findById(postId).get().getBoard().getVaccineType()).isEqualTo(preRandomVaccineType);
+        assertThat(postPostBoardResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(putBoardPostById.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
-//        assertThat(postRepository.findById(postId).get().getBoard().getVaccineType()).isEqualTo(postRandomVaccineType);
+        assertThat(postRepository.findById(postId).get().getBoard().getVaccineType()).isEqualTo(postRandomVaccineType);
     }
 
 

@@ -18,7 +18,6 @@ public class BoardService {
     private final BoardRepository boardRepository;
 
     public Map<String, Object> createBoard(VaccineType vaccineType, int ordinalNumber){
-        System.out.println("vaccineType = " + vaccineType);
         boardRepository.save(Board.of(vaccineType, ordinalNumber));
         HashMap<String, Object> response = new HashMap<>();
         response.put("vaccineType", vaccineType);
