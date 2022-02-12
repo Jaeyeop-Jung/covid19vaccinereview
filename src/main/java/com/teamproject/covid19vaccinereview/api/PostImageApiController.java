@@ -20,10 +20,9 @@ public class PostImageApiController {
 
     private final PostImageService postImageService;
 
-    @GetMapping(value = "/postimage/{id}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     @ApiOperation(value = "게시글 이미지", notes = "게시글 이미지를 제공하는 api")
-    public @ResponseBody
-    byte[] getProfileImage(
+    @GetMapping(value = "/postimage/{id}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+    public @ResponseBody byte[] getProfileImage(
             @PathVariable(name = "id") long id,
             HttpServletResponse response) throws IOException {
 

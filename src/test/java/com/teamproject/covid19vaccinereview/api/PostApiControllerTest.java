@@ -4,18 +4,16 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamproject.covid19vaccinereview.domain.Board;
 import com.teamproject.covid19vaccinereview.domain.VaccineType;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
-import com.teamproject.covid19vaccinereview.dto.ModifyPostRequest;
 import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
 import com.teamproject.covid19vaccinereview.repository.BoardRepository;
 import com.teamproject.covid19vaccinereview.repository.PostImageRepository;
 import com.teamproject.covid19vaccinereview.repository.PostRepository;
+import com.teamproject.covid19vaccinereview.repository.UserRepository;
 import com.teamproject.covid19vaccinereview.utils.*;
 import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,7 +21,10 @@ import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.Commit;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.persistence.EntityManager;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -34,7 +35,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureMockMvc
 @DisplayName("PostApiController 테스트")
 public class PostApiControllerTest {
 
@@ -45,10 +45,11 @@ public class PostApiControllerTest {
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
+    private final UserRepository userRepository;
     private final JsonParseUtil jsonParseUtil;
 
     @Autowired
-    public PostApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, CreatePostRequestUtil createPostRequestUtil, BoardRepository boardRepository, PostRepository postRepository, CreateUserRequestUtil createUserRequestUtil, PostImageRepository postImageRepository, JsonParseUtil jsonParseUtil) {
+    public PostApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, CreatePostRequestUtil createPostRequestUtil, BoardRepository boardRepository, PostRepository postRepository, CreateUserRequestUtil createUserRequestUtil, PostImageRepository postImageRepository, UserRepository userRepository, JsonParseUtil jsonParseUtil) {
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
         this.createPostRequestUtil = createPostRequestUtil;
@@ -56,6 +57,7 @@ public class PostApiControllerTest {
         this.postRepository = postRepository;
         this.createUserRequestUtil = createUserRequestUtil;
         this.postImageRepository = postImageRepository;
+        this.userRepository = userRepository;
         this.jsonParseUtil = jsonParseUtil;
     }
 
@@ -64,9 +66,10 @@ public class PostApiControllerTest {
 
     @AfterEach
     void afterEach(){
-        boardRepository.deleteAll();
         postRepository.deleteAll();
         postImageRepository.deleteAll();
+        boardRepository.deleteAll();
+        userRepository.deleteAll();
     }
 
     @Test
@@ -247,28 +250,84 @@ public class PostApiControllerTest {
 
         Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
 
-        ExtractableResponse<Response> putPostById = PostRestAssuredCRUD.putPostById(postId, accessToken, objectMapper.convertValue(ModifyPostRequest.builder().title("ge").vaccineType(VaccineType.MODERNA).build(), Map.class));
+        Map<Object, Object> modifyPostRequestOnlyTitle = createPostRequestUtil.createModifyPostRequestOnlyTitle(testUUID, randomVaccineType, randomOrdinalNumber, false);
+        ExtractableResponse<Response> putTitlePostById = PostRestAssuredCRUD.putTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyTitle, null);
 
-
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(putTitlePostById.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(jsonParseUtil.getJsonValue(putTitlePostById, "id")).isEqualTo(String.valueOf(postId));
     }
 
     @Test
     @DisplayName("게시글 내용 수정 테스트")
     public void 게시글_내용_수정_을_테스트한다(){
+        RestAssured.port = port;
 
+        String testUUID = UUID.randomUUID().toString();
+        VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
+        int randomOrdinalNumber = (int)( Math.random() * 100 );
+
+        JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
+
+        boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
+
+        PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
+
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWrite(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class));
+
+        Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
+
+        Map<Object, Object> modifyPostRequestOnlyTitle = createPostRequestUtil.createModifyPostRequestOnlyContent(testUUID, randomVaccineType, randomOrdinalNumber, false);
+        ExtractableResponse<Response> putTitlePostById = PostRestAssuredCRUD.putTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyTitle, null);
+
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(putTitlePostById.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(jsonParseUtil.getJsonValue(putTitlePostById, "id")).isEqualTo(String.valueOf(postId));
     }
 
     @Test
     @DisplayName("게시글 게시판 수정 테스트")
-    public void 게시글_게시판_내용_을_테스트한다(){
-
-    }
-
-    @Test
-    @DisplayName("게시글 게시판 수정 테스트")
+    @Transactional
+    @Commit
     public void 게시글_게시판_수정_을_테스트한다(){
+        RestAssured.port = port;
 
+        String testUUID = UUID.randomUUID().toString();
+        VaccineType preRandomVaccineType = VaccineType.getRandomVaccineType();
+        int preRandomOrdinalNumber = (int)( Math.random() * 100 );
+
+        JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
+
+        ExtractableResponse<Response> postPreBoardResponse = BoardRestAssuredCRUD.postBoard(preRandomVaccineType, preRandomOrdinalNumber);
+
+        PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, preRandomVaccineType, preRandomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
+
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWrite(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class));
+
+        Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
+
+        VaccineType postRandomVaccineType = VaccineType.getRandomVaccineType();
+        int postRandomOrdinalNumber = (int)( Math.random() * 100 );
+
+        ExtractableResponse<Response> postPostBoardResponse = BoardRestAssuredCRUD.postBoard(postRandomVaccineType, postRandomOrdinalNumber);
+
+        Map<Object, Object> modifyPostRequestOnlyBoard = createPostRequestUtil.createModifyPostRequestOnlyBoard(postRandomVaccineType, postRandomOrdinalNumber, false);
+        ExtractableResponse<Response> putBoardPostById = PostRestAssuredCRUD.putTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyBoard, null);
+
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPreBoardResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostBoardResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(putBoardPostById.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postRepository.findById(postId).get().getBoard().getVaccineType()).isEqualTo(postRandomVaccineType);
     }
+
 
     @Test
     @DisplayName("게시글 첨부 이미지 삭제 테스트")

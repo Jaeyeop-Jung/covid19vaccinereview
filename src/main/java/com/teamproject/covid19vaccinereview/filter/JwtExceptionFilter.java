@@ -29,8 +29,6 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
 
         try{
             filterChain.doFilter(request, response);
-        } catch (MalformedJwtException e) {
-
         } catch (IncorrectDeleteUserRequestException e){
             Map<String, String> map = new HashMap<>();
 
@@ -41,10 +39,5 @@ public class JwtExceptionFilter extends OncePerRequestFilter {
             log.error("삭제된 유저의 토큰으로 접근");
             response.getWriter().write(objectMapper.writeValueAsString(map));
         }
-//        } catch () {
-//
-//        } catch () {
-//
-//        }
     }
 }
