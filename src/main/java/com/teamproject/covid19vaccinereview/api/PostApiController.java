@@ -21,6 +21,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -85,7 +86,7 @@ public class PostApiController {
         return new ResponseEntity<>(postWriteResponse, HttpStatus.PERMANENT_REDIRECT);
     }
 
-    @ApiOperation(value = "게시글 수정", notes = "게시글 수정이 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요.")
+    @ApiOperation(value = "게시글 수정", notes = "게시글 수정이 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
     @PutMapping("/post/{id}")
     public ResponseEntity<PostWriteResponse> modifyPost(
             @PathVariable(name = "id") @NotNull long id,
@@ -99,5 +100,17 @@ public class PostApiController {
         PostWriteResponse postModifyResponse = postService.modifyPost(request, id, modifyPostRequest, multipartFileList);
 
         return new ResponseEntity<>(postModifyResponse, HttpStatus.PERMANENT_REDIRECT);
+    }
+
+    @ApiOperation(value = "게시글 삭제", notes = "게시글 삭제가 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
+    @DeleteMapping("/post/{id}")
+    public ResponseEntity<Map<String, Object>> deletePost(
+            @PathVariable(name = "id") @NotNull long id,
+            HttpServletRequest request
+    )
+    {
+        Map<String, Object> response = postService.deletePost(id, request);
+
+        return ResponseEntity.ok(response);
     }
 }

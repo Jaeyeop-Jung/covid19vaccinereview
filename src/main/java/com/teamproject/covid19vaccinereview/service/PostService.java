@@ -36,6 +36,7 @@ public class PostService {
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
     private final UserService userService;
+    private final PostImageService postImageService;
     private final ImageFileUtil imageFileUtil;
 
     @Transactional(readOnly = true)
@@ -168,5 +169,25 @@ public class PostService {
                 .id(postId)
                 .location(domainUrl + "/post/" + postId)
                 .build();
+    }
+
+    @Transactional
+    public Map<String, Object> deletePost(long id, HttpServletRequest request){
+
+        User findUser = userService.getLoginUserByAccessToken(request);
+        User writer = postRepository.findById(id)
+                .orElseThrow(() -> new PostNotFoundException("")).getUser();
+
+        if(!writer.equals(findUser)){
+            throw new UnAuthorizedUserException("");
+        }
+
+        postImageService.deletePostImageByPostId(id);
+        postRepository.deleteById(id);
+
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", id);
+
+        return map;
     }
 }
