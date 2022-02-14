@@ -64,6 +64,11 @@ public class PostApiControllerTest {
     @LocalServerPort
     int port;
 
+    @BeforeEach
+    void beforeEach() {
+        RestAssured.port = port;
+    }
+
     @AfterEach
     void afterEach(){
         postRepository.deleteAll();
@@ -75,7 +80,6 @@ public class PostApiControllerTest {
     @Test
     @DisplayName("잘못된 토큰으로 게시글 작성")
     public void 잘못된_토큰_을_이용하여_게시글_작성_을_테스트한다(){
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
         VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
@@ -93,7 +97,6 @@ public class PostApiControllerTest {
     @Test
     @DisplayName("빈 제목 게시글 작성")
     public void 빈_제목으로_게시글_작성_을_테스트한다(){
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
         VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
@@ -122,7 +125,6 @@ public class PostApiControllerTest {
     @Test
     @DisplayName("빈 내용 게시글 작성")
     public void 빈_내용으로_게시글_작성_을_테스트한다(){
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
         VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
@@ -152,7 +154,6 @@ public class PostApiControllerTest {
     @Test
     @DisplayName("이미지가 없는 게시글 작성 테스트")
     public void 이미지가_없는_게시글_작성_을_테스트한다(){
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
         VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
@@ -175,7 +176,6 @@ public class PostApiControllerTest {
     @Test
     @DisplayName("이미지가 있는 게시글 작성 테스트")
     public void 이미지가_있는_게시글_작성_을_테스트한다() throws IOException {
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
         VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
@@ -203,7 +203,6 @@ public class PostApiControllerTest {
     @Test
     @DisplayName("글 조회시 조회수 증가 테스트")
     public void 글_조회시에_조히수_증가_를_테스트한다(){
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
         VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
@@ -232,7 +231,6 @@ public class PostApiControllerTest {
     @Test
     @DisplayName("게시글 제목 수정 테스트")
     public void 게시글_제목_수정_을_테스트한다(){
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
         VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
@@ -262,7 +260,6 @@ public class PostApiControllerTest {
     @Test
     @DisplayName("게시글 내용 수정 테스트")
     public void 게시글_내용_수정_을_테스트한다(){
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
         VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
@@ -294,7 +291,6 @@ public class PostApiControllerTest {
     @Transactional
     @Commit
     public void 게시글_게시판_수정_을_테스트한다(){
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
         VaccineType preRandomVaccineType = VaccineType.getRandomVaccineType();

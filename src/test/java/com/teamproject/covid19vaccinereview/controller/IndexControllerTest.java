@@ -4,6 +4,7 @@ import io.restassured.RestAssured;
 import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,10 +24,14 @@ public class IndexControllerTest {
     @LocalServerPort
     int port;
 
+    @BeforeEach
+    void beforeEach() {
+        RestAssured.port = port;
+    }
+
     @DisplayName("Index 페이지 반환 테스트")
     @Test
     void 인덱스_페이지_반환_테스트(){
-        RestAssured.port = port;
 
         ExtractableResponse<Response> response = RestAssured.given().log().all()
                 .contentType(MediaType.APPLICATION_JSON_VALUE)

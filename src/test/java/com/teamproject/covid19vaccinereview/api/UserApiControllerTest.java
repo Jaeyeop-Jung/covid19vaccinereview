@@ -21,6 +21,7 @@ import javax.persistence.EntityManager;
 
 import org.aspectj.util.FileUtil;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.aop.aspectj.annotation.AspectJProxyFactory;
@@ -71,6 +72,11 @@ public class UserApiControllerTest {
     @LocalServerPort
     int port;
 
+    @BeforeEach
+    void beforeEach() {
+        RestAssured.port = port;
+    }
+
     @AfterEach
     void afterEach(){
         userRepository.deleteAll();
@@ -81,7 +87,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("프로필 이미지가 있는 회원가입 테스트")
     public void 프로필_파일을_포함한_originJoin_을_테스트한다() throws Exception {
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
 
@@ -96,7 +101,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("프로필 이미지가 없는 회원가입 테스트")
     public void 프로필_이미지_를_포함하지않은_originJoin_을_테스트한다() throws Exception {
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
 
@@ -111,7 +115,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("로그인 테스트")
     public void 로그인_을_테스트한다() throws Exception {
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
 
@@ -130,7 +133,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("정상적인 권한 처리 테스트")
     public void 정상적인_권한_처리_를_테스트한다() throws JsonProcessingException {
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
 
@@ -154,7 +156,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("허용하지 않는 권한 테스트")
     public void 허용하지_않는_권한_을_테스트한다() throws JsonProcessingException {
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
 
@@ -178,7 +179,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("비정상적인 토큰 테스트")
     public void 비정상적인_토큰_을_테스트한다() throws JsonProcessingException {
-        RestAssured.port = port;
 
         ExtractableResponse<Response> requestWithAccessTokenResponse = UserRestAssuredCRUD.getWithAccessToken("/user/1", "Test");
         System.out.println("\n");
@@ -189,7 +189,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("회원 비밀번호 수정 테스트")
     public void 회원_비밀번호_수정_을_테스트한다() throws IOException {
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
 
@@ -214,7 +213,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("회원 닉네임 수정 테스트")
     public void 회원_닉네임_수정_을_테스트한다() throws IOException {
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
 
@@ -238,7 +236,6 @@ public class UserApiControllerTest {
     @Transactional
     @DisplayName("회원 프로필이미지 수정 테스트")
     public void 회원_프로필이미지_수정_을_테스트한다() throws IOException {
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
 
@@ -261,7 +258,6 @@ public class UserApiControllerTest {
     @Test
     @DisplayName("회원 삭제 테스트")
     public void 토큰을_이용한_회원_삭제_를_테스트한다(){
-        RestAssured.port = port;
 
         String testUUID = UUID.randomUUID().toString();
 
