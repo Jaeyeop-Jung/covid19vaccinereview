@@ -330,4 +330,37 @@ public class PostApiControllerTest {
     private void 게시글_첨부_이미지_삭제_를_테스트한다(){
 
     }
+
+    @Test
+    @DisplayName("게시글 삭제 테스트")
+    public void 게시글_삭제_를_테스트한다() throws IOException {
+
+        String testUUID = UUID.randomUUID().toString();
+        VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
+        int randomOrdinalNumber = (int)( Math.random() * 100 );
+
+        JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
+
+        boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
+
+        PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
+        Resource resource1 = resourceLoader.getResource("classpath:profileimage/testimage.png");
+        Resource resource2 = resourceLoader.getResource("classpath:profileimage/testimage2.png");
+        List<File> fileList = new ArrayList<>();
+        fileList.add(resource1.getFile());
+        fileList.add(resource2.getFile());
+
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWriteWithPostImage(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class), fileList);
+        Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
+
+        ExtractableResponse<Response> deletePostByIdResponse = PostRestAssuredCRUD.deletePostById(accessToken, postId);
+
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(deletePostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"))).isEqualTo(postId);
+    }
+
 }

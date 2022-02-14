@@ -91,4 +91,13 @@ public class PostRestAssuredCRUD {
                 .extract();
     }
 
+    public static ExtractableResponse<Response> deletePostById(String accessToken, long id){
+        return RestAssured.given().log().all()
+                .header("Authorization", accessToken)
+                .when()
+                .delete("/post/" + id)
+                .then().log().all()
+                .extract();
+    }
+
 }
