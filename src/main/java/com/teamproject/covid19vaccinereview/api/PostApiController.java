@@ -1,11 +1,9 @@
 package com.teamproject.covid19vaccinereview.api;
 
-import com.teamproject.covid19vaccinereview.dto.FindPostByIdResponse;
-import com.teamproject.covid19vaccinereview.dto.ModifyPostRequest;
-import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
-import com.teamproject.covid19vaccinereview.dto.PostWriteResponse;
+import com.teamproject.covid19vaccinereview.dto.*;
 import com.teamproject.covid19vaccinereview.service.PostService;
 import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -40,8 +38,11 @@ public class PostApiController {
      */
     @ApiOperation(value = "전체 계시글 조회", notes = "전체 게시글 조회")
     @GetMapping("/post")
-    public void postFindAll(){
-
+    public ResponseEntity<Map<String, Object>> postFindAll(
+        @RequestParam(required = false, defaultValue = "1") int page
+    )
+    {
+        return ResponseEntity.ok(postService.postList(page));
     }
 
 
@@ -60,6 +61,17 @@ public class PostApiController {
         FindPostByIdResponse findFindPostByIdResponse = postService.findPostById(id);
 
         return ResponseEntity.ok(findFindPostByIdResponse);
+    }
+
+    @ApiOperation(value = "게시글 검색", notes = "게시글 주제, 내용으로 검색을 하는 기능")
+    @GetMapping("/post/search")
+    public Map<String, Object> searchPost(
+            @RequestParam @NotNull PostSearchType postSearchType,
+            @RequestParam @NotNull String keyword,
+            @RequestParam(required = false, defaultValue = "1") int page
+    )
+    {
+        return postService.searchPost(postSearchType, keyword, page);
     }
 
     /**

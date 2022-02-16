@@ -27,5 +27,4 @@ public class BoardApiController {
         Map<String, Object> response = boardService.createBoard(vaccineType, ordinalNumber);
         return ResponseEntity.ok(response);
     }
-    
 }

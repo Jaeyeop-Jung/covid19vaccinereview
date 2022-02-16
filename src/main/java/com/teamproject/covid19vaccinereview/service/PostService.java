@@ -1,6 +1,5 @@
 package com.teamproject.covid19vaccinereview.service;
 
-import com.teamproject.covid19vaccinereview.aop.exception.BoardExceptionHandler;
 import com.teamproject.covid19vaccinereview.aop.exception.customException.*;
 import com.teamproject.covid19vaccinereview.dto.*;
 import com.teamproject.covid19vaccinereview.domain.Board;
@@ -14,9 +13,11 @@ import com.teamproject.covid19vaccinereview.utils.ImageFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -89,6 +90,17 @@ public class PostService {
                 .build();
     }
 
+    @Transactional(readOnly = true)
+    public Map<String, Object> postList(int page){
+        Map<String, Object> response = new LinkedHashMap<>();
+
+        Page<Post> findPost = postRepository.findAll(PageRequest.of(page-1, 10, Sort.Direction.DESC, "id"));
+
+        response.put("TotalPage", findPost.getTotalPages());
+
+        return PagingPostResponse.convertFrom(response, findPost.getContent(), domainUrl);
+    }
+
     @Transactional
     public FindPostByIdResponse findPostById(long id){
 
@@ -109,6 +121,24 @@ public class PostService {
                 .viewCount(findPost.getViewCount())
                 .likeCount(findPost.getLikeCount())
                 .build();
+    }
+
+    @Transactional(readOnly = true)
+    public Map<String, Object> searchPost(PostSearchType postSearchType, String keyword, int page){
+
+        Map<String, Object> response = new LinkedHashMap<>();
+        Page<Post> findPost = null;
+        PageRequest pageRequest = PageRequest.of(page-1, 10, Sort.Direction.DESC, "id");
+        if(postSearchType == PostSearchType.TITLE){
+            findPost = postRepository.findAllByTitleContaining(keyword, pageRequest);
+        } else if(postSearchType == PostSearchType.CONTENT) {
+            findPost = postRepository.findAllByContentContaining(keyword, pageRequest);
+        } else if(postSearchType == PostSearchType.TITLE_OR_CONTENT){
+            findPost = postRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageRequest);
+        }
+
+        response.put("TotalPages", findPost.getTotalPages());
+        return PagingPostResponse.convertFrom(response, findPost.getContent(), domainUrl);
     }
 
     @Transactional
