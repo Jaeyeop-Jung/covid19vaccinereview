@@ -5,6 +5,9 @@ import com.teamproject.covid19vaccinereview.service.PostService;
 import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -34,12 +37,15 @@ public class PostApiController {
     /**
      * methodName : postFindAll
      * author : Jaeyeop Jung
-     * description : 전체 게시글을 조회한다. 리턴값은 FE와 상의 후에 어떻게 리턴 해줄지 정함.
+     * description : 전체 게시글을 조회한다.
+     *
+     * @param page the page
+     * @return 전체 페이지와 간략한 글 내용 반환
      */
     @ApiOperation(value = "전체 계시글 조회", notes = "전체 게시글 조회")
     @GetMapping("/post")
-    public ResponseEntity<Map<String, Object>> postFindAll(
-        @RequestParam(required = false, defaultValue = "1") int page
+    public ResponseEntity<FindPostResponse> postFindAll(
+        @RequestParam(required = false, defaultValue = "1") @ApiParam(defaultValue = "1") int page
     )
     {
         return ResponseEntity.ok(postService.postList(page));
@@ -63,15 +69,25 @@ public class PostApiController {
         return ResponseEntity.ok(findFindPostByIdResponse);
     }
 
+    /**
+     * methodName : searchPost
+     * author : Jaeyeop Jung
+     * description : *
+     *
+     * @param postSearchType 주제, 내용, 주제OR내용 중 선택
+     * @param keyword        the keyword
+     * @param page           the page
+     * @return 전체 페이지와 간략한 글 내용 반환
+     */
     @ApiOperation(value = "게시글 검색", notes = "게시글 주제, 내용으로 검색을 하는 기능")
     @GetMapping("/post/search")
-    public Map<String, Object> searchPost(
+    public ResponseEntity<FindPostResponse> searchPost(
             @RequestParam @NotNull PostSearchType postSearchType,
             @RequestParam @NotNull String keyword,
-            @RequestParam(required = false, defaultValue = "1") int page
+            @RequestParam(required = false, defaultValue = "1") @ApiParam(defaultValue = "1") int page
     )
     {
-        return postService.searchPost(postSearchType, keyword, page);
+        return ResponseEntity.ok(postService.searchPost(postSearchType, keyword, page));
     }
 
     /**

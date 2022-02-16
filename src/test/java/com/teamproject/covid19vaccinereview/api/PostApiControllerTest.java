@@ -363,4 +363,10 @@ public class PostApiControllerTest {
         assertThat(Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"))).isEqualTo(postId);
     }
 
+    @Test
+    @DisplayName("게시글 전체 조회 테스트")
+    public void 게시글_전체_조회_를_테스트한다(){
+
+    }
+
 }

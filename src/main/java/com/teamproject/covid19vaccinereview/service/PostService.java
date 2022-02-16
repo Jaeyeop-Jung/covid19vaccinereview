@@ -12,6 +12,7 @@ import com.teamproject.covid19vaccinereview.repository.PostRepository;
 import com.teamproject.covid19vaccinereview.utils.ImageFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.mockito.internal.matchers.Find;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -91,14 +92,15 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> postList(int page){
+    public FindPostResponse postList(int page){
         Map<String, Object> response = new LinkedHashMap<>();
 
         Page<Post> findPost = postRepository.findAll(PageRequest.of(page-1, 10, Sort.Direction.DESC, "id"));
 
-        response.put("TotalPage", findPost.getTotalPages());
-
-        return PagingPostResponse.convertFrom(response, findPost.getContent(), domainUrl);
+        return FindPostResponse.builder()
+                .totalPage(findPost.getTotalPages())
+                .pagingPostList(PagingPost.convertFrom(findPost.getContent()))
+                .build();
     }
 
     @Transactional
@@ -124,9 +126,8 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public Map<String, Object> searchPost(PostSearchType postSearchType, String keyword, int page){
+    public FindPostResponse searchPost(PostSearchType postSearchType, String keyword, int page){
 
-        Map<String, Object> response = new LinkedHashMap<>();
         Page<Post> findPost = null;
         PageRequest pageRequest = PageRequest.of(page-1, 10, Sort.Direction.DESC, "id");
         if(postSearchType == PostSearchType.TITLE){
@@ -137,8 +138,10 @@ public class PostService {
             findPost = postRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageRequest);
         }
 
-        response.put("TotalPages", findPost.getTotalPages());
-        return PagingPostResponse.convertFrom(response, findPost.getContent(), domainUrl);
+        return FindPostResponse.builder()
+                .totalPage(findPost.getTotalPages())
+                .pagingPostList(PagingPost.convertFrom(findPost.getContent()))
+                .build();
     }
 
     @Transactional

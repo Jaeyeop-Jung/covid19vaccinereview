@@ -4,15 +4,16 @@ import com.teamproject.covid19vaccinereview.domain.Post;
 import com.teamproject.covid19vaccinereview.domain.VaccineType;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
-public class PagingPostResponse {
+public class PagingPost {
 
-    private String postUrl;
+    private long id; // X -> ID만 넘기기,
 
     private VaccineType vaccineType;
 
@@ -27,8 +28,8 @@ public class PagingPostResponse {
     private int likeCount;
 
     @Builder
-    public PagingPostResponse(String postUrl, VaccineType vaccineType, int ordinalNumber, String writer, String title, int viewCount, int likeCount) {
-        this.postUrl = postUrl;
+    public PagingPost(long id, VaccineType vaccineType, int ordinalNumber, String writer, String title, int viewCount, int likeCount) {
+        this.id = id;
         this.vaccineType = vaccineType;
         this.ordinalNumber = ordinalNumber;
         this.writer = writer;
@@ -37,12 +38,13 @@ public class PagingPostResponse {
         this.likeCount = likeCount;
     }
 
-    public static Map<String, Object> convertFrom(Map<String, Object> response, List<Post> postList, String domainUrl){
+    public static List<PagingPost> convertFrom(List<Post> postList){
 
-        int count = 1;
+        List<PagingPost> response = new ArrayList<>();
         for (Post post : postList) {
-            response.put(String.valueOf(count++), PagingPostResponse.builder()
-                            .postUrl(domainUrl + "/post/" + post.getId())
+            response.add(
+                    PagingPost.builder()
+                            .id(post.getId())
                             .vaccineType(post.getBoard().getVaccineType())
                             .ordinalNumber(post.getBoard().getOrdinalNumber())
                             .writer(post.getUser().getNickname())
