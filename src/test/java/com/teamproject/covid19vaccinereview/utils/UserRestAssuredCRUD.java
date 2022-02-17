@@ -54,7 +54,7 @@ public class UserRestAssuredCRUD {
                 .extract();
     }
 
-    public static ExtractableResponse<Response> putWithUserInfo(String accessToken, String password, String nickname, File file, boolean changeProfileImage){
+    public static ExtractableResponse<Response> patchWithUserInfo(String accessToken, String password, String nickname, File file, boolean changeProfileImage){
         return RestAssured
                 .given().log().all()
                 .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -64,7 +64,7 @@ public class UserRestAssuredCRUD {
                 .param("wantToChangeProfileImage", changeProfileImage)
                 .multiPart("multipartFile", file, MediaType.MULTIPART_FORM_DATA_VALUE)
                 .when()
-                .put("/user")
+                .patch("/user")
                 .then().log().all()
                 .extract();
     }

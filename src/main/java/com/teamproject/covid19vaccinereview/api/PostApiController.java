@@ -115,7 +115,7 @@ public class PostApiController {
     }
 
     @ApiOperation(value = "게시글 수정", notes = "게시글 수정이 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
-    @PutMapping("/post/{id}")
+    @PatchMapping("/post/{id}")
     public ResponseEntity<PostWriteResponse> modifyPost(
             @PathVariable(name = "id") @NotNull long id,
             @ModelAttribute @Valid ModifyPostRequest modifyPostRequest,

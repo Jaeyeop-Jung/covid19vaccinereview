@@ -2,8 +2,10 @@ package com.teamproject.covid19vaccinereview.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.teamproject.covid19vaccinereview.domain.Board;
+import com.teamproject.covid19vaccinereview.domain.Post;
 import com.teamproject.covid19vaccinereview.domain.VaccineType;
 import com.teamproject.covid19vaccinereview.dto.JoinRequest;
+import com.teamproject.covid19vaccinereview.dto.PostSearchType;
 import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
 import com.teamproject.covid19vaccinereview.repository.BoardRepository;
 import com.teamproject.covid19vaccinereview.repository.PostImageRepository;
@@ -15,13 +17,14 @@ import io.restassured.response.ExtractableResponse;
 import io.restassured.response.Response;
 import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.annotation.Commit;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityManager;
@@ -47,9 +50,10 @@ public class PostApiControllerTest {
     private final PostImageRepository postImageRepository;
     private final UserRepository userRepository;
     private final JsonParseUtil jsonParseUtil;
+    private final EntityManager em;
 
     @Autowired
-    public PostApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, CreatePostRequestUtil createPostRequestUtil, BoardRepository boardRepository, PostRepository postRepository, CreateUserRequestUtil createUserRequestUtil, PostImageRepository postImageRepository, UserRepository userRepository, JsonParseUtil jsonParseUtil) {
+    public PostApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, CreatePostRequestUtil createPostRequestUtil, BoardRepository boardRepository, PostRepository postRepository, CreateUserRequestUtil createUserRequestUtil, PostImageRepository postImageRepository, UserRepository userRepository, JsonParseUtil jsonParseUtil, EntityManager em) {
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
         this.createPostRequestUtil = createPostRequestUtil;
@@ -59,6 +63,7 @@ public class PostApiControllerTest {
         this.postImageRepository = postImageRepository;
         this.userRepository = userRepository;
         this.jsonParseUtil = jsonParseUtil;
+        this.em = em;
     }
 
     @LocalServerPort
@@ -249,7 +254,7 @@ public class PostApiControllerTest {
         Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
 
         Map<Object, Object> modifyPostRequestOnlyTitle = createPostRequestUtil.createModifyPostRequestOnlyTitle(testUUID, randomVaccineType, randomOrdinalNumber, false);
-        ExtractableResponse<Response> putTitlePostById = PostRestAssuredCRUD.putTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyTitle, null);
+        ExtractableResponse<Response> putTitlePostById = PostRestAssuredCRUD.patchTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyTitle, null);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
@@ -278,7 +283,7 @@ public class PostApiControllerTest {
         Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
 
         Map<Object, Object> modifyPostRequestOnlyTitle = createPostRequestUtil.createModifyPostRequestOnlyContent(testUUID, randomVaccineType, randomOrdinalNumber, false);
-        ExtractableResponse<Response> putTitlePostById = PostRestAssuredCRUD.putTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyTitle, null);
+        ExtractableResponse<Response> putTitlePostById = PostRestAssuredCRUD.patchTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyTitle, null);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
@@ -314,7 +319,7 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> postPostBoardResponse = BoardRestAssuredCRUD.postBoard(postRandomVaccineType, postRandomOrdinalNumber);
 
         Map<Object, Object> modifyPostRequestOnlyBoard = createPostRequestUtil.createModifyPostRequestOnlyBoard(postRandomVaccineType, postRandomOrdinalNumber, false);
-        ExtractableResponse<Response> putBoardPostById = PostRestAssuredCRUD.putTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyBoard, null);
+        ExtractableResponse<Response> putBoardPostById = PostRestAssuredCRUD.patchTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyBoard, null);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPreBoardResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -365,7 +370,22 @@ public class PostApiControllerTest {
 
     @Test
     @DisplayName("게시글 전체 조회 테스트")
+    @Sql("classpath:beforeTest.sql")
     public void 게시글_전체_조회_를_테스트한다(){
+
+        ExtractableResponse<Response> allPostResponse = PostRestAssuredCRUD.getAllPost();
+        assertThat(allPostResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(Integer.valueOf(jsonParseUtil.getJsonValue(allPostResponse, "totalPage"))).isGreaterThan(0);
+    }
+
+    @Test
+    @DisplayName("게시글 검색 테스트")
+    @Sql("classpath:beforeTest.sql")
+    public void 게시글_검색_을_테스트한다(){
+
+        ExtractableResponse<Response> getSearchResponse = PostRestAssuredCRUD.getSearchPost(PostSearchType.CONTENT, "testpost1", 1);
+        assertThat(getSearchResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(Integer.valueOf(jsonParseUtil.getJsonValue(getSearchResponse, "totalPage"))).isGreaterThan(0);
 
     }
 

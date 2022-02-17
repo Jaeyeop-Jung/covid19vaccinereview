@@ -198,10 +198,10 @@ public class UserApiControllerTest {
 
         String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
         Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
-        ExtractableResponse<Response> blankPasswordTestResponse = UserRestAssuredCRUD.putWithUserInfo(accessToken, "    ", null, resource.getFile(), false);
+        ExtractableResponse<Response> blankPasswordTestResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, "    ", null, resource.getFile(), false);
         System.out.println("\n");
 
-        ExtractableResponse<Response> changePasswordTestResponse = UserRestAssuredCRUD.putWithUserInfo(accessToken, "putTest", null, resource.getFile(), false);
+        ExtractableResponse<Response> changePasswordTestResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, "putTest", null, resource.getFile(), false);
         boolean isChanged = bCryptPasswordEncoder.matches("putTest", userRepository.findByEmail(testUUID + "@" + testUUID + ".com").get().getPassword());
 
         assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -223,7 +223,7 @@ public class UserApiControllerTest {
         String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
         System.out.println("accessToken = " + accessToken);
         Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
-        ExtractableResponse<Response> changeNicknameTestResponse = UserRestAssuredCRUD.putWithUserInfo(accessToken, null, "putTest", resource.getFile(), false);
+        ExtractableResponse<Response> changeNicknameTestResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, null, "putTest", resource.getFile(), false);
 
         String changedNickname = jsonParseUtil.getJsonValue(changeNicknameTestResponse, "nickname");
 
@@ -246,7 +246,7 @@ public class UserApiControllerTest {
 
         String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
         Resource changedResource = resourceLoader.getResource("classpath:profileimage/testimage2.png");
-        ExtractableResponse<Response> changeProfileImageResponse = UserRestAssuredCRUD.putWithUserInfo(accessToken, null, null, changedResource.getFile(), true);
+        ExtractableResponse<Response> changeProfileImageResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, null, null, changedResource.getFile(), true);
 
         assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(changeProfileImageResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
