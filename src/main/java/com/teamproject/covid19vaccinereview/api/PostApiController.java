@@ -3,11 +3,8 @@ package com.teamproject.covid19vaccinereview.api;
 import com.teamproject.covid19vaccinereview.dto.*;
 import com.teamproject.covid19vaccinereview.service.PostService;
 import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -48,7 +45,7 @@ public class PostApiController {
         @RequestParam(required = false, defaultValue = "1") @ApiParam(defaultValue = "1") int page
     )
     {
-        return ResponseEntity.ok(postService.postList(page));
+        return ResponseEntity.ok(postService.findPostList(page));
     }
 
 
@@ -114,6 +111,18 @@ public class PostApiController {
         return new ResponseEntity<>(postWriteResponse, HttpStatus.PERMANENT_REDIRECT);
     }
 
+    /**
+     * methodName : modifyPost
+     * author : Jaeyeop Jung
+     * description : *
+     *
+     * @param id                삭제할 Post의 ID
+     * @param modifyPostRequest 원하는 수정 내용
+     * @param bindingResult     the binding result
+     * @param multipartFileList 이미지 파일 수정 시에 첨부
+     * @param request           토큰 확인용
+     * @return the response entity
+     */
     @ApiOperation(value = "게시글 수정", notes = "게시글 수정이 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
     @PatchMapping("/post/{id}")
     public ResponseEntity<PostWriteResponse> modifyPost(
@@ -122,7 +131,7 @@ public class PostApiController {
             BindingResult bindingResult,
             @RequestPart(required = false) @Nullable List<MultipartFile> multipartFileList,
             HttpServletRequest request
-    ){
+    ) throws IOException {
         bindingParameterUtil.checkParameterBindingException(bindingResult);
 
         PostWriteResponse postModifyResponse = postService.modifyPost(request, id, modifyPostRequest, multipartFileList);
@@ -130,6 +139,15 @@ public class PostApiController {
         return new ResponseEntity<>(postModifyResponse, HttpStatus.PERMANENT_REDIRECT);
     }
 
+    /**
+     * methodName : deletePost
+     * author : Jaeyeop Jung
+     * description : *
+     *
+     * @param id      삭제할 Post의 ID
+     * @param request the request
+     * @return 삭제한 Post ID
+     */
     @ApiOperation(value = "게시글 삭제", notes = "게시글 삭제가 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
     @DeleteMapping("/post/{id}")
     public ResponseEntity<Map<String, Object>> deletePost(

@@ -1,7 +1,6 @@
 package com.teamproject.covid19vaccinereview.utils;
 
 import com.teamproject.covid19vaccinereview.aop.exception.customException.ProfileImageFileDuplicateException;
-import com.teamproject.covid19vaccinereview.domain.PostImage;
 import com.teamproject.covid19vaccinereview.dto.ImageDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,25 +50,25 @@ public class ImageFileUtil {
         return true;
     }
 
-    public boolean savePostImage(MultipartFile multipartFile, @NotNull String fileName) throws IOException {
+    public boolean savePostImage(ImageDto imageDto) throws IOException {
 
         String rootPath = System.getProperty("user.home");
         File folder = new File(rootPath + "/postimage");
         if(!folder.exists())
             folder.mkdir();
 
-        String nameWithPath = folder.getAbsolutePath() + "/" + fileName;
+        String nameWithPath = folder.getAbsolutePath() + "/" + imageDto.getFileName();
 
         if(new File(nameWithPath).exists()){
             throw new ProfileImageFileDuplicateException("");
         }
 
-        FileCopyUtils.copy(multipartFile.getBytes(), new File(folder + "/" + fileName));
+        FileCopyUtils.copy(imageDto.getMultipartFile().getBytes(), new File(folder + "/" + imageDto.getFileName()));
 
         return true;
     }
 
-    public boolean deletePostImage(List<String> postImageNameList){
+    public boolean deletePostImageByList(List<String> postImageNameList){
 
         String rootPath = System.getProperty("user.home");
 
@@ -78,6 +77,18 @@ public class ImageFileUtil {
             if(file.exists()){
                 file.delete();
             }
+        }
+
+        return true;
+    }
+
+    public boolean deletePostImageByFileName(String fileName){
+
+        String rootPath = System.getProperty("user.home");
+
+        File file = new File(rootPath + "/postimage/" + fileName);
+        if(file.exists()){
+            file.delete();
         }
 
         return true;

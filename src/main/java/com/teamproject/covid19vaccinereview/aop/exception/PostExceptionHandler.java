@@ -78,4 +78,20 @@ public class PostExceptionHandler {
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
+
+    @ExceptionHandler(IncorrectModifyFileNameException.class)
+    public ResponseEntity<Map<String, String>> incorrectModifyFileNameExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        log.info("Advice : incorrectModifyFileNameExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "400");
+        map.put("message", "변경하려는 파일 이름과 첨부 파일 이름이 동일하지 않습니다.");
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
 }

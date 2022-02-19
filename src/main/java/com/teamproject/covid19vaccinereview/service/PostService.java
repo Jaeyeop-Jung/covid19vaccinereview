@@ -12,7 +12,6 @@ import com.teamproject.covid19vaccinereview.repository.PostRepository;
 import com.teamproject.covid19vaccinereview.utils.ImageFileUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.mockito.internal.matchers.Find;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -81,7 +80,7 @@ public class PostService {
                             imageDto.getFileExtension()
                     )
             );
-            imageFileUtil.savePostImage(imageDto.getMultipartFile(), imageDto.getFileName());
+            imageFileUtil.savePostImage(imageDto);
         }
 
 
@@ -92,7 +91,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public FindPostResponse postList(int page){
+    public FindPostResponse findPostList(int page){
         Map<String, Object> response = new LinkedHashMap<>();
 
         Page<Post> findPost = postRepository.findAll(PageRequest.of(page-1, 10, Sort.Direction.DESC, "id"));
@@ -117,7 +116,7 @@ public class PostService {
                 .content(findPost.getContent())
                 .postImageUrlList(
                         findPost.getPostImageList().stream()
-                                .map(postImage -> domainUrl + "/postimage/" + String.valueOf(postImage.getId()))
+                                .map(postImage -> domainUrl + "/postimage/" + String.valueOf(postImage.getFileName()))
                                 .collect(Collectors.toList())
                 )
                 .viewCount(findPost.getViewCount())
@@ -145,33 +144,75 @@ public class PostService {
     }
 
     @Transactional
-    public PostWriteResponse modifyPost(HttpServletRequest request, long postId, ModifyPostRequest modifyPostRequest, List<MultipartFile> multipartFileList) {
+    public PostWriteResponse modifyPost(HttpServletRequest request, long postId, ModifyPostRequest modifyPostRequest, List<MultipartFile> multipartFileList) throws IOException {
         checkUserAuthorization(request, postId);
-        if(multipartFileList != null && !multipartFileList.get(0).isEmpty()){
-            modifyPostRequest.initPostWriteRequestDto(multipartFileList);
-        }
+
 
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(""));
 
         if(modifyPostRequest.isWantToChangePostImage()) {   // 게시글 이미지 수정
 
-            if(modifyPostRequest.getAttachedImage().isEmpty()){ // 게시글 이미지를 지우고 싶을 때
-                List<PostImage> findAllPostImageByPost = postImageRepository.findAllByPost(findPost);
+            if (multipartFileList != null && !multipartFileList.get(0).isEmpty()) {
+                modifyPostRequest.initPostWriteRequestDto(multipartFileList);
+            }
 
-                imageFileUtil.deletePostImage(
-                        findAllPostImageByPost.stream()
+            List<String> savedPostImageFileNameList = postImageRepository.findAllByPost(findPost).stream()
+                    .map(PostImage::getFileName)
+                    .collect(Collectors.toList());
+
+            if (modifyPostRequest.getModifyPostImageList() == null || modifyPostRequest.getModifyPostImageList().isEmpty()) { // 게시글 이미지 모두 삭제
+
+                List<PostImage> findAllPostImageListByPost = postImageRepository.findAllByPost(findPost);
+                imageFileUtil.deletePostImageByList(
+                        findAllPostImageListByPost.stream()
                                 .map(PostImage::getFileName)
                                 .collect(Collectors.toList())
                 );
 
-                postImageRepository.deleteAllByPostId(postId);
+                postImageRepository.deleteAllByPost(findPost);
 
-            } else {    // 게시글 이미지를 변경하고 싶을 때
+            } else {    // 게시글 이미지 선택적 삭제
+
+                for (String savedPostImageFileName : savedPostImageFileNameList) {  // 제거할 파일 삭제
+
+                    if (!modifyPostRequest.getModifyPostImageList().contains(savedPostImageFileName)) {
+                        postImageRepository.deleteByFileName(savedPostImageFileName);
+                        imageFileUtil.deletePostImageByFileName(savedPostImageFileName);
+                    }
+
+                }
 
             }
 
+            if(modifyPostRequest.getModifyPostImageList() != null) {
+
+                for (String savePostImageFileName : modifyPostRequest.getModifyPostImageList()) {   // 추가할 파일 추가
+
+                    if (!savedPostImageFileNameList.contains(savePostImageFileName)) {
+
+                        for (ImageDto imageDto : modifyPostRequest.getAttachedImage()) {
+
+                            if (imageDto.getFileName().equals(savePostImageFileName)) {
+
+                                postImageRepository.save(
+                                        PostImage.of(
+                                                findPost,
+                                                imageDto.getFileName(),
+                                                imageDto.getFileSize(),
+                                                imageDto.getFileExtension()
+                                        )
+                                );
+                                imageFileUtil.savePostImage(imageDto);
+
+                            }
+                        }
+                    }
+                }
+            }
+
         }
+
 
         if(modifyPostRequest.getTitle() != null){   // 게시글 제목 변경
 

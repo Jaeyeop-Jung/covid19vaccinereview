@@ -49,8 +49,19 @@ public class PostWriteRequest {
     public void initPostWriteRequestDto(List<MultipartFile> multipartFileList) {
 
         for (MultipartFile multipartFile : multipartFileList) {
-            String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
-            String fileName = multipartFile.getOriginalFilename().substring(0, multipartFile.getOriginalFilename().lastIndexOf(".")) + ".UUID=" + UUID.randomUUID().toString() + fileExtension;
+
+            String fileExtension = multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf("."));
+            String fileName;
+
+            if(isSavedFile(multipartFile.getOriginalFilename())){
+                fileName = multipartFile.getOriginalFilename().substring(0, lastSecondIndexOf(multipartFile.getOriginalFilename()))
+                        + "."
+                        + UUID.randomUUID().toString()
+                        + multipartFile.getOriginalFilename().substring(multipartFile.getOriginalFilename().lastIndexOf("."));
+            } else {
+                fileName = multipartFile.getOriginalFilename().substring(0, multipartFile.getOriginalFilename().lastIndexOf(".")) + "." + UUID.randomUUID().toString() + fileExtension;
+            }
+
             attachedImage.add(
                     ImageDto.builder()
                             .multipartFile(multipartFile)
@@ -59,8 +70,36 @@ public class PostWriteRequest {
                             .fileExtension(fileExtension)
                             .build()
             );
+
         }
 
+    }
 
+    public boolean isSavedFile(String fileName){
+
+        int lastIndexOf = fileName.lastIndexOf(".");
+        int lastSecondIndexOf = lastSecondIndexOf(fileName);
+
+        if( (lastIndexOf - lastSecondIndexOf) == 37){
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    public int lastSecondIndexOf(String fileName){
+        int count = 0;
+        for(int i=fileName.length()-1 ; i>=0; i--){
+
+            if(fileName.charAt(i) == '.'){
+                count ++;
+            }
+
+            if(count == 2){
+                return i;
+            }
+        }
+
+        return -1;
     }
 }

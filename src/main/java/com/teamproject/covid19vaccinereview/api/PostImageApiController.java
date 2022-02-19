@@ -21,11 +21,11 @@ public class PostImageApiController {
     private final PostImageService postImageService;
 
     @ApiOperation(value = "게시글 이미지", notes = "게시글 이미지를 제공하는 api")
-    @GetMapping(value = "/postimage/{id}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
+    @GetMapping(value = "/postimage/{fileName}", produces = {MediaType.IMAGE_JPEG_VALUE, MediaType.IMAGE_PNG_VALUE})
     public @ResponseBody byte[] getProfileImage(
-            @PathVariable(name = "id") long id,
+            @PathVariable(name = "fileName") String fileName,
             HttpServletResponse response) throws IOException {
 
-        return postImageService.findPostImageById(id);
+        return postImageService.findPostImageByFileName(fileName);
     }
 }

@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull;
 @Entity
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Table(name = "POSTIMAGE")
+@Table(name = "POSTIMAGE", uniqueConstraints = @UniqueConstraint(columnNames = "file_Name"))
 public class PostImage extends BaseEntity{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)

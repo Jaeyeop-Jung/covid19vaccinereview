@@ -26,9 +26,9 @@ public class PostImageService {
     private final ImageFileUtil imageFileUtil;
 
     @Transactional
-    public byte[] findPostImageById(long id) throws IOException {
+    public byte[] findPostImageByFileName(String fileName) throws IOException {
 
-        PostImage findPostImage = postImageRepository.findById(id)
+        PostImage findPostImage = postImageRepository.findByFileName(fileName)
                 .orElseThrow(() -> new PostImageNotFoundException(""));
 
         byte[] profileImageData = imageFileUtil.postImageFileToBytes(findPostImage.getFileName());
@@ -45,10 +45,19 @@ public class PostImageService {
         List<PostImage> postImageList = findPost.getPostImageList();
         postImageList.stream()
                 .forEach(postImage -> postImageRepository.delete(postImage));
-        imageFileUtil.deletePostImage(
+        imageFileUtil.deletePostImageByList(
                 postImageList.stream()
                         .map(PostImage::getFileName)
                         .collect(Collectors.toList())
         );
     }
+
+    @Transactional
+    public void deletePostImageByFileName(String fileName){
+
+        deletePostImageByFileName(fileName);
+        imageFileUtil.deleteProfileImage(fileName);
+
+    }
+
 }
