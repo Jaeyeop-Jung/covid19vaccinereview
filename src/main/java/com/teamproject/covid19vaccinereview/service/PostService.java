@@ -153,7 +153,7 @@ public class PostService {
 
         if(modifyPostRequest.isWantToChangePostImage()) {   // 게시글 이미지 수정
 
-            if (multipartFileList != null && !multipartFileList.get(0).isEmpty()) {
+            if (multipartFileList != null && !multipartFileList.get(0).isEmpty() && modifyPostRequest.getModifyPostImageList() != null) {
                 modifyPostRequest.initPostWriteRequestDto(multipartFileList);
             }
 
