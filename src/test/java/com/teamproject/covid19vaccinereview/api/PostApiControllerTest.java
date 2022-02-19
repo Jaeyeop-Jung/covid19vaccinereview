@@ -30,10 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.persistence.EntityManager;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -329,11 +327,150 @@ public class PostApiControllerTest {
         assertThat(postRepository.findById(postId).get().getBoard().getVaccineType()).isEqualTo(postRandomVaccineType);
     }
 
+    @Test
+    @DisplayName("게시글 첨부 이미지 모두 삭제 테스트")
+    public void 게시글_첨부_이미지_모두_삭제_를_테스트한다() throws IOException {
+
+        String testUUID = UUID.randomUUID().toString();
+        VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
+        int randomOrdinalNumber = (int)( Math.random() * 100 );
+
+        JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
+
+        boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
+
+        PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
+        Resource resource1 = resourceLoader.getResource("classpath:profileimage/testimage.png");
+        Resource resource2 = resourceLoader.getResource("classpath:profileimage/testimage2.png");
+        List<File> fileList = new ArrayList<>();
+        fileList.add(resource1.getFile());
+        fileList.add(resource2.getFile());
+
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWriteWithPostImage(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class), fileList);
+
+        String postId = jsonParseUtil.getJsonValue(postPostWriteResponse, "id");
+
+        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+
+        List<String> savedPostImageList = jsonParseUtil.getJsonArrayValue(getPostByIdResponse, "postImageUrlList").stream()
+                .map(value -> value.substring(value.lastIndexOf("postimage/") + 10))
+                .collect(Collectors.toList());
+
+        ExtractableResponse<Response> patchPostByIdResponse = PostRestAssuredCRUD.patchPostById(
+                Long.parseLong(postId),
+                accessToken,
+                objectMapper.convertValue(createPostRequestUtil.createModifyPostRequest(testUUID, randomVaccineType, randomOrdinalNumber, true, null), Map.class),
+                null
+        );
+
+        ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(getPostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(savedPostImageList.size()).isEqualTo(2);
+        assertThat(patchPostByIdResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(getPostAfterPatchResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").isEmpty()).isTrue();
+    }
 
     @Test
     @DisplayName("게시글 첨부 이미지 삭제 테스트")
-    private void 게시글_첨부_이미지_삭제_를_테스트한다(){
+    public void 게시글_첨부_이미지_삭제_를_테스트한다() throws IOException {
 
+        String testUUID = UUID.randomUUID().toString();
+        VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
+        int randomOrdinalNumber = (int)( Math.random() * 100 );
+
+        JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
+
+        boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
+
+        PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
+        Resource resource1 = resourceLoader.getResource("classpath:profileimage/testimage.png");
+        Resource resource2 = resourceLoader.getResource("classpath:profileimage/testimage2.png");
+
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWriteWithPostImage(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class), Arrays.asList(resource1.getFile(), resource2.getFile()));
+
+        String postId = jsonParseUtil.getJsonValue(postPostWriteResponse, "id");
+
+        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+
+        List<String> savedPostImageList = jsonParseUtil.getJsonArrayValue(getPostByIdResponse, "postImageUrlList").stream()
+                .map(value -> value.substring(value.lastIndexOf("postimage/") + 10))
+                .collect(Collectors.toList());
+
+
+        ExtractableResponse<Response> patchPostByIdResponse = PostRestAssuredCRUD.patchPostById(
+                Long.parseLong(postId),
+                accessToken,
+                objectMapper.convertValue(createPostRequestUtil.createModifyPostRequest(testUUID, randomVaccineType, randomOrdinalNumber, true, Arrays.asList(savedPostImageList.get(0))), Map.class),
+                null
+        );
+
+        ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(getPostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(savedPostImageList.size()).isEqualTo(2);
+        assertThat(patchPostByIdResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(getPostAfterPatchResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").size()).isEqualTo(1);
+        assertThat(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").get(0).substring(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").get(0).lastIndexOf("postimage/") + 10))
+                .isEqualTo(savedPostImageList.get(0));
+    }
+
+    @Test
+    @DisplayName("게시글 첨부 이미지 추가 테스트")
+    public void 게시글_첨부_이미지_추가_를_테스트한다() throws IOException {
+
+        String testUUID = UUID.randomUUID().toString();
+        VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
+        int randomOrdinalNumber = (int)( Math.random() * 100 );
+
+        JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
+
+        boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
+
+        PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
+        Resource resource1 = resourceLoader.getResource("classpath:profileimage/testimage.png");
+        Resource resource2 = resourceLoader.getResource("classpath:profileimage/testimage2.png");
+
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWriteWithPostImage(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class), Arrays.asList(resource1.getFile(), resource2.getFile()));
+
+        String postId = jsonParseUtil.getJsonValue(postPostWriteResponse, "id");
+
+        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+
+        List<String> savedPostImageList = jsonParseUtil.getJsonArrayValue(getPostByIdResponse, "postImageUrlList").stream()
+                .map(value -> value.substring(value.lastIndexOf("postimage/") + 10))
+                .collect(Collectors.toList());
+
+        ExtractableResponse<Response> patchPostByIdResponse = PostRestAssuredCRUD.patchPostById(
+                Long.parseLong(postId),
+                accessToken,
+                objectMapper.convertValue(createPostRequestUtil.createModifyPostRequest(testUUID, randomVaccineType, randomOrdinalNumber, true, Arrays.asList(savedPostImageList.get(0), savedPostImageList.get(1), "testimage3.png")), Map.class),
+                Arrays.asList(resourceLoader.getResource("classpath:profileimage/testimage3.png").getFile())
+        );
+
+        ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(getPostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(savedPostImageList.size()).isEqualTo(2);
+        assertThat(patchPostByIdResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(getPostAfterPatchResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").size()).isEqualTo(3);
+        assertThat(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").get(2).substring(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").get(2).indexOf("postimage/") + 10).startsWith("testimage3"))
+                .isTrue();
     }
 
     @Test

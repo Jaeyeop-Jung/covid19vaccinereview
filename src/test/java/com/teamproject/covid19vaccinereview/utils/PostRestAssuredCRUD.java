@@ -73,19 +73,30 @@ public class PostRestAssuredCRUD {
     }
 
     public static ExtractableResponse<Response> patchPostById(long id, String accessToken, Map modifyPostRequest, List<File> fileList){
-        RequestSpecification reqeust =
-                RestAssured.given().log().all()
-                        .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
-                        .header("Authorization", accessToken)
-                        .queryParams(modifyPostRequest);
-        for (File file : fileList) {
-            reqeust.multiPart("multipartFileList", file, MediaType.MULTIPART_FORM_DATA_VALUE);
-        }
 
-        return reqeust.when()
-                .patch("/post/" + id)
-                .then().log().all()
-                .extract();
+        if(fileList == null){
+
+            return RestAssured.given().log().all()
+                    .header("Authorization", accessToken)
+                    .queryParams(modifyPostRequest)
+                    .when()
+                    .patch("/post/" + id)
+                    .then().log().all()
+                    .extract();
+
+        } else{
+            RequestSpecification request = RestAssured.given().log().all()
+                    .contentType(MediaType.MULTIPART_FORM_DATA_VALUE)
+                    .header("Authorization", accessToken)
+                    .params(modifyPostRequest);
+            for (File file : fileList) {
+                request.multiPart("multipartFileList", file, MediaType.MULTIPART_FORM_DATA_VALUE);
+            }
+            return request.when()
+                    .patch("/post/" + id)
+                    .then().log().all()
+                    .extract();
+        }
     }
 
     public static ExtractableResponse<Response> patchTitleOrContentPostById(long id, String accessToken, Map modifyPostRequest, List<File> fileList){

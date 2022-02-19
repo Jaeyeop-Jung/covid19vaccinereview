@@ -6,6 +6,7 @@ import com.teamproject.covid19vaccinereview.dto.PostWriteRequest;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -20,13 +21,14 @@ public class CreatePostRequestUtil {
                 .build();
     }
 
-    public ModifyPostRequest createModifyPostRequest(String UUID,VaccineType vaccineType, int ordinalNumber, boolean wantToChangePostImage){
+    public ModifyPostRequest createModifyPostRequest(String UUID, VaccineType vaccineType, int ordinalNumber, boolean wantToChangePostImage, List<String> modifyPostImageList){
         return ModifyPostRequest.builder()
                 .title(UUID)
                 .content(UUID)
                 .vaccineType(vaccineType)
                 .ordinalNumber(ordinalNumber)
                 .wantToChangePostImage(wantToChangePostImage)
+                .modifyPostImageList(modifyPostImageList)
                 .build();
     }
 
