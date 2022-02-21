@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -105,10 +106,14 @@ public class PostService {
     @Transactional
     public FindPostByIdResponse findPostById(long id){
 
+        if(!postRepository.existsById(id)){
+            throw new PostNotFoundException("");
+        }
+
+        postRepository.updateViewCount(id);
+
         Post findPost = postRepository.findById(id)
                 .orElseThrow(() -> new PostNotFoundException(""));
-
-        findPost.updateViewCount();
 
         return FindPostByIdResponse.builder()
                 .writer(findPost.getUser().getNickname())
@@ -263,5 +268,14 @@ public class PostService {
         map.put("id", id);
 
         return map;
+    }
+
+    @Transactional
+    public Integer likePost(long id){
+
+        postRepository.increaseLikeCount(id);
+
+        return postRepository.findById(id)
+                        .orElseThrow(() -> new PostNotFoundException("")).getLikeCount();
     }
 }

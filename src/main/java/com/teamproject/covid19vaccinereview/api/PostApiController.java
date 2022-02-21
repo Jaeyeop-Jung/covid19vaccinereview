@@ -3,6 +3,7 @@ package com.teamproject.covid19vaccinereview.api;
 import com.teamproject.covid19vaccinereview.dto.*;
 import com.teamproject.covid19vaccinereview.service.PostService;
 import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
@@ -158,5 +159,14 @@ public class PostApiController {
         Map<String, Object> response = postService.deletePost(id, request);
 
         return ResponseEntity.ok(response);
+    }
+
+    @ApiOperation(value = "게시글 좋아요", notes = "게시글 좋아요 기능")
+    @PatchMapping("/post/{id}/like")
+    public ResponseEntity<Integer> likePost(
+            @PathVariable(name = "id") @NotNull long id
+    )
+    {
+        return ResponseEntity.ok(postService.likePost(id));
     }
 }

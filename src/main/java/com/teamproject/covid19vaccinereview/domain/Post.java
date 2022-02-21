@@ -3,6 +3,8 @@ package com.teamproject.covid19vaccinereview.domain;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -58,14 +60,6 @@ public class Post extends BaseEntity{
 
     public static Post of(User user, Board board, String title, String content){
         return new Post(user, board, title, content);
-    }
-
-    public void updateViewCount(){
-        this.viewCount += 1;
-    }
-
-    public void increaseLikeCount(){
-        this.likeCount += 1;
     }
 
     public void changeBoard(Board board){
