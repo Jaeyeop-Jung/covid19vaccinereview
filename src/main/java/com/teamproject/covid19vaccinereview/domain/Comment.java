@@ -19,6 +19,7 @@ public class Comment extends BaseEntity{
     private Long id;
 
     @ManyToOne
+    @NotNull
     @JoinColumn(name = "POST_ID")
     private Post post;
 
@@ -31,7 +32,7 @@ public class Comment extends BaseEntity{
     private Comment parent;
 
     @OneToMany(mappedBy = "parent")
-    private List<Comment> commentList = new ArrayList<>();
+    private List<Comment> children = new ArrayList<>();
 
     @NotNull
     private String content;
@@ -40,17 +41,25 @@ public class Comment extends BaseEntity{
     @Column(name = "LIKE_COUNT")
     private int likeCount = 0;
 
-    public Comment(Post post, User user, String content) {
+    @NotNull
+    private boolean deleted = false;
+
+    private Comment(Post post, User user, Comment parent, String content) {
         this.post = post;
         this.user = user;
+        this.parent = parent;
         this.content = content;
     }
 
-    public static Comment of(Post post, User user, String content){
-        return new Comment(post, user, content);
+    public static Comment of(Post post, User user, Comment parent, String content){
+        return new Comment(post, user, parent, content);
     }
 
     public void modifyContent(String content){
         this.content = content;
     }
+
+    public void setDeleted(){ this.deleted = true; }
+
+    public boolean isDeleted(){ return this.deleted; }
 }

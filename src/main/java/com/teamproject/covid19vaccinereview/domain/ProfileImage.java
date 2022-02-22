@@ -30,7 +30,7 @@ public class ProfileImage extends BaseEntity{
     @Column(name = "file_extension")
     private String fileExtension;
 
-    public ProfileImage(String fileName, Long fileSize, String fileExtension) {
+    private ProfileImage(String fileName, Long fileSize, String fileExtension) {
         this.fileName = fileName;
         this.fileSize = fileSize;
         this.fileExtension = fileExtension;

@@ -33,7 +33,7 @@ public class PostImage extends BaseEntity{
     @Column(name = "file_extension")
     private String fileExtension;
 
-    public PostImage(Post post, String fileName, Long fileSize, String fileExtension) {
+    private PostImage(Post post, String fileName, Long fileSize, String fileExtension) {
         this.post = post;
         this.fileName = fileName;
         this.fileSize = fileSize;

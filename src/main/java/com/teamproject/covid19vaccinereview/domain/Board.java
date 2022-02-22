@@ -23,7 +23,7 @@ public class Board {
     @Column(name = "ORDINAL_NUMBER")
     private int ordinalNumber;
 
-    public Board(VaccineType vaccineType, int ordinalNumber) {
+    private Board(VaccineType vaccineType, int ordinalNumber) {
         this.vaccineType = vaccineType;
         this.ordinalNumber = ordinalNumber;
     }

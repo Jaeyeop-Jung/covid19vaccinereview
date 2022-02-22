@@ -44,7 +44,7 @@ public class User extends BaseEntity{
 
     private String refreshToken;
 
-    public User(String email, String password, UserRole role, LoginProvider loginProvider, String nickname, ProfileImage profileImage, String refreshToken) {
+    private User(String email, String password, UserRole role, LoginProvider loginProvider, String nickname, ProfileImage profileImage, String refreshToken) {
         this.email = email;
         this.password = password;
         this.role = role;

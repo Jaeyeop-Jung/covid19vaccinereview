@@ -51,7 +51,7 @@ public class Post extends BaseEntity{
     @Column(name = "LIKE_COUNT")
     private int likeCount = 0;
 
-    public Post(User user, Board board, String title, String content) {
+    private Post(User user, Board board, String title, String content) {
         this.user = user;
         this.board = board;
         this.title = title;
