@@ -62,4 +62,6 @@ public class Comment extends BaseEntity{
     public void setDeleted(){ this.deleted = true; }
 
     public boolean isDeleted(){ return this.deleted; }
+
+    public boolean hasParent() {return parent != null ? true : false;}
 }

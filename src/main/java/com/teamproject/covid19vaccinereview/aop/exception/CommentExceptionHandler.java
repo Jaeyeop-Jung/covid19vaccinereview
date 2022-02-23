@@ -1,6 +1,7 @@
 package com.teamproject.covid19vaccinereview.aop.exception;
 
 import com.teamproject.covid19vaccinereview.aop.exception.customException.CommentNotFoundException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.CommentNotMatchedException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,4 +32,19 @@ public class CommentExceptionHandler {
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
 
+    @ExceptionHandler(CommentNotMatchedException.class)
+    public ResponseEntity<Map<String, String>> commentNotMatchedExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.BAD_REQUEST;
+
+        log.info("Advice : commentNotMatchedExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "400");
+        map.put("message", "해당 게시글에 기재된 댓글이 아닙니다.");
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
 }
