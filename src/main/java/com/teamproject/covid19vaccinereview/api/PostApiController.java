@@ -6,6 +6,7 @@ import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import io.swagger.models.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -109,7 +110,7 @@ public class PostApiController {
 
         PostWriteResponse postWriteResponse = postService.write(request, postWriteRequest, multipartFileList);
 
-        return new ResponseEntity<>(postWriteResponse, HttpStatus.PERMANENT_REDIRECT);
+        return ResponseEntity.ok(postWriteResponse);
     }
 
     /**
@@ -137,7 +138,7 @@ public class PostApiController {
 
         PostWriteResponse postModifyResponse = postService.modifyPost(request, id, modifyPostRequest, multipartFileList);
 
-        return new ResponseEntity<>(postModifyResponse, HttpStatus.PERMANENT_REDIRECT);
+        return ResponseEntity.ok(postModifyResponse);
     }
 
     /**

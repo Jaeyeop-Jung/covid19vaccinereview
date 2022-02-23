@@ -21,5 +21,4 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
             "order by c.parent.id asc nulls first, c.id asc")
     List<Comment> findAllWithMemberAndParentByPostIdOrderByParentIdAscNullsFirstCommentIdAsc(Long postId);
 
-//    boolean s
 }

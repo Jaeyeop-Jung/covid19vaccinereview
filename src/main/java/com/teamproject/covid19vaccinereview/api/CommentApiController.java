@@ -8,6 +8,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,7 @@ public class CommentApiController {
 
     @ApiOperation(value = "댓글 작성", notes = "댓글 작성 기능. 댓글 작성을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
     @PostMapping("/post/{postId}/comment")
-    public void writeComment(
+    public ResponseEntity<CommentResponse> writeComment(
             HttpServletRequest request,
             @PathVariable(name = "postId") @NotNull long postId,
             @RequestBody @Valid CommentWriteRequest commentWriteRequest,
@@ -36,8 +37,7 @@ public class CommentApiController {
     {
         bindingParameterUtil.checkParameterBindingException(bindingResult);
 
-        commentService.writeComment(request, postId, commentWriteRequest);
-
+        return ResponseEntity.ok(commentService.writeComment(request, postId, commentWriteRequest));
     }
 
     @ApiOperation(value = "댓글 조회", notes = "댓글 조회 기능")
