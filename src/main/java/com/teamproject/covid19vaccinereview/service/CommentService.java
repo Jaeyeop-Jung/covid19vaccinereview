@@ -1,13 +1,13 @@
 package com.teamproject.covid19vaccinereview.service;
 
-import com.teamproject.covid19vaccinereview.aop.exception.customException.CommentNotFoundException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.CommentNotMatchedException;
-import com.teamproject.covid19vaccinereview.aop.exception.customException.PostNotFoundException;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.*;
 import com.teamproject.covid19vaccinereview.domain.Comment;
+import com.teamproject.covid19vaccinereview.domain.CommentLike;
 import com.teamproject.covid19vaccinereview.domain.Post;
 import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.dto.CommentResponse;
 import com.teamproject.covid19vaccinereview.dto.CommentWriteRequest;
+import com.teamproject.covid19vaccinereview.repository.CommentLikeRepository;
 import com.teamproject.covid19vaccinereview.repository.CommentRepository;
 import com.teamproject.covid19vaccinereview.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +25,7 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
+    private final CommentLikeRepository commentLikeRepository;
 
     private final UserService userService;
 
@@ -49,25 +50,49 @@ public class CommentService {
 
     @Transactional(readOnly = true)
     public List<CommentResponse> findByPostId(long postId){
-        return CommentResponse.toResponseList(commentRepository.findAllWithMemberAndParentByPostIdOrderByParentIdAscNullsFirstCommentIdAsc(postId));
+        return CommentResponse.toResponseList(commentRepository.findAllCommentByPostId(postId));
     }
 
     @Transactional
-    public void modifyComment(long commentId){
+    public CommentResponse modifyComment(HttpServletRequest request, long commentId, String content){
+        User loginUserByAccessToken = userService.getLoginUserByAccessToken(request);
+        Comment findComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(""));
 
+        if(!findComment.getUser().equals(loginUserByAccessToken)){
+            throw new UnAuthorizedUserException("");
+        }
+
+        findComment.changeContent(content);
+
+        return CommentResponse.toDto(findComment);
     }
 
     @Transactional
     public String deleteCommentById(HttpServletRequest request, long postId, long commentId){
         User loginUserByAccessToken = userService.getLoginUserByAccessToken(request);
+        Comment findComment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new CommentNotFoundException(""));
 
+        if(!findComment.getUser().equals(loginUserByAccessToken)){
+            throw new UnAuthorizedUserException("");
+        }
+        if(!findComment.getPost().getId().equals(postId)){
+            throw new CommentNotMatchedException("");
+        }
+
+        if(findComment.getChildren().size() == 0){
+
+        } else {
+            findComment.setDeleted();
+        }
 
         return null;
     }
 
     @Transactional
     public Integer likeComment(HttpServletRequest request, long postId, long commentId){
-
+        User loginUserByAccessToken = userService.getLoginUserByAccessToken(request);
         Comment findComment = commentRepository.findById(commentId)
                 .orElseThrow(() -> new CommentNotFoundException(""));
 
@@ -75,9 +100,13 @@ public class CommentService {
             throw new CommentNotMatchedException("");
         }
 
-        commentRepository.increaseLikeCount(commentId);
+        if(commentLikeRepository.existsByUserAndComment(loginUserByAccessToken, findComment)){
+            throw new AlreadyLikeException("");
+        } else {
+            commentLikeRepository.save( CommentLike.of(loginUserByAccessToken, findComment) );
+        }
 
-        return commentRepository.findById(commentId).get().getLikeCount(); // 쿼리가 1개 더 나가는 것(데이터 정확성) vs 자체적으로 +1을 해서 반환하는 것(처리 속도)
+        return commentLikeRepository.findAllByUserAndComment(loginUserByAccessToken, findComment).size();
     }
 
 }

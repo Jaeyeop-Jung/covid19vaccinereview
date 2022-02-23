@@ -56,14 +56,14 @@ public class PostApiController {
      * author : Jaeyeop Jung
      * description : 특정 게시글을 조회한다. 리턴값은 FE와 상의 후에 어떻게 리턴 해줄지 정함.
      *
-     * @param id the id
+     * @param postId the id
      * @return the string
      */
     @ApiOperation(value = "선택 계시글 조회", notes = "선택 게시글 조회")
-    @GetMapping("/post/{id}")
-    public ResponseEntity<FindPostByIdResponse> postFindByPostId(@PathVariable(name = "id") @NotNull long id){
+    @GetMapping("/post/{postId}")
+    public ResponseEntity<FindPostByIdResponse> postFindByPostId(@PathVariable(name = "postId") @NotNull long postId){
 
-        FindPostByIdResponse findFindPostByIdResponse = postService.findPostById(id);
+        FindPostByIdResponse findFindPostByIdResponse = postService.findPostById(postId);
 
         return ResponseEntity.ok(findFindPostByIdResponse);
     }
@@ -118,7 +118,7 @@ public class PostApiController {
      * author : Jaeyeop Jung
      * description : *
      *
-     * @param id                삭제할 Post의 ID
+     * @param postId                삭제할 Post의 ID
      * @param modifyPostRequest 원하는 수정 내용
      * @param bindingResult     the binding result
      * @param multipartFileList 이미지 파일 수정 시에 첨부
@@ -128,7 +128,7 @@ public class PostApiController {
     @ApiOperation(value = "게시글 수정", notes = "게시글 수정이 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
     @PatchMapping("/post/{id}")
     public ResponseEntity<PostWriteResponse> modifyPost(
-            @PathVariable(name = "id") @NotNull long id,
+            @PathVariable(name = "postId") @NotNull long postId,
             @ModelAttribute @Valid ModifyPostRequest modifyPostRequest,
             BindingResult bindingResult,
             @RequestPart(required = false) @Nullable List<MultipartFile> multipartFileList,
@@ -136,7 +136,7 @@ public class PostApiController {
     ) throws IOException {
         bindingParameterUtil.checkParameterBindingException(bindingResult);
 
-        PostWriteResponse postModifyResponse = postService.modifyPost(request, id, modifyPostRequest, multipartFileList);
+        PostWriteResponse postModifyResponse = postService.modifyPost(request, postId, modifyPostRequest, multipartFileList);
 
         return ResponseEntity.ok(postModifyResponse);
     }
@@ -146,28 +146,29 @@ public class PostApiController {
      * author : Jaeyeop Jung
      * description : *
      *
-     * @param id      삭제할 Post의 ID
+     * @param postId      삭제할 Post의 ID
      * @param request the request
      * @return 삭제한 Post ID
      */
     @ApiOperation(value = "게시글 삭제", notes = "게시글 삭제가 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
     @DeleteMapping("/post/{id}")
     public ResponseEntity<Map<String, Object>> deletePost(
-            @PathVariable(name = "id") @NotNull long id,
+            @PathVariable(name = "postId") @NotNull long postId,
             HttpServletRequest request
     )
     {
-        Map<String, Object> response = postService.deletePost(id, request);
+        Map<String, Object> response = postService.deletePost(request, postId);
 
         return ResponseEntity.ok(response);
     }
 
-    @ApiOperation(value = "게시글 좋아요", notes = "게시글 좋아요 기능")
-    @PatchMapping("/post/{id}/like")
+    @ApiOperation(value = "게시글 좋아요", notes = "게시글 좋아요 기능. 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
+    @PatchMapping("/post/{postId}/like")
     public ResponseEntity<Integer> likePost(
-            @PathVariable(name = "id") @NotNull long id
+            HttpServletRequest request,
+            @PathVariable(name = "postId") @NotNull long postId
     )
     {
-        return ResponseEntity.ok(postService.likePost(id));
+        return ResponseEntity.ok(postService.likePost(request, postId));
     }
 }

@@ -30,12 +30,20 @@ public class CommentResponse {
     }
 
     public static CommentResponse toDto(Comment comment){
-        return CommentResponse.builder()
-                .id(comment.getId())
-                .writer(comment.getUser().getNickname())
-                .content(comment.getContent())
-                .children(new ArrayList<>())
-                .build();
+
+        if(comment.isDeleted()){
+            return CommentResponse.builder()
+                    .id(comment.getId())
+                    .children(new ArrayList<>())
+                    .build();
+        } else {
+            return CommentResponse.builder()
+                    .id(comment.getId())
+                    .writer(comment.getUser().getNickname())
+                    .content(comment.getContent())
+                    .children(new ArrayList<>())
+                    .build();
+        }
     }
 
     public static List<CommentResponse> toResponseList(List<Comment> commentList){
@@ -44,12 +52,23 @@ public class CommentResponse {
         List<CommentResponse> roots = new ArrayList<>();
 
         for (Comment comment : commentList) {
+
             CommentResponse commentToDto = toDto(comment);
             map.put(comment, commentToDto);
 
             if(comment.hasParent()){
 
-                Comment parent = comment.getParent();
+                Comment parent = comment.getParent(); // Depth가 1인 대댓글
+                while(true){
+                    if(parent.hasParent()){
+                        parent = parent.getParent();
+                    } else {
+                        break;
+                    }
+                }
+
+//                Comment parent = comment.getParent(); // Depth가 무한대인 대댓글
+
                 CommentResponse parentDto = map.get(parent);
                 parentDto.getChildren().add(commentToDto);
 
@@ -60,4 +79,5 @@ public class CommentResponse {
 
         return roots;
     }
+
 }

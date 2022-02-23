@@ -6,6 +6,7 @@ import com.teamproject.covid19vaccinereview.service.CommentService;
 import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -46,6 +47,17 @@ public class CommentApiController {
             @PathVariable(name = "postId") @NotNull long postId
     ){
         return ResponseEntity.ok(commentService.findByPostId(postId));
+    }
+
+    @ApiOperation(value = "댓글 수정", notes = "댓글 수정 기능. 댓글 작성을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
+    @PatchMapping("/post/{postId}/comment/{commetId}")
+    public ResponseEntity<CommentResponse> modifyCommentByCommentId(
+            HttpServletRequest request,
+            @PathVariable(name = "commentId") @NotNull long commetId,
+            @RequestBody String content
+    )
+    {
+        return ResponseEntity.ok(commentService.modifyComment(request, commetId, content));
     }
 
     @ApiOperation(value = "댓글 삭제", notes = "댓글 삭제 기능. 댓글 작성을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")

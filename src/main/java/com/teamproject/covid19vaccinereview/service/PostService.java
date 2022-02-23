@@ -1,13 +1,11 @@
 package com.teamproject.covid19vaccinereview.service;
 
 import com.teamproject.covid19vaccinereview.aop.exception.customException.*;
+import com.teamproject.covid19vaccinereview.domain.*;
 import com.teamproject.covid19vaccinereview.dto.*;
-import com.teamproject.covid19vaccinereview.domain.Board;
-import com.teamproject.covid19vaccinereview.domain.Post;
-import com.teamproject.covid19vaccinereview.domain.PostImage;
-import com.teamproject.covid19vaccinereview.domain.User;
 import com.teamproject.covid19vaccinereview.repository.BoardRepository;
 import com.teamproject.covid19vaccinereview.repository.PostImageRepository;
+import com.teamproject.covid19vaccinereview.repository.PostLikeRepository;
 import com.teamproject.covid19vaccinereview.repository.PostRepository;
 import com.teamproject.covid19vaccinereview.utils.ImageFileUtil;
 import lombok.RequiredArgsConstructor;
@@ -37,6 +35,8 @@ public class PostService {
     private final BoardRepository boardRepository;
     private final PostRepository postRepository;
     private final PostImageRepository postImageRepository;
+    private final PostLikeRepository postLikeRepository;
+
     private final UserService userService;
     private final PostImageService postImageService;
     private final ImageFileUtil imageFileUtil;
@@ -104,15 +104,15 @@ public class PostService {
     }
 
     @Transactional
-    public FindPostByIdResponse findPostById(long id){
+    public FindPostByIdResponse findPostById(long postId){
 
-        if(!postRepository.existsById(id)){
+        if(!postRepository.existsById(postId)){
             throw new PostNotFoundException("");
         }
 
-        postRepository.updateViewCount(id);
+        postRepository.updateViewCount(postId);
 
-        Post findPost = postRepository.findById(id)
+        Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(""));
 
         return FindPostByIdResponse.builder()
@@ -251,31 +251,37 @@ public class PostService {
     }
 
     @Transactional
-    public Map<String, Object> deletePost(long id, HttpServletRequest request){
+    public Map<String, Object> deletePost(HttpServletRequest request, long postId){
 
         User findUser = userService.getLoginUserByAccessToken(request);
-        User writer = postRepository.findById(id)
+        User writer = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException("")).getUser();
 
         if(!writer.equals(findUser)){
             throw new UnAuthorizedUserException("");
         }
 
-        postImageService.deletePostImageByPostId(id);
-        postRepository.deleteById(id);
+        postImageService.deletePostImageByPostId(postId);
+        postRepository.deleteById(postId);
 
         Map<String, Object> map = new HashMap<>();
-        map.put("id", id);
+        map.put("id", postId);
 
         return map;
     }
 
     @Transactional
-    public Integer likePost(long id){
+    public Integer likePost(HttpServletRequest request, long postId){
+        User loginUserByAccessToken = userService.getLoginUserByAccessToken(request);
+        Post findPost = postRepository.findById(postId)
+                .orElseThrow(() -> new PostNotFoundException(""));
 
-        postRepository.increaseLikeCount(id);
+        if(postLikeRepository.existsByUserAndPost(loginUserByAccessToken, findPost)){
+            throw new AlreadyLikeException("");
+        } else {
+            postLikeRepository.save( PostLike.of(loginUserByAccessToken, findPost) );
+        }
 
-        return postRepository.findById(id)
-                        .orElseThrow(() -> new PostNotFoundException("")).getLikeCount();
+        return postLikeRepository.findAllByUserAndPost(loginUserByAccessToken, findPost).size();
     }
 }

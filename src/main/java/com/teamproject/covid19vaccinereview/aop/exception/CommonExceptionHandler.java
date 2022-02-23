@@ -3,6 +3,7 @@ package com.teamproject.covid19vaccinereview.aop.exception;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.teamproject.covid19vaccinereview.aop.exception.customException.AlreadyLikeException;
 import com.teamproject.covid19vaccinereview.aop.exception.customException.ParameterBindingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -39,6 +40,22 @@ public class CommonExceptionHandler {
         map.put("error type", httpStatus.getReasonPhrase());
         map.put("code", "402");
         map.put("message", "필수 파라미터를 다시 확인해주세요 : " + e.getMessage());
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
+    }
+
+    @ExceptionHandler(AlreadyLikeException.class)
+    public ResponseEntity<Map<String, String>> alreadyLikeExceptionHandler(Exception e){
+
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.PAYMENT_REQUIRED;
+
+        log.info("Advice : alreadyLikeExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "400");
+        map.put("message", "이미 좋아요를 눌렀습니다.");
 
         return new ResponseEntity<>(map, responseHeader, httpStatus);
     }

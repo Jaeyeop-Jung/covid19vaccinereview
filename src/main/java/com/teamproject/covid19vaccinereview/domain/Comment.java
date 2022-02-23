@@ -55,13 +55,12 @@ public class Comment extends BaseEntity{
         return new Comment(post, user, parent, content);
     }
 
-    public void modifyContent(String content){
-        this.content = content;
-    }
-
     public void setDeleted(){ this.deleted = true; }
 
     public boolean isDeleted(){ return this.deleted; }
 
     public boolean hasParent() {return parent != null ? true : false;}
+
+    public void changeContent(String content) { this.content = content; }
+
 }
