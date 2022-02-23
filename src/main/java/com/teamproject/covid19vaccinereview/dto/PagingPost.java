@@ -53,7 +53,7 @@ public class PagingPost {
                     .writer(post.getUser().getNickname())
                     .title(post.getTitle())
                     .viewCount(post.getViewCount())
-                    .likeCount(post.getLikeCount())
+                    .likeCount(post.getPostLikeList().size())
                     .build();
 
             if(postLikeList.contains(post)){

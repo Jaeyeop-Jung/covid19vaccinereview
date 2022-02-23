@@ -38,11 +38,10 @@ public class Comment extends BaseEntity{
     private String content;
 
     @NotNull
-    @Column(name = "LIKE_COUNT")
-    private int likeCount = 0;
-
-    @NotNull
     private boolean deleted = false;
+
+    @OneToMany(mappedBy = "comment")
+    private List<CommentLike> commentLikeList = new ArrayList<>();
 
     private Comment(Post post, User user, Comment parent, String content) {
         this.post = post;

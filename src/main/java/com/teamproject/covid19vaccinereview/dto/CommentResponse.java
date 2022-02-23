@@ -19,31 +19,32 @@ public class CommentResponse {
 
     private String content;
 
+    private int likeCount;
+
     private List<CommentResponse> children;
 
     @Builder
-    public CommentResponse(long id, String writer, String content, List<CommentResponse> children) {
+    private CommentResponse(long id, String writer, String content, int likeCount, List<CommentResponse> children) {
         this.id = id;
         this.writer = writer;
         this.content = content;
+        this.likeCount = likeCount;
         this.children = children;
     }
 
     public static CommentResponse toDto(Comment comment){
 
-        if(comment.isDeleted()){
-            return CommentResponse.builder()
-                    .id(comment.getId())
-                    .children(new ArrayList<>())
-                    .build();
-        } else {
-            return CommentResponse.builder()
-                    .id(comment.getId())
-                    .writer(comment.getUser().getNickname())
-                    .content(comment.getContent())
-                    .children(new ArrayList<>())
-                    .build();
+        CommentResponse build = CommentResponse.builder()
+                .id(comment.getId())
+                .children(new ArrayList<>())
+                .likeCount(comment.getCommentLikeList().size())
+                .build();
+
+        if(!comment.isDeleted()){
+            build.writer = comment.getUser().getNickname();
         }
+
+        return build;
     }
 
     public static List<CommentResponse> toResponseList(List<Comment> commentList){

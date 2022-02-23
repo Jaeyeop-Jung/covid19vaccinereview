@@ -143,7 +143,7 @@ public class PostService {
                                 .collect(Collectors.toList())
                 )
                 .viewCount(findPost.getViewCount())
-                .likeCount(findPost.getLikeCount())
+                .likeCount(findPost.getPostLikeList().size())
                 .build();
     }
 
@@ -302,6 +302,6 @@ public class PostService {
             postLikeRepository.save( PostLike.of(loginUserByAccessToken, findPost) );
         }
 
-        return postLikeRepository.findAllByPost(findPost).size();
+        return findPost.getPostLikeList().size();
     }
 }

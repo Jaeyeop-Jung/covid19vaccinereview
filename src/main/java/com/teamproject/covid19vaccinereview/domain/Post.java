@@ -47,9 +47,8 @@ public class Post extends BaseEntity{
     @Column(name = "VIEW_COUNT")
     private int viewCount = 0;
 
-    @NotNull
-    @Column(name = "LIKE_COUNT")
-    private int likeCount = 0;
+    @OneToMany(mappedBy = "post")
+    private List<PostLike> postLikeList = new ArrayList<>();
 
     private Post(User user, Board board, String title, String content) {
         this.user = user;
