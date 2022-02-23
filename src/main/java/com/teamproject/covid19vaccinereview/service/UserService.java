@@ -58,6 +58,23 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
+    public User getLoginUserWithoutExceptionByAccessToken(HttpServletRequest request){
+
+        if(request.getHeader("Authorization").isBlank() || !request.getHeader("Authorization").startsWith("Bearer ")){
+            return null;
+        }
+
+        String accessToken = request.getHeader("Authorization").split(" ")[1];
+
+        if(!jwtTokenProvider.validateToken(accessToken)){
+            return null;
+        } else {
+            return userRepository.findById(jwtTokenProvider.findUserIdByJwt(accessToken))
+                    .orElse(null);
+        }
+    }
+
+    @Transactional(readOnly = true)
     public User getLoginUserByRefreshToken(HttpServletRequest request) {
         String refreshToken = request.getHeader("refreshToken");
 

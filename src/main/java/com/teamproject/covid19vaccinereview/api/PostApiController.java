@@ -3,13 +3,10 @@ package com.teamproject.covid19vaccinereview.api;
 import com.teamproject.covid19vaccinereview.dto.*;
 import com.teamproject.covid19vaccinereview.service.PostService;
 import com.teamproject.covid19vaccinereview.utils.BindingParameterUtil;
-import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
-import io.swagger.models.Response;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.BindingResult;
@@ -43,11 +40,12 @@ public class PostApiController {
      */
     @ApiOperation(value = "전체 계시글 조회", notes = "전체 게시글 조회")
     @GetMapping("/post")
-    public ResponseEntity<FindPostResponse> postFindAll(
-        @RequestParam(required = false, defaultValue = "1") @ApiParam(defaultValue = "1") int page
+    public ResponseEntity<FindAllPostResponse> postFindAll(
+            HttpServletRequest request,
+            @RequestParam(required = false, defaultValue = "1") @ApiParam(defaultValue = "1") int page
     )
     {
-        return ResponseEntity.ok(postService.findPostList(page));
+        return ResponseEntity.ok(postService.findPostList(request, page));
     }
 
 
@@ -80,13 +78,14 @@ public class PostApiController {
      */
     @ApiOperation(value = "게시글 검색", notes = "게시글 주제, 내용으로 검색을 하는 기능")
     @GetMapping("/post/search")
-    public ResponseEntity<FindPostResponse> searchPost(
+    public ResponseEntity<FindAllPostResponse> searchPost(
+            HttpServletRequest request,
             @RequestParam @NotNull PostSearchType postSearchType,
             @RequestParam @NotNull String keyword,
             @RequestParam(required = false, defaultValue = "1") @ApiParam(defaultValue = "1") int page
     )
     {
-        return ResponseEntity.ok(postService.searchPost(postSearchType, keyword, page));
+        return ResponseEntity.ok(postService.searchPost(request, postSearchType, keyword, page));
     }
 
     /**

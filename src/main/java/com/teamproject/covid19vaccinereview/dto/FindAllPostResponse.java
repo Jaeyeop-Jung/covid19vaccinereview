@@ -8,14 +8,14 @@ import java.util.List;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @ToString
-public class FindPostResponse {
+public class FindAllPostResponse {
 
     int totalPage;
 
     List<PagingPost> pagingPostList = new ArrayList<>();
 
     @Builder
-    public FindPostResponse(int totalPage, List<PagingPost> pagingPostList) {
+    public FindAllPostResponse(int totalPage, List<PagingPost> pagingPostList) {
         this.totalPage = totalPage;
         this.pagingPostList = pagingPostList;
     }

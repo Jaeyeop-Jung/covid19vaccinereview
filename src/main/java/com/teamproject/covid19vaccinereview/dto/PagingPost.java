@@ -1,12 +1,12 @@
 package com.teamproject.covid19vaccinereview.dto;
 
 import com.teamproject.covid19vaccinereview.domain.Post;
+import com.teamproject.covid19vaccinereview.domain.PostLike;
 import com.teamproject.covid19vaccinereview.domain.VaccineType;
 import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -27,8 +27,10 @@ public class PagingPost {
 
     private int likeCount;
 
+    private boolean isThisUserLike;
+
     @Builder
-    public PagingPost(long id, VaccineType vaccineType, int ordinalNumber, String writer, String title, int viewCount, int likeCount) {
+    public PagingPost(long id, VaccineType vaccineType, int ordinalNumber, String writer, String title, int viewCount, int likeCount, boolean isThisUserLike) {
         this.id = id;
         this.vaccineType = vaccineType;
         this.ordinalNumber = ordinalNumber;
@@ -36,23 +38,31 @@ public class PagingPost {
         this.title = title;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
+        this.isThisUserLike = isThisUserLike;
     }
 
-    public static List<PagingPost> convertFrom(List<Post> postList){
+    public static List<PagingPost> convertOf(List<Post> postList, List<Post> postLikeList){
 
         List<PagingPost> response = new ArrayList<>();
         for (Post post : postList) {
-            response.add(
-                    PagingPost.builder()
-                            .id(post.getId())
-                            .vaccineType(post.getBoard().getVaccineType())
-                            .ordinalNumber(post.getBoard().getOrdinalNumber())
-                            .writer(post.getUser().getNickname())
-                            .title(post.getTitle())
-                            .viewCount(post.getViewCount())
-                            .likeCount(post.getLikeCount())
-                            .build()
-            );
+
+            PagingPost build = PagingPost.builder()
+                    .id(post.getId())
+                    .vaccineType(post.getBoard().getVaccineType())
+                    .ordinalNumber(post.getBoard().getOrdinalNumber())
+                    .writer(post.getUser().getNickname())
+                    .title(post.getTitle())
+                    .viewCount(post.getViewCount())
+                    .likeCount(post.getLikeCount())
+                    .build();
+
+            if(postLikeList.contains(post)){
+                build.isThisUserLike = true;
+            } else {
+                build.isThisUserLike = false;
+            }
+
+            response.add(build);
         }
 
         return response;

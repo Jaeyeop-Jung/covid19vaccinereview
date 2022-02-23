@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -51,6 +50,24 @@ public class PostService {
         if(!findUserByAccessToken.equals(writer)){
             throw new UnAuthorizedUserException("");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<Post> checkUserLikePost(HttpServletRequest request, Page<Post> postPage){
+        User loginUserByAccessToken = (request.getHeader("Authorization") != null) ? userService.getLoginUserWithoutExceptionByAccessToken(request) : null;
+
+        List<Post> likedPostList = new ArrayList<>();
+        if(loginUserByAccessToken != null){
+            for (Post post : postPage.getContent()) {
+                PostLike findPostLike = postLikeRepository.findByUserAndPost(loginUserByAccessToken, post)
+                        .orElse(null);
+                if(findPostLike != null){
+                    likedPostList.add(findPostLike.getPost());
+                }
+            }
+        }
+
+        return likedPostList;
     }
 
     @Transactional
@@ -92,14 +109,15 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public FindPostResponse findPostList(int page){
-        Map<String, Object> response = new LinkedHashMap<>();
+    public FindAllPostResponse findPostList(HttpServletRequest request, int page){
 
         Page<Post> findPost = postRepository.findAll(PageRequest.of(page-1, 10, Sort.Direction.DESC, "id"));
 
-        return FindPostResponse.builder()
+        List<Post> likedPostList = checkUserLikePost(request, findPost);
+
+        return FindAllPostResponse.builder()
                 .totalPage(findPost.getTotalPages())
-                .pagingPostList(PagingPost.convertFrom(findPost.getContent()))
+                .pagingPostList(PagingPost.convertOf(findPost.getContent(), likedPostList))
                 .build();
     }
 
@@ -130,7 +148,7 @@ public class PostService {
     }
 
     @Transactional(readOnly = true)
-    public FindPostResponse searchPost(PostSearchType postSearchType, String keyword, int page){
+    public FindAllPostResponse searchPost(HttpServletRequest request, PostSearchType postSearchType, String keyword, int page){
 
         Page<Post> findPost = null;
         PageRequest pageRequest = PageRequest.of(page-1, 10, Sort.Direction.DESC, "id");
@@ -142,9 +160,11 @@ public class PostService {
             findPost = postRepository.findAllByTitleContainingOrContentContaining(keyword, keyword, pageRequest);
         }
 
-        return FindPostResponse.builder()
+        List<Post> likedPostList = checkUserLikePost(request, findPost);
+
+        return FindAllPostResponse.builder()
                 .totalPage(findPost.getTotalPages())
-                .pagingPostList(PagingPost.convertFrom(findPost.getContent()))
+                .pagingPostList(PagingPost.convertOf(findPost.getContent(), likedPostList))
                 .build();
     }
 
@@ -282,6 +302,6 @@ public class PostService {
             postLikeRepository.save( PostLike.of(loginUserByAccessToken, findPost) );
         }
 
-        return postLikeRepository.findAllByUserAndPost(loginUserByAccessToken, findPost).size();
+        return postLikeRepository.findAllByPost(findPost).size();
     }
 }
