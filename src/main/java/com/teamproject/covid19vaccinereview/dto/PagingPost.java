@@ -58,8 +58,6 @@ public class PagingPost {
 
             if(postLikeList.contains(post)){
                 build.isThisUserLike = true;
-            } else {
-                build.isThisUserLike = false;
             }
 
             response.add(build);

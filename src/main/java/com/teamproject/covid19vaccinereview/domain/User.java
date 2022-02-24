@@ -44,6 +44,21 @@ public class User extends BaseEntity{
 
     private String refreshToken;
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof User)) {
+            return false;
+        }
+        User user = (User) o;
+        return Objects.equals(getId(), user.getId()) && Objects.equals(getEmail(), user.getEmail()) && Objects.equals(getPassword(), user.getPassword()) && getRole() == user.getRole() && getLoginProvider() == user.getLoginProvider() && Objects.equals(getNickname(), user.getNickname()) && Objects.equals(getRefreshToken(), user.getRefreshToken());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getId(), getEmail(), getPassword(), getRole(), getLoginProvider(), getNickname(), getRefreshToken());
+    }
+
     private User(String email, String password, UserRole role, LoginProvider loginProvider, String nickname, ProfileImage profileImage, String refreshToken) {
         this.email = email;
         this.password = password;
@@ -52,19 +67,6 @@ public class User extends BaseEntity{
         this.nickname = nickname;
         this.profileImage = profileImage;
         this.refreshToken = refreshToken;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        User user = (User) o;
-        return getId().equals(user.getId()) && getEmail().equals(user.getEmail()) && getPassword().equals(user.getPassword()) && getRole() == user.getRole() && getLoginProvider() == user.getLoginProvider() && getNickname().equals(user.getNickname()) && Objects.equals(getProfileImage(), user.getProfileImage()) && Objects.equals(getRefreshToken(), user.getRefreshToken());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getId(), getEmail(), getPassword(), getRole(), getLoginProvider(), getNickname(), getProfileImage(), getRefreshToken());
     }
 
     public static User of(String email, String password, UserRole role, LoginProvider provider, String nickname, ProfileImage profileImage, String refreshToken){
@@ -91,4 +93,5 @@ public class User extends BaseEntity{
     public void changeProfileImage(ProfileImage profileImage){ this.profileImage = profileImage; }
 
     public void changeRefreshToken(String refreshToken){ this.refreshToken = refreshToken;}
+
 }

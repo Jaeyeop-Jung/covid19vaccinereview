@@ -45,12 +45,14 @@ public class CommentService {
                 )
         );
 
-        return CommentResponse.toDto(savedComment);
+        return CommentResponse.toDto(savedComment, loginUserByAccessToken);
     }
 
     @Transactional(readOnly = true)
-    public List<CommentResponse> findByPostId(long postId){
-        return CommentResponse.toResponseList(commentRepository.findAllCommentByPostId(postId));
+    public List<CommentResponse> findByPostId(HttpServletRequest request, long postId){
+        User loginUser = userService.getLoginUserWithoutExceptionByAccessToken(request);
+
+        return CommentResponse.toResponseList(commentRepository.findAllCommentByPostId(postId), loginUser);
     }
 
     @Transactional
@@ -65,7 +67,7 @@ public class CommentService {
 
         findComment.changeContent(content);
 
-        return CommentResponse.toDto(findComment);
+        return CommentResponse.toDto(findComment, loginUserByAccessToken);
     }
 
     @Transactional

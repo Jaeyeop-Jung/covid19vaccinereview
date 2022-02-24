@@ -47,6 +47,10 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public User getLoginUserByAccessToken(HttpServletRequest request) {
+        if(request.getHeader("Authorization") == null){
+            throw new JwtIllegalArgumentException("");
+        }
+
         String accessToken = request.getHeader("Authorization").split(" ")[1];
 
         if(!jwtTokenProvider.validateToken(accessToken)){

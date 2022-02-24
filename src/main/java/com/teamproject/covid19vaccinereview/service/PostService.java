@@ -122,7 +122,7 @@ public class PostService {
     }
 
     @Transactional
-    public FindPostByIdResponse findPostById(long postId){
+    public FindPostByIdResponse findPostById(HttpServletRequest request, long postId){
 
         if(!postRepository.existsById(postId)){
             throw new PostNotFoundException("");
@@ -133,18 +133,10 @@ public class PostService {
         Post findPost = postRepository.findById(postId)
                 .orElseThrow(() -> new PostNotFoundException(""));
 
-        return FindPostByIdResponse.builder()
-                .writer(findPost.getUser().getNickname())
-                .title(findPost.getTitle())
-                .content(findPost.getContent())
-                .postImageUrlList(
-                        findPost.getPostImageList().stream()
-                                .map(postImage -> domainUrl + "/postimage/" + String.valueOf(postImage.getFileName()))
-                                .collect(Collectors.toList())
-                )
-                .viewCount(findPost.getViewCount())
-                .likeCount(findPost.getPostLikeList().size())
-                .build();
+        User loginUserByAccessToken = (request.getHeader("Authorization") != null) ?
+                userService.getLoginUserWithoutExceptionByAccessToken(request) : null;
+
+        return FindPostByIdResponse.of(findPost, domainUrl, loginUserByAccessToken);
     }
 
     @Transactional(readOnly = true)
@@ -194,7 +186,6 @@ public class PostService {
                                 .map(PostImage::getFileName)
                                 .collect(Collectors.toList())
                 );
-
                 postImageRepository.deleteAllByPost(findPost);
 
             } else {    // 게시글 이미지 선택적 삭제

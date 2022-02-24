@@ -12,4 +12,6 @@ public interface BoardRepository extends JpaRepository<Board, Long> {
 
     Optional<Board> findByVaccineTypeAndOrdinalNumber(VaccineType vaccineType, int ordinalNumber);
 
+    boolean existsByVaccineTypeAndOrdinalNumber(VaccineType vaccineType, int ordinalNumber);
+
 }

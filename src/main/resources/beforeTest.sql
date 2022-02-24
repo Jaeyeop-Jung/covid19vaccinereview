@@ -51,45 +51,45 @@ values ("JANSSEN", 1);
 
 
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (1, 1, "testpost1", "testpost1", 10, 10, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (1, 1, "testpost1", "testpost1", 10, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (2, 2, "testpost2", "testpost2", 20, 20, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (2, 2, "testpost2", "testpost2", 20, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (3, 3, "testpost3", "testpost3", 30, 30, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (3, 3, "testpost3", "testpost3", 30, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (4, 4, "testpost4", "testpost4", 40, 40, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (4, 4, "testpost4", "testpost4", 40, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (1, 1, "testpost5", "testpost5", 50, 50, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (1, 1, "testpost5", "testpost5", 50, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (2, 2, "testpost6", "testpost6", 60, 60, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (2, 2, "testpost6", "testpost6", 60, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (3, 3, "testpost7", "testpost7", 70, 70, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (3, 3, "testpost7", "testpost7", 70, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (4, 4, "testpost8", "testpost8", 80, 80, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (4, 4, "testpost8", "testpost8", 80, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (1, 1, "testpost9", "testpost9", 90, 90, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (1, 1, "testpost9", "testpost9", 90, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (2, 2, "testpost10", "testpost10", 100, 100, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (2, 2, "testpost10", "testpost10", 100, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (3, 3, "testpost11", "testpost11", 110, 110, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (3, 3, "testpost11", "testpost11", 110, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (4, 4, "testpost12", "testpost12", 120, 120, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (4, 4, "testpost12", "testpost12", 120, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (1, 1, "testpost13", "testpost13", 130, 130, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (1, 1, "testpost13", "testpost13", 130, "2020-01-01","2020-01-01");
 
-INSERT into post(user_id, boards_id, title, content, like_count, view_count, date_created, last_updated)
-values (2, 2, "testpost14", "testpost14", 140, 140, "2020-01-01","2020-01-01");
+INSERT into post(user_id, boards_id, title, content, view_count, date_created, last_updated)
+values (2, 2, "testpost14", "testpost14", 140, "2020-01-01","2020-01-01");
 

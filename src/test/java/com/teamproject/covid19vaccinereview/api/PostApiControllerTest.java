@@ -173,7 +173,7 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWrite(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class));
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
@@ -200,7 +200,7 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWriteWithPostImage(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class), fileList);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
     }
 
     @Test
@@ -225,7 +225,7 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(postId);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(jsonParseUtil.getJsonValue(getPostByIdResponse, "title")).isEqualTo(testUUID);
         assertThat(jsonParseUtil.getJsonValue(getPostByIdResponse, "viewCount")).isEqualTo(String.valueOf(1));
 
@@ -255,8 +255,8 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> putTitlePostById = PostRestAssuredCRUD.patchTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyTitle, null);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
-        assertThat(putTitlePostById.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(putTitlePostById.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(jsonParseUtil.getJsonValue(putTitlePostById, "id")).isEqualTo(String.valueOf(postId));
     }
 
@@ -284,8 +284,8 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> putTitlePostById = PostRestAssuredCRUD.patchTitleOrContentPostById(postId, accessToken, modifyPostRequestOnlyTitle, null);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
-        assertThat(putTitlePostById.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(putTitlePostById.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(jsonParseUtil.getJsonValue(putTitlePostById, "id")).isEqualTo(String.valueOf(postId));
     }
 
@@ -321,9 +321,9 @@ public class PostApiControllerTest {
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPreBoardResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPostBoardResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(putBoardPostById.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(putBoardPostById.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postRepository.findById(postId).get().getBoard().getVaccineType()).isEqualTo(postRandomVaccineType);
     }
 
@@ -368,10 +368,10 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(getPostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(savedPostImageList.size()).isEqualTo(2);
-        assertThat(patchPostByIdResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(patchPostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(getPostAfterPatchResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").isEmpty()).isTrue();
     }
@@ -415,10 +415,10 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(getPostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(savedPostImageList.size()).isEqualTo(2);
-        assertThat(patchPostByIdResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(patchPostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(getPostAfterPatchResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").size()).isEqualTo(1);
         assertThat(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").get(0).substring(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").get(0).lastIndexOf("postimage/") + 10))
@@ -463,10 +463,10 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(getPostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(savedPostImageList.size()).isEqualTo(2);
-        assertThat(patchPostByIdResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(patchPostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(getPostAfterPatchResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").size()).isEqualTo(3);
         assertThat(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").get(2).substring(jsonParseUtil.getJsonArrayValue(getPostAfterPatchResponse, "postImageUrlList").get(2).indexOf("postimage/") + 10).startsWith("testimage3"))
@@ -500,7 +500,7 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> deletePostByIdResponse = PostRestAssuredCRUD.deletePostById(accessToken, postId);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.PERMANENT_REDIRECT.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(deletePostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"))).isEqualTo(postId);
     }

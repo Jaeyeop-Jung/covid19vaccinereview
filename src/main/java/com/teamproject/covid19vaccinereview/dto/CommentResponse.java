@@ -1,6 +1,8 @@
 package com.teamproject.covid19vaccinereview.dto;
 
 import com.teamproject.covid19vaccinereview.domain.Comment;
+import com.teamproject.covid19vaccinereview.domain.CommentLike;
+import com.teamproject.covid19vaccinereview.domain.User;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -23,19 +25,23 @@ public class CommentResponse {
 
     private List<CommentResponse> children;
 
+    private boolean isThisUserLike;
+
     @Builder
-    private CommentResponse(long id, String writer, String content, int likeCount, List<CommentResponse> children) {
+    public CommentResponse(long id, String writer, String content, int likeCount, List<CommentResponse> children, boolean isThisUserLike) {
         this.id = id;
         this.writer = writer;
         this.content = content;
         this.likeCount = likeCount;
         this.children = children;
+        this.isThisUserLike = isThisUserLike;
     }
 
-    public static CommentResponse toDto(Comment comment){
+    public static CommentResponse toDto(Comment comment, User user){
 
         CommentResponse build = CommentResponse.builder()
                 .id(comment.getId())
+                .content(comment.getContent())
                 .children(new ArrayList<>())
                 .likeCount(comment.getCommentLikeList().size())
                 .build();
@@ -44,17 +50,25 @@ public class CommentResponse {
             build.writer = comment.getUser().getNickname();
         }
 
+        for (CommentLike commentLike : comment.getCommentLikeList()) {
+
+            if(user.equals(commentLike.getUser())){
+                build.isThisUserLike = true;
+            }
+
+        }
+
         return build;
     }
 
-    public static List<CommentResponse> toResponseList(List<Comment> commentList){
+    public static List<CommentResponse> toResponseList(List<Comment> commentList, User user){
 
         Map<Comment, CommentResponse> map = new HashMap<>();
         List<CommentResponse> roots = new ArrayList<>();
 
         for (Comment comment : commentList) {
 
-            CommentResponse commentToDto = toDto(comment);
+            CommentResponse commentToDto = toDto(comment, user);
             map.put(comment, commentToDto);
 
             if(comment.hasParent()){

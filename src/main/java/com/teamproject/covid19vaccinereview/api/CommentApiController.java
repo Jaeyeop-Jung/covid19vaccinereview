@@ -1,5 +1,8 @@
 package com.teamproject.covid19vaccinereview.api;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.teamproject.covid19vaccinereview.dto.CommentResponse;
 import com.teamproject.covid19vaccinereview.dto.CommentWriteRequest;
 import com.teamproject.covid19vaccinereview.service.CommentService;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -44,20 +48,23 @@ public class CommentApiController {
     @ApiOperation(value = "댓글 조회", notes = "댓글 조회 기능")
     @GetMapping("/post/{postId}/comment")
     public ResponseEntity<List<CommentResponse>> findCommentByPostId(
+            HttpServletRequest request,
             @PathVariable(name = "postId") @NotNull long postId
     ){
-        return ResponseEntity.ok(commentService.findByPostId(postId));
+        return ResponseEntity.ok(commentService.findByPostId(request, postId));
     }
 
-    @ApiOperation(value = "댓글 수정", notes = "댓글 수정 기능. 댓글 작성을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
-    @PatchMapping("/post/{postId}/comment/{commetId}")
-    public ResponseEntity<CommentResponse> modifyCommentByCommentId(
+    @ApiOperation(value = "댓글 수정", notes = "댓글 수정 기능. 댓글 수정 기능. 댓글 작성을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
+    @PatchMapping("/post/{postId}/comment/{commentId}")
+    public ResponseEntity<CommentResponse> modifyCommentById(
             HttpServletRequest request,
-            @PathVariable(name = "commentId") @NotNull long commetId,
-            @RequestBody String content
+            @RequestBody String content,
+            @PathVariable(name = "commentId") long commentId
     )
     {
-        return ResponseEntity.ok(commentService.modifyComment(request, commetId, content));
+        content = ((JsonObject)(new JsonParser().parse(content))).get("content").getAsString();
+
+        return ResponseEntity.ok(commentService.modifyComment(request, commentId, content));
     }
 
     @ApiOperation(value = "댓글 삭제", notes = "댓글 삭제 기능. 댓글 작성을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")

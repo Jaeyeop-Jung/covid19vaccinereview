@@ -22,4 +22,21 @@ public class UserTest {
         }).isInstanceOf(IllegalArgumentException.class);
     }
 
+    @Test
+    void notEqualsTest() {
+
+        User user1 = User.of("eail1", "password", UserRole.ROLE_USER, LoginProvider.GOOGLE, "nickname", null, "fefreshToken");
+        User user2 = User.of("eail2", "password", UserRole.ROLE_USER, LoginProvider.GOOGLE, "nickname", null, "fefreshToken");
+
+        Assertions.assertThat(user1).isNotEqualTo(user2);
+    }
+
+    @Test
+    void equalsTest() {
+        User user1 = User.of("eail", "password", UserRole.ROLE_USER, LoginProvider.GOOGLE, "nickname", null, "fefreshToken");
+        User user2 = User.of("eail", "password", UserRole.ROLE_USER, LoginProvider.GOOGLE, "nickname", null, "fefreshToken");
+
+        Assertions.assertThat(user1).isEqualTo(user2);
+    }
+
 }

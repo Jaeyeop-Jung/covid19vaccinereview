@@ -59,9 +59,13 @@ public class PostApiController {
      */
     @ApiOperation(value = "선택 계시글 조회", notes = "선택 게시글 조회")
     @GetMapping("/post/{postId}")
-    public ResponseEntity<FindPostByIdResponse> postFindByPostId(@PathVariable(name = "postId") @NotNull long postId){
+    public ResponseEntity<FindPostByIdResponse> postFindByPostId(
+            HttpServletRequest request,
+            @PathVariable(name = "postId") @NotNull long postId
+    )
+    {
 
-        FindPostByIdResponse findFindPostByIdResponse = postService.findPostById(postId);
+        FindPostByIdResponse findFindPostByIdResponse = postService.findPostById(request, postId);
 
         return ResponseEntity.ok(findFindPostByIdResponse);
     }
@@ -125,7 +129,7 @@ public class PostApiController {
      * @return the response entity
      */
     @ApiOperation(value = "게시글 수정", notes = "게시글 수정이 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
-    @PatchMapping("/post/{id}")
+    @PatchMapping("/post/{postId}")
     public ResponseEntity<PostWriteResponse> modifyPost(
             @PathVariable(name = "postId") @NotNull long postId,
             @ModelAttribute @Valid ModifyPostRequest modifyPostRequest,
@@ -150,7 +154,7 @@ public class PostApiController {
      * @return 삭제한 Post ID
      */
     @ApiOperation(value = "게시글 삭제", notes = "게시글 삭제가 가능한 권한을 위해 헤더에 원하는 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
-    @DeleteMapping("/post/{id}")
+    @DeleteMapping("/post/{postId}")
     public ResponseEntity<Map<String, Object>> deletePost(
             @PathVariable(name = "postId") @NotNull long postId,
             HttpServletRequest request
