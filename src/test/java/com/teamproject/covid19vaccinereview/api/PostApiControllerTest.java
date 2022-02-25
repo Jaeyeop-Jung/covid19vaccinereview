@@ -41,6 +41,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("PostApiController 테스트")
+@Sql(scripts = "classpath:afterTest.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class PostApiControllerTest {
 
     private final ObjectMapper objectMapper;
@@ -72,14 +73,6 @@ public class PostApiControllerTest {
     @BeforeEach
     void beforeEach() {
         RestAssured.port = port;
-    }
-
-    @AfterEach
-    void afterEach(){
-        postRepository.deleteAll();
-        postImageRepository.deleteAll();
-        boardRepository.deleteAll();
-        userRepository.deleteAll();
     }
 
     @Test
@@ -631,6 +624,7 @@ public class PostApiControllerTest {
         assertThat(getAllPostResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(thisUserLike).isTrue();
     }
+
 
 
 }

@@ -34,6 +34,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
@@ -44,6 +45,7 @@ import java.util.UUID;
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
 @DisplayName("UserApiController 테스트")
+@Sql(scripts = "classpath:afterTest.sql", executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD)
 public class UserApiControllerTest {
 
     private final ObjectMapper objectMapper;
@@ -76,13 +78,6 @@ public class UserApiControllerTest {
     void beforeEach() {
         RestAssured.port = port;
     }
-
-    @AfterEach
-    void afterEach(){
-        userRepository.deleteAll();
-        profileImageRepository.deleteAll();
-    }
-
 
     @Test
     @DisplayName("프로필 이미지가 있는 회원가입 테스트")

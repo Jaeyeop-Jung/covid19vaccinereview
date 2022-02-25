@@ -3,6 +3,7 @@ package com.teamproject.covid19vaccinereview.api;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.teamproject.covid19vaccinereview.aop.exception.customException.BlankPostContentException;
 import com.teamproject.covid19vaccinereview.dto.CommentResponse;
 import com.teamproject.covid19vaccinereview.dto.CommentWriteRequest;
 import com.teamproject.covid19vaccinereview.service.CommentService;
@@ -63,6 +64,9 @@ public class CommentApiController {
     )
     {
         content = ((JsonObject)(new JsonParser().parse(content))).get("content").getAsString();
+        if(content.isBlank()){
+            throw new BlankPostContentException("");
+        }
 
         return ResponseEntity.ok(commentService.modifyComment(request, commentId, content));
     }
