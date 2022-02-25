@@ -84,7 +84,7 @@ public class CommentService {
         }
 
         if(findComment.getChildren().size() == 0){
-
+            commentRepository.delete(findComment);
         } else {
             findComment.setDeleted();
         }

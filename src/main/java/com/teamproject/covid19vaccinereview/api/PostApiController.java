@@ -7,16 +7,23 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.naming.Binding;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Null;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -84,8 +91,8 @@ public class PostApiController {
     @GetMapping("/post/search")
     public ResponseEntity<FindAllPostResponse> searchPost(
             HttpServletRequest request,
-            @RequestParam @NotNull PostSearchType postSearchType,
-            @RequestParam @NotNull String keyword,
+            @RequestParam @Valid @NotNull PostSearchType postSearchType,
+            @RequestParam @NotBlank String keyword,
             @RequestParam(required = false, defaultValue = "1") @ApiParam(defaultValue = "1") int page
     )
     {
@@ -173,5 +180,21 @@ public class PostApiController {
     )
     {
         return ResponseEntity.ok(postService.likePost(request, postId));
+    }
+
+    @ExceptionHandler(MissingServletRequestParameterException.class)
+    public ResponseEntity<Map<String, String>> missingServletRequestParameterExceptionHandler(Exception e){
+        HttpHeaders responseHeader = new HttpHeaders();
+        HttpStatus httpStatus = HttpStatus.PAYMENT_REQUIRED;
+
+        log.info("Advice : missingServletRequestParameterExceptionHandler");
+
+        Map<String, String> map = new HashMap<>();
+        map.put("error type", httpStatus.getReasonPhrase());
+        map.put("code", "402");
+        map.put("message", "필수 파라미터를 다시 확인해주세요 : "
+                + e.getMessage().substring( e.getMessage().indexOf("'") + 1, e.getMessage().lastIndexOf("'")));
+
+        return new ResponseEntity<>(map, responseHeader, httpStatus);
     }
 }

@@ -42,30 +42,44 @@ public class PostRestAssuredCRUD {
                 .extract();
     }
 
-    public static ExtractableResponse<Response> getAllPost(){
-        return RestAssured
-                .given().log().all()
+    public static ExtractableResponse<Response> getAllPost(String accessToken){
+
+        RequestSpecification request = RestAssured
+                .given().log().all();
+        if(accessToken != null){
+            request.header("Authorization", accessToken);
+        }
+        return request
                 .when()
                 .get("/post")
                 .then().log().all()
                 .extract();
     }
 
-    public static ExtractableResponse<Response> getPostById(long id){
-        return RestAssured
-                .given().log().all()
-                .when()
+    public static ExtractableResponse<Response> getPostById(String accessToken, long id){
+
+        RequestSpecification request = RestAssured
+                .given().log().all();
+        if(accessToken != null){
+            request.header("Authorization", accessToken);
+        }
+        return request
                 .get("/post/" + id)
                 .then().log().all()
                 .extract();
     }
 
-    public static ExtractableResponse<Response> getSearchPost(PostSearchType postSearchType, String keyword, int page){
-        return RestAssured
+    public static ExtractableResponse<Response> getSearchPost(String accessToken, PostSearchType postSearchType, String keyword, int page){
+
+        RequestSpecification request = RestAssured
                 .given().log().all()
                 .queryParam("postSearchType", postSearchType)
                 .queryParam("keyword", keyword)
-                .queryParam("page", page)
+                .queryParam("page", page);
+        if(accessToken != null){
+            request.header("Authorization", accessToken);
+        }
+        return request
                 .when()
                 .get("/post/search")
                 .then().log().all()
@@ -133,5 +147,12 @@ public class PostRestAssuredCRUD {
                 .extract();
     }
 
-
+    public static ExtractableResponse<Response> patchLkePostById(String accessToken, long id){
+        return RestAssured.given().log().all()
+                .header("Authorization", accessToken)
+                .when()
+                .patch("/post/" + id + "/like")
+                .then().log().all()
+                .extract();
+    }
 }

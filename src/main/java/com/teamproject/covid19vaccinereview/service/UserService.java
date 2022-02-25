@@ -50,6 +50,12 @@ public class UserService {
         if(request.getHeader("Authorization") == null){
             throw new JwtIllegalArgumentException("");
         }
+        if(
+                request.getHeader("Authorization").isBlank() ||
+                !request.getHeader("Authorization").startsWith("Bearer ")
+        ) {
+            throw new MalformedJwtException("");
+        }
 
         String accessToken = request.getHeader("Authorization").split(" ")[1];
 
@@ -64,7 +70,10 @@ public class UserService {
     @Transactional(readOnly = true)
     public User getLoginUserWithoutExceptionByAccessToken(HttpServletRequest request){
 
-        if(request.getHeader("Authorization").isBlank() || !request.getHeader("Authorization").startsWith("Bearer ")){
+        if(     request.getHeader("Authorization") == null ||
+                request.getHeader("Authorization").isBlank() ||
+                !request.getHeader("Authorization").startsWith("Bearer ")
+        ){
             return null;
         }
 

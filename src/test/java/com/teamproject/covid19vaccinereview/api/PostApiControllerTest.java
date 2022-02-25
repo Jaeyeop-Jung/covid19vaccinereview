@@ -1,6 +1,10 @@
 package com.teamproject.covid19vaccinereview.api;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.teamproject.covid19vaccinereview.domain.Board;
 import com.teamproject.covid19vaccinereview.domain.Post;
 import com.teamproject.covid19vaccinereview.domain.VaccineType;
@@ -48,10 +52,9 @@ public class PostApiControllerTest {
     private final PostImageRepository postImageRepository;
     private final UserRepository userRepository;
     private final JsonParseUtil jsonParseUtil;
-    private final EntityManager em;
 
     @Autowired
-    public PostApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, CreatePostRequestUtil createPostRequestUtil, BoardRepository boardRepository, PostRepository postRepository, CreateUserRequestUtil createUserRequestUtil, PostImageRepository postImageRepository, UserRepository userRepository, JsonParseUtil jsonParseUtil, EntityManager em) {
+    public PostApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, CreatePostRequestUtil createPostRequestUtil, BoardRepository boardRepository, PostRepository postRepository, CreateUserRequestUtil createUserRequestUtil, PostImageRepository postImageRepository, UserRepository userRepository, JsonParseUtil jsonParseUtil) {
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
         this.createPostRequestUtil = createPostRequestUtil;
@@ -61,7 +64,6 @@ public class PostApiControllerTest {
         this.postImageRepository = postImageRepository;
         this.userRepository = userRepository;
         this.jsonParseUtil = jsonParseUtil;
-        this.em = em;
     }
 
     @LocalServerPort
@@ -222,7 +224,7 @@ public class PostApiControllerTest {
         ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWrite(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class));
 
         Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
-        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(postId);
+        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(null, postId);
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -352,7 +354,7 @@ public class PostApiControllerTest {
 
         String postId = jsonParseUtil.getJsonValue(postPostWriteResponse, "id");
 
-        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(null, Long.valueOf(postId));
 
         List<String> savedPostImageList = jsonParseUtil.getJsonArrayValue(getPostByIdResponse, "postImageUrlList").stream()
                 .map(value -> value.substring(value.lastIndexOf("postimage/") + 10))
@@ -365,7 +367,7 @@ public class PostApiControllerTest {
                 null
         );
 
-        ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+        ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(null, Long.valueOf(postId));
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -398,7 +400,7 @@ public class PostApiControllerTest {
 
         String postId = jsonParseUtil.getJsonValue(postPostWriteResponse, "id");
 
-        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(null, Long.valueOf(postId));
 
         List<String> savedPostImageList = jsonParseUtil.getJsonArrayValue(getPostByIdResponse, "postImageUrlList").stream()
                 .map(value -> value.substring(value.lastIndexOf("postimage/") + 10))
@@ -412,7 +414,7 @@ public class PostApiControllerTest {
                 null
         );
 
-        ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+        ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(null, Long.valueOf(postId));
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -447,7 +449,7 @@ public class PostApiControllerTest {
 
         String postId = jsonParseUtil.getJsonValue(postPostWriteResponse, "id");
 
-        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(null, Long.valueOf(postId));
 
         List<String> savedPostImageList = jsonParseUtil.getJsonArrayValue(getPostByIdResponse, "postImageUrlList").stream()
                 .map(value -> value.substring(value.lastIndexOf("postimage/") + 10))
@@ -460,7 +462,7 @@ public class PostApiControllerTest {
                 Arrays.asList(resourceLoader.getResource("classpath:profileimage/testimage3.png").getFile())
         );
 
-        ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(Long.valueOf(postId));
+        ExtractableResponse<Response> getPostAfterPatchResponse = PostRestAssuredCRUD.getPostById(null, Long.valueOf(postId));
 
         assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
@@ -510,7 +512,7 @@ public class PostApiControllerTest {
     @Sql("classpath:beforeTest.sql")
     public void 게시글_전체_조회_를_테스트한다(){
 
-        ExtractableResponse<Response> allPostResponse = PostRestAssuredCRUD.getAllPost();
+        ExtractableResponse<Response> allPostResponse = PostRestAssuredCRUD.getAllPost(null);
         assertThat(allPostResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(Integer.valueOf(jsonParseUtil.getJsonValue(allPostResponse, "totalPage"))).isGreaterThan(0);
     }
@@ -520,10 +522,115 @@ public class PostApiControllerTest {
     @Sql("classpath:beforeTest.sql")
     public void 게시글_검색_을_테스트한다(){
 
-        ExtractableResponse<Response> getSearchResponse = PostRestAssuredCRUD.getSearchPost(PostSearchType.CONTENT, "testpost1", 1);
+        ExtractableResponse<Response> getSearchResponse = PostRestAssuredCRUD.getSearchPost(null, PostSearchType.CONTENT, "testpost1", 1);
         assertThat(getSearchResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(Integer.valueOf(jsonParseUtil.getJsonValue(getSearchResponse, "totalPage"))).isGreaterThan(0);
 
     }
+
+    @Test
+    @DisplayName("게시글 상세조회 좋아요 테스트")
+    public void 게시글_상세조회_할_때_좋아요_를_테스트한다(){
+        String testUUID = UUID.randomUUID().toString();
+        VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
+        int randomOrdinalNumber = (int)( Math.random() * 100 );
+
+        JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
+
+        boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
+
+        PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
+
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWrite(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class));
+
+        Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
+
+        ExtractableResponse<Response> patchLkePostByIdResponse = PostRestAssuredCRUD.patchLkePostById(accessToken, postId);
+
+        ExtractableResponse<Response> getPostByIdResponse = PostRestAssuredCRUD.getPostById(accessToken, postId);
+
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(patchLkePostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(getPostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(Boolean.valueOf(jsonParseUtil.getJsonValue(getPostByIdResponse.body(), "thisUserLike"))).isTrue();
+    }
+
+    @Test
+    @DisplayName("게시글 검색 좋아요 테스트")
+    public void 게시글_검색_할_때_좋아요_를_테스트한다(){
+        
+        String testUUID = UUID.randomUUID().toString();
+        VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
+        int randomOrdinalNumber = (int)( Math.random() * 100 );
+
+        JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
+
+        boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
+
+        PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
+
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWrite(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class));
+
+        Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
+
+        ExtractableResponse<Response> patchLkePostByIdResponse = PostRestAssuredCRUD.patchLkePostById(accessToken, postId);
+
+        ExtractableResponse<Response> getSearchPostResponse = PostRestAssuredCRUD.getSearchPost(accessToken, PostSearchType.TITLE, testUUID, 1);
+
+        JsonParser jsonParser = new JsonParser();
+        JsonElement parse = jsonParser.parse(getSearchPostResponse.body().asString());
+        JsonObject jsonObject = (JsonObject) parse;
+        JsonArray asJsonArray = jsonObject.getAsJsonArray("pagingPostList");
+        boolean thisUserLike = asJsonArray.get(0).getAsJsonObject().get("thisUserLike").getAsBoolean();
+
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(patchLkePostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(getSearchPostResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(thisUserLike).isTrue();
+    }
+
+    @Test
+    @DisplayName("게시글 전체 조회 좋아요 테스트")
+    public void 게시글_전체_조회_할_때_좋아요_를_테스트한다(){
+
+        String testUUID = UUID.randomUUID().toString();
+        VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
+        int randomOrdinalNumber = (int)( Math.random() * 100 );
+
+        JoinRequest joinRequestWithUUID = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        ExtractableResponse<Response> postUserResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequestWithUUID, Map.class));
+
+        boardRepository.save(Board.of(randomVaccineType, randomOrdinalNumber));
+
+        PostWriteRequest postWriteRequestWithUUID = createPostRequestUtil.createPostWriteRequestWithUUID(testUUID, randomVaccineType, randomOrdinalNumber);
+        String accessToken = jsonParseUtil.getJsonValue(postUserResponse, "accessToken");
+
+        ExtractableResponse<Response> postPostWriteResponse = PostRestAssuredCRUD.postPostWrite(accessToken, objectMapper.convertValue(postWriteRequestWithUUID, Map.class));
+
+        Long postId = Long.valueOf(jsonParseUtil.getJsonValue(postPostWriteResponse, "id"));
+
+        ExtractableResponse<Response> patchLkePostByIdResponse = PostRestAssuredCRUD.patchLkePostById(accessToken, postId);
+
+        ExtractableResponse<Response> getAllPostResponse = PostRestAssuredCRUD.getAllPost(accessToken);
+
+        JsonParser jsonParser = new JsonParser();
+        JsonElement parse = jsonParser.parse(getAllPostResponse.body().asString());
+        JsonObject jsonObject = (JsonObject) parse;
+        JsonArray asJsonArray = jsonObject.getAsJsonArray("pagingPostList");
+        boolean thisUserLike = asJsonArray.get(0).getAsJsonObject().get("thisUserLike").getAsBoolean();
+
+        assertThat(postUserResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(postPostWriteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(patchLkePostByIdResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(getAllPostResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(thisUserLike).isTrue();
+    }
+
 
 }

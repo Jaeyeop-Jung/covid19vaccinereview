@@ -52,7 +52,7 @@ public class CommentResponse {
 
         for (CommentLike commentLike : comment.getCommentLikeList()) {
 
-            if(user.equals(commentLike.getUser())){
+            if(commentLike.getUser().equals(user)){
                 build.isThisUserLike = true;
             }
 
