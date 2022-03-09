@@ -38,6 +38,8 @@ public class UserService {
     @Value("${domain-url}")
     private String domainUrl;
 
+    private final ProfileImageService profileImageService;
+
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -275,51 +277,13 @@ public class UserService {
     @Transactional
     public ModifyUserResponse modify(HttpServletRequest request, MultipartFile multipartFile, ModifyUserRequest modifyUserRequest) throws IOException {
 
-        Map<String, Object> response = new HashMap<>();
-
         if(!jwtTokenProvider.validateToken(request.getHeader("Authorization").split(" ")[1])){
             throw new MalformedJwtException("");
         }
 
         User findUser = getLoginUserByAccessToken(request);
 
-        if(modifyUserRequest.isWantToChangeProfileImage() && (ObjectUtils.isEmpty(multipartFile) || multipartFile.getOriginalFilename().isBlank())) {
-
-            if(findUser.getProfileImage() != null){
-                imageFileUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
-                profileImageRepository.deleteById(findUser.getProfileImage().getId());
-            }
-
-        } else if(modifyUserRequest.isWantToChangeProfileImage() && !ObjectUtils.isEmpty(multipartFile)){ // 프로필 이미지 수정
-
-            String fileExtension = multipartFile.getOriginalFilename().substring( multipartFile.getOriginalFilename().lastIndexOf(".") );
-
-            if(findUser.getProfileImage() == null){
-
-                ProfileImage profileImage = ProfileImage.of(
-                        findUser.getEmail() + fileExtension,
-                        multipartFile.getSize(),
-                        fileExtension
-                );
-                profileImageRepository.save(profileImage);
-                findUser.changeProfileImage(profileImage);
-
-                imageFileUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
-                imageFileUtil.saveProfileImage(multipartFile, findUser.getProfileImage().getFileName());
-
-            } else {
-
-                findUser.getProfileImage().changeImage(
-                        findUser.getEmail() + fileExtension,
-                        multipartFile.getSize(),
-                        fileExtension
-                );
-
-                imageFileUtil.deleteProfileImage(findUser.getProfileImage().getFileName());
-                imageFileUtil.saveProfileImage(multipartFile, findUser.getProfileImage().getFileName());
-            }
-
-        }
+        profileImageService.modify(findUser, multipartFile, modifyUserRequest); // 프로필 이미지 수정
 
         if(modifyUserRequest.getPassword() != null && modifyUserRequest.getPassword().length() != 0){   // 비밀번호 수정
 
