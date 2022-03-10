@@ -21,7 +21,7 @@ public class NotificationApiController {
     private final NotificationService notificationService;
 
     @GetMapping("/sub")
-    @ApiOperation(value = "SSE 테스트", notes = "SSE를 통해서 백엔드 서버를 계속 구독")
+    @ApiOperation(value = "SSE 테스트", notes = "SSE를 통해서 백엔드 서버를 계속 구독. 계정 accessToken을 꼭 담아주세요(Authorization : Bearer ey...).")
     public SseEmitter sub(HttpServletRequest request){
         return notificationService.subscribe(request);
     }

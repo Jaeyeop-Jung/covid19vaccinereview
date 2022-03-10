@@ -5,7 +5,6 @@ import com.teamproject.covid19vaccinereview.filter.JwtTokenProvider;
 import io.jsonwebtoken.MalformedJwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.logging.log4j.core.config.plugins.validation.constraints.Required;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -48,6 +47,7 @@ public class NotificationService {
         sseEmitter.onCompletion(() -> {
             sseEmitterMap.remove(userIdByJwt);
             System.out.println("COMPLETITION 발생");
+
         });
         sseEmitter.onTimeout(() -> {
             sseEmitterMap.remove(userIdByJwt);
@@ -65,11 +65,11 @@ public class NotificationService {
     public void memo(String content) throws IOException {
         for (Long aLong : sseEmitterMap.keySet()) {
             SseEmitter sseEmitter = sseEmitterMap.get(aLong);
-            sseEmitter.send(SseEmitter.event().name("content").data("받아라 !!!" + content));
+            sseEmitter.send(SseEmitter.event().name("content").data(content));
         }
-        System.out.println("통과!!");
-        for (Long aLong : sseEmitterMap.keySet()) {
-            System.out.println("aLong = " + aLong);
+        System.out.println("전송!!");
+        for (Long user : sseEmitterMap.keySet()) {
+            System.out.println("userId= " + user);
         }
     }
 
