@@ -1,5 +1,10 @@
 domain-url: http://ec2-3-36-239-6.ap-northeast-2.compute.amazonaws.com
 
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+    password: ${JASYPT_PASSWORD}
+
 spring:
   config:
     activate:
