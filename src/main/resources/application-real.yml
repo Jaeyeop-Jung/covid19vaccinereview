@@ -1,0 +1,75 @@
+domain-url: http://ec2-3-36-239-6.ap-northeast-2.compute.amazonaws.com
+
+spring:
+  config:
+    activate:
+      on-profile: "real"
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ENC(SS2wnjDlJ37muR8kmeqvompnUDkzZrfXc+I/HN0vuE93ouwCoJT/4yqzQPYCQrtchL70ee4tgBp2s1u6dFdp5U45TcKbS01NmRgox8nlLI6pB1SIQGK0gGSun68BpBwTE0naoeCi6OSgonpq/cEC9Y26YEshYtwEEktIO7BoIZg8/7LOGuhXENZEFFvkWZIjfCnfqBBloOJmrUJpvUmqqQ==)
+    username: ENC(fNYTY1LF0lew/n74mHvplw==)
+    password: ENC(HP7khSE2iIiMJzwyyZj2LbbmpXREf+VOzyL2el+r1+s=)
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+      format_sql: true
+    #      naming:
+    #        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    generate-ddl: true
+
+oauth:
+  google:
+    url: https://accounts.google.com/o/oauth2/v2/auth
+    client-id: ENC(GKIFsrf+gq1gBPJ/E54AEyEb25o57YhUiuKKbOSZPyit4i0ar6GkquRQ99hR05M5a6fT9CteKgz0kSVRiROrvzD9lYyFW7eS9p+0nEXK6cDIdldNd2YHOQ==)
+    client-secret: ENC(Ws0ooHOQKEygj7y4tKg1yno6sHa35JUaS88iW42cW/TCJRxrUV+m1dw8808Jjh6q)
+    callback-url: http://localhost:3000
+    token-url: https://oauth2.googleapis.com/token
+    userinfo-url: https://www.googleapis.com/drive/v2/files
+  kakao:
+    url: https://kauth.kakao.com/oauth/authorize
+    client-id: ENC(w6Je0+/6kYG/t8XvnRwyCtlMNBdQiYg7AKIZ1h+NYfHoIUdpUDi+FGxr59RuEa+F)
+    callback-url: http://ec2-13-124-162-173.ap-northeast-2.compute.amazonaws.com/login/KAKAO/callback
+    token-url: https://kauth.kakao.com/oauth/token
+    userinfo-url: https://kapi.kakao.com/v2/user/me
+  naver:
+    url: https://nid.naver.com/oauth2.0/authorize
+    client_id: ENC(AIHkhn0urHmcJ7H9KM4JCnkB4jMsHrNH+TaCW41zKvo=)
+    client_secret: ENC(4MSnqpLpwQJSgRCAlkzUHGybvBZ3PSa+)
+    callback-url: http://ec2-13-124-162-173.ap-northeast-2.compute.amazonaws.com/login/NAVER/callback
+    token-url: https://nid.naver.com/oauth2.0/token
+    userinfo-url: https://openapi.naver.com/v1/nid/me
+
+#---
+#spring:
+#  profiles:
+#    group:
+#      "real-port1" : "real1_port"
+
+---
+spring:
+  cofnig:
+    activate:
+      on-profile: "real1_port"
+
+server:
+  port: 8081
+
+#---
+#spring:
+#  profiles:
+#    group:
+#      "real-port2": "real2_port"
+
+---
+spring:
+  config:
+    activate:
+      on-profile: "real2_port"
+
+server:
+  port: 8082
