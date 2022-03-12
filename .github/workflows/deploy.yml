@@ -14,9 +14,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    env:
-      JASYPT_PASSWORD: ${{ secrets.JASYPT_PASSWORD }}
+  
     
     steps:
     - name: 테스트
