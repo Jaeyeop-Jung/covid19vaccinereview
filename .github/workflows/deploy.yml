@@ -10,14 +10,14 @@ name: CI
 on:
   push:
     branches: [ master ]
-
-env:
-  JASYPT_PASSWORD: ${{ secrets.JASYPT_PASSWORD }}
   
 jobs:
   build:
     runs-on: ubuntu-latest
-
+    
+    env:
+      JASYPT_PASSWORD: ${{ secrets.JASYPT_PASSWORD }}
+  
     steps:
     - name: 체크아웃 Github Action
       uses: actions/checkout@v2
