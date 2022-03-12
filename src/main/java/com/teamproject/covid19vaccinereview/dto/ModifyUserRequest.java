@@ -1,7 +1,10 @@
 package com.teamproject.covid19vaccinereview.dto;
 
 import io.swagger.annotations.ApiParam;
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.*;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -11,10 +14,8 @@ import javax.validation.constraints.NotNull;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class ModifyUserRequest {
 
-    @NotBlank
     private String password;
 
-    @NotBlank
     private String nickname;
 
     @NotNull
