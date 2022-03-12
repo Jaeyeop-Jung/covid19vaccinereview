@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      JASYPT_PASSWORD : 가나다
+      JASYPT_PASSWORD : ${{ secrets.JASYPT_PASSWORD }}
   
     steps:
     - name: 테스트
