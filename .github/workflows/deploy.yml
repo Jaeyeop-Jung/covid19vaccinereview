@@ -19,6 +19,12 @@ jobs:
       JASYPT_PASSWORD : ${{ secrets.JASYPT_PASSWORD }}
   
     steps:
+    - name: 테스트
+      run: echo "$JASYPT_PASSWORD 입니다"
+      env:
+        JASYPT_PASSWORD : ${{ secrets.JASYPT_PASSWORD }}
+        
+    
     - name: 체크아웃 Github Action
       uses: actions/checkout@v2
       
