@@ -12,14 +12,11 @@ on:
     branches: [ master ]
 
 env:
-  JASYPT_PASSWORD: ${{ secret.JASYPT_PASSWORD }}
+  JASYPT_PASSWORD: ${{ secrets.JASYPT_PASSWORD }}
   
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    env:
-      JASYPT_PASSWORD: ${{ secret.JASYPT_PASSWORD }}
 
     steps:
     - name: 체크아웃 Github Action
