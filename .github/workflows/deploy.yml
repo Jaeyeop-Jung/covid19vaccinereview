@@ -34,6 +34,8 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew clean build
       shell: bash
+      env:
+        JASYPT_PASSWORD: ${{ secrets.JASYPT_PASSWORD }}
     
     - name: Make zip file 
       run: zip -r ./build.zip
