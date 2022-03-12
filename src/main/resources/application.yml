@@ -1,0 +1,21 @@
+spring:
+  profiles:
+    group:
+      "real1": "real,port-8081"
+      "real2": "real,port-8082"
+    active: "real2"
+  servlet:
+    multipart:
+      max-request-size: 10MB
+      max-file-size: 10MB
+
+logging:
+  config: classpath:log4j2.xml
+
+jwt:
+  secret: covid19vaccinereview
+
+jasypt:
+  encryptor:
+    bean: jasyptStringEncryptor
+    password: ${JASYPT_PASSWORD}
