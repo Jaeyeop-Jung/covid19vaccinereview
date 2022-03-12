@@ -20,7 +20,7 @@ jobs:
     
     steps:
     - name: 테스트
-      run: echo "$JASYPT_PASSWORD2 입니다"
+      run: echo "$JASYPT_PASSWORD 입니다"
         
     - name: 체크아웃 Github Action
       uses: actions/checkout@v2
