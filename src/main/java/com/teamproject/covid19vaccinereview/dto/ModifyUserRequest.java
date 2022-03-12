@@ -1,5 +1,6 @@
 package com.teamproject.covid19vaccinereview.dto;
 
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiParam;
 import lombok.*;
 
