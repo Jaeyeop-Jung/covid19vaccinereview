@@ -1,0 +1,45 @@
+domain-url: http://localhost:8080
+
+spring:
+  config:
+    activate:
+      on-profile: "local"
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ENC(lN0l/ARj+gD1+bUuKftRDUNJFbnXZ0WjeQ12SsYLQ42Ck3EBLPhKUxuI5mVMBM36MK1Db2p963ghBG5irXzj4hsoK3rZcbzTWCyTAzgflEFuxgMjCaY/DsOmm5CI8e5OlfPIHictwVM0SyHwfsNHtw==)
+    username: ENC(d6awAi8JAG3/148QHHikhg==)
+    password:
+
+  jpa:
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+    open-in-view: false
+    show-sql: true
+    hibernate:
+      ddl-auto: validate
+      format_sql: true
+    #      naming:
+    #        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    generate-ddl: true
+
+oauth:
+  google:
+    url: https://accounts.google.com/o/oauth2/v2/auth
+    client-id: ENC(6YZokBDEz7CCdRMGx4g4etQ+5HVN2yswHr3aT+rN5LQxVBGigF6jiYt1ocothy97troODO66M9GxGToM60Phb8hfm/8ONB1sityEspsPvhQ6y1BuDsLAHw==)
+    client-secret: ENC(Ma8yQ/EwJxJObj2WMpREZc8cq9ZIKS33upqPtjtvVXr0ERU9R2Kd1KrVQPUSfd+I)
+    callback-url: http://localhost:8080/login/GOOGLE/callback
+    token-url: https://oauth2.googleapis.com/token
+    userinfo-url: https://www.googleapis.com/drive/v2/files
+  kakao:
+    url: https://kauth.kakao.com/oauth/authorize
+    client-id: ENC(02PvEIRB7AThMQE7vTSjWKrjbmEoVMeSU4CdvTk7785pAUhm3cRwT5hQAYK/nYn5)
+    callback-url: http://localhost:8080/login/KAKAO/callback
+    token-url: https://kauth.kakao.com/oauth/token
+    userinfo-url: https://kapi.kakao.com/v2/user/me
+  naver:
+    url: https://nid.naver.com/oauth2.0/authorize
+    client_id: ENC(rKklEYYwXUpV/lZNpNDiVLNSSXlCmVzEZKdzvBN+Egc=)
+    client_secret: ENC(41FFNC4vjq4MzOmJshcdHFwoqXFbmVDM
+    callback-url: http://localhost:8080/login/NAVER/callback
+    token-url: https://nid.naver.com/oauth2.0/token
+    userinfo-url: https://openapi.naver.com/v1/nid/me

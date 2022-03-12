@@ -22,7 +22,7 @@ public class JasyptConfig {
         config.setKeyObtentionIterations("1000");
         config.setPoolSize("1");
         config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator");
-        config.setIvGeneratorClassName("org.jasypt.iv.RandomIvGenerator");
+        config.setIvGeneratorClassName("org.jasypt.iv.NoIvGenerator");
         config.setStringOutputType("BASE64");
         pooledPBEStringEncryptor.setConfig(config);
 

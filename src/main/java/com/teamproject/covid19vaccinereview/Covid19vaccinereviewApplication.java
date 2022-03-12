@@ -18,7 +18,6 @@ public class Covid19vaccinereviewApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(Covid19vaccinereviewApplication.class, args);
-
 	}
 
 }
