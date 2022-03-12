@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      JASYPT_PASSWORD: ${{ secrets.JASYPT_PASSWORD }}
+      JASYPT_PASSWORD : ${{ secrets.JASYPT_PASSWORD }}
   
     steps:
     - name: 체크아웃 Github Action
@@ -34,8 +34,6 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew clean build
       shell: bash
-      env:
-        JASYPT_PASSWORD: ${{ secrets.JASYPT_PASSWORD }}
     
     - name: Make zip file 
       run: zip -r ./build.zip
