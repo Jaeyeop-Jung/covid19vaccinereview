@@ -79,153 +79,153 @@ public class UserApiControllerTest {
         RestAssured.port = port;
     }
 
-    @Test
-    @DisplayName("프로필 이미지가 있는 회원가입 테스트")
-    public void 프로필_파일을_포함한_originJoin_을_테스트한다() throws Exception {
-
-        String testUUID = UUID.randomUUID().toString();
-
-        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
-        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
-
-        ExtractableResponse<Response> response = UserRestAssuredCRUD.postOriginUserWithProfileImage(objectMapper.convertValue(joinRequest, Map.class), resource.getFile());
-
-        assertThat(response.statusCode()).isEqualTo(200);
-    }
-
-    @Test
-    @DisplayName("프로필 이미지가 없는 회원가입 테스트")
-    public void 프로필_이미지_를_포함하지않은_originJoin_을_테스트한다() throws Exception {
-
-        String testUUID = UUID.randomUUID().toString();
-
-        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
-
-        ExtractableResponse<Response> response = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
-
-        assertThat(response.statusCode()).isEqualTo(200);
-    }
-
-
-    @Test
-    @DisplayName("로그인 테스트")
-    public void 로그인_을_테스트한다() throws Exception {
-
-        String testUUID = UUID.randomUUID().toString();
-
-        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
-        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
-        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUserWithProfileImage(objectMapper.convertValue(joinRequest, Map.class), resource.getFile());
-
-        LoginRequest loginRequest = createUserRequestUtil.createLoginReqeustWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginLoginResponse = UserRestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
-
-
-        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(200);
-        assertThat(postOriginLoginResponse.statusCode()).isEqualTo(200);
-    }
-
-    @Test
-    @DisplayName("정상적인 권한 처리 테스트")
-    public void 정상적인_권한_처리_를_테스트한다() throws JsonProcessingException {
-
-        String testUUID = UUID.randomUUID().toString();
-
-        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
-        System.out.println("\n");
-
-        LoginRequest loginRequest = createUserRequestUtil.createLoginReqeustWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginLoginResponse = UserRestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
-        System.out.println("\n");
-
-        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
-        ExtractableResponse<Response> requestWithAccessTokenResponse = UserRestAssuredCRUD.getWithAccessToken("/user/test", accessToken);
-        System.out.println("\n");
-
-        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postOriginLoginResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(requestWithAccessTokenResponse.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
-    }
-
-    @Test
-    @DisplayName("허용하지 않는 권한 테스트")
-    public void 허용하지_않는_권한_을_테스트한다() throws JsonProcessingException {
-
-        String testUUID = UUID.randomUUID().toString();
-
-        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
-        System.out.println("\n");
-
-        LoginRequest loginRequest = createUserRequestUtil.createLoginReqeustWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginLoginResponse = UserRestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
-        System.out.println("\n");
-
-        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
-        ExtractableResponse<Response> requestWithAccessTokenResponse = UserRestAssuredCRUD.getWithAccessToken("/admin/test", accessToken);
-        System.out.println("\n");
-
-        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(postOriginLoginResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(requestWithAccessTokenResponse.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
-    @DisplayName("비정상적인 토큰 테스트")
-    public void 비정상적인_토큰_을_테스트한다() throws JsonProcessingException {
-
-        ExtractableResponse<Response> requestWithAccessTokenResponse = UserRestAssuredCRUD.getWithAccessToken("/user/1", "Test");
-        System.out.println("\n");
-
-        assertThat(requestWithAccessTokenResponse.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Test
-    @DisplayName("회원 비밀번호 수정 테스트")
-    public void 회원_비밀번호_수정_을_테스트한다() throws IOException {
-
-        String testUUID = UUID.randomUUID().toString();
-
-        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
-        System.out.println("\n");
-
-        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
-        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
-        ExtractableResponse<Response> blankPasswordTestResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, "    ", null, resource.getFile(), false);
-        System.out.println("\n");
-
-        ExtractableResponse<Response> changePasswordTestResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, "putTest", null, resource.getFile(), false);
-        boolean isChanged = bCryptPasswordEncoder.matches("putTest", userRepository.findByEmail(testUUID + "@" + testUUID + ".com").get().getPassword());
-
-        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(blankPasswordTestResponse.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-        assertThat(changePasswordTestResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(isChanged).isEqualTo(true);
-    }
-
-    @Test
-    @DisplayName("회원 닉네임 수정 테스트")
-    public void 회원_닉네임_수정_을_테스트한다() throws IOException {
-
-        String testUUID = UUID.randomUUID().toString();
-
-        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
-        System.out.println("\n");
-
-        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
-        System.out.println("accessToken = " + accessToken);
-        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
-        ExtractableResponse<Response> changeNicknameTestResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, null, "putTest", resource.getFile(), false);
-
-        String changedNickname = jsonParseUtil.getJsonValue(changeNicknameTestResponse, "nickname");
-
-        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(changeNicknameTestResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(changedNickname).isEqualTo("putTest");
-    }
+//    @Test
+//    @DisplayName("프로필 이미지가 있는 회원가입 테스트")
+//    public void 프로필_파일을_포함한_originJoin_을_테스트한다() throws Exception {
+//
+//        String testUUID = UUID.randomUUID().toString();
+//
+//        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+//        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
+//
+//        ExtractableResponse<Response> response = UserRestAssuredCRUD.postOriginUserWithProfileImage(objectMapper.convertValue(joinRequest, Map.class), resource.getFile());
+//
+//        assertThat(response.statusCode()).isEqualTo(200);
+//    }
+//
+//    @Test
+//    @DisplayName("프로필 이미지가 없는 회원가입 테스트")
+//    public void 프로필_이미지_를_포함하지않은_originJoin_을_테스트한다() throws Exception {
+//
+//        String testUUID = UUID.randomUUID().toString();
+//
+//        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+//
+//        ExtractableResponse<Response> response = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
+//
+//        assertThat(response.statusCode()).isEqualTo(200);
+//    }
+//
+//
+//    @Test
+//    @DisplayName("로그인 테스트")
+//    public void 로그인_을_테스트한다() throws Exception {
+//
+//        String testUUID = UUID.randomUUID().toString();
+//
+//        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+//        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
+//        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUserWithProfileImage(objectMapper.convertValue(joinRequest, Map.class), resource.getFile());
+//
+//        LoginRequest loginRequest = createUserRequestUtil.createLoginReqeustWithUUID(testUUID);
+//        ExtractableResponse<Response> postOriginLoginResponse = UserRestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
+//
+//
+//        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(200);
+//        assertThat(postOriginLoginResponse.statusCode()).isEqualTo(200);
+//    }
+//
+//    @Test
+//    @DisplayName("정상적인 권한 처리 테스트")
+//    public void 정상적인_권한_처리_를_테스트한다() throws JsonProcessingException {
+//
+//        String testUUID = UUID.randomUUID().toString();
+//
+//        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+//        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
+//        System.out.println("\n");
+//
+//        LoginRequest loginRequest = createUserRequestUtil.createLoginReqeustWithUUID(testUUID);
+//        ExtractableResponse<Response> postOriginLoginResponse = UserRestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
+//        System.out.println("\n");
+//
+//        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
+//        ExtractableResponse<Response> requestWithAccessTokenResponse = UserRestAssuredCRUD.getWithAccessToken("/user/test", accessToken);
+//        System.out.println("\n");
+//
+//        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        assertThat(postOriginLoginResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        assertThat(requestWithAccessTokenResponse.statusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
+//    }
+//
+//    @Test
+//    @DisplayName("허용하지 않는 권한 테스트")
+//    public void 허용하지_않는_권한_을_테스트한다() throws JsonProcessingException {
+//
+//        String testUUID = UUID.randomUUID().toString();
+//
+//        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+//        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
+//        System.out.println("\n");
+//
+//        LoginRequest loginRequest = createUserRequestUtil.createLoginReqeustWithUUID(testUUID);
+//        ExtractableResponse<Response> postOriginLoginResponse = UserRestAssuredCRUD.getOriginLogin(objectMapper.convertValue(loginRequest, Map.class));
+//        System.out.println("\n");
+//
+//        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
+//        ExtractableResponse<Response> requestWithAccessTokenResponse = UserRestAssuredCRUD.getWithAccessToken("/admin/test", accessToken);
+//        System.out.println("\n");
+//
+//        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        assertThat(postOriginLoginResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        assertThat(requestWithAccessTokenResponse.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value());
+//    }
+//
+//    @Test
+//    @DisplayName("비정상적인 토큰 테스트")
+//    public void 비정상적인_토큰_을_테스트한다() throws JsonProcessingException {
+//
+//        ExtractableResponse<Response> requestWithAccessTokenResponse = UserRestAssuredCRUD.getWithAccessToken("/user/1", "Test");
+//        System.out.println("\n");
+//
+//        assertThat(requestWithAccessTokenResponse.statusCode()).isEqualTo(HttpStatus.FORBIDDEN.value());
+//    }
+//
+//    @Test
+//    @DisplayName("회원 비밀번호 수정 테스트")
+//    public void 회원_비밀번호_수정_을_테스트한다() throws IOException {
+//
+//        String testUUID = UUID.randomUUID().toString();
+//
+//        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+//        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
+//        System.out.println("\n");
+//
+//        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
+//        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
+//        ExtractableResponse<Response> blankPasswordTestResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, "    ", null, resource.getFile(), false);
+//        System.out.println("\n");
+//
+//        ExtractableResponse<Response> changePasswordTestResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, "putTest", null, resource.getFile(), false);
+//        boolean isChanged = bCryptPasswordEncoder.matches("putTest", userRepository.findByEmail(testUUID + "@" + testUUID + ".com").get().getPassword());
+//
+//        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        assertThat(blankPasswordTestResponse.statusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+//        assertThat(changePasswordTestResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        assertThat(isChanged).isEqualTo(true);
+//    }
+//
+//    @Test
+//    @DisplayName("회원 닉네임 수정 테스트")
+//    public void 회원_닉네임_수정_을_테스트한다() throws IOException {
+//
+//        String testUUID = UUID.randomUUID().toString();
+//
+//        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+//        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
+//        System.out.println("\n");
+//
+//        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
+//        System.out.println("accessToken = " + accessToken);
+//        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
+//        ExtractableResponse<Response> changeNicknameTestResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, null, "putTest", resource.getFile(), false);
+//
+//        String changedNickname = jsonParseUtil.getJsonValue(changeNicknameTestResponse, "nickname");
+//
+//        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        assertThat(changeNicknameTestResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        assertThat(changedNickname).isEqualTo("putTest");
+//    }
 
     @Test
     @Transactional
@@ -250,26 +250,26 @@ public class UserApiControllerTest {
                 .isEqualTo(FileUtil.readAsByteArray(changedResource.getFile()));
     }
 
-    @Test
-    @DisplayName("회원 삭제 테스트")
-    public void 토큰을_이용한_회원_삭제_를_테스트한다(){
-
-        String testUUID = UUID.randomUUID().toString();
-
-        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
-        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
-        System.out.println("\n");
-
-        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
-        ExtractableResponse<Response> deleteResponse = UserRestAssuredCRUD.deleteWithAccessToken(accessToken);
-
-        String deletedEmail = jsonParseUtil.getJsonValue(deleteResponse, "email");
-
-        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(deleteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(deletedEmail).isEqualTo(testUUID + "@" + testUUID + ".com");
-        assertThat(userRepository.existsByEmail(testUUID + "@" + testUUID + ".com")).isFalse();
-    }
+//    @Test
+//    @DisplayName("회원 삭제 테스트")
+//    public void 토큰을_이용한_회원_삭제_를_테스트한다(){
+//
+//        String testUUID = UUID.randomUUID().toString();
+//
+//        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+//        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
+//        System.out.println("\n");
+//
+//        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
+//        ExtractableResponse<Response> deleteResponse = UserRestAssuredCRUD.deleteWithAccessToken(accessToken);
+//
+//        String deletedEmail = jsonParseUtil.getJsonValue(deleteResponse, "email");
+//
+//        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        assertThat(deleteResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+//        assertThat(deletedEmail).isEqualTo(testUUID + "@" + testUUID + ".com");
+//        assertThat(userRepository.existsByEmail(testUUID + "@" + testUUID + ".com")).isFalse();
+//    }
 
 
 //    @DisplayName("register 을 통해서 origin user 관리자 유저 가입한다. (구 originJoin")
