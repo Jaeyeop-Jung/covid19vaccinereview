@@ -100,7 +100,6 @@ public class UserApiControllerTest {
 
         JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
 
-        Thread.sleep(660000);
         ExtractableResponse<Response> response = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
 
         assertThat(response.statusCode()).isEqualTo(200);
