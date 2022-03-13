@@ -12,6 +12,7 @@ spring:
     password: ENC(HP7khSE2iIiMJzwyyZj2LbbmpXREf+VOzyL2el+r1+s=)
     hikari:
       idle-timeout: 1200000
+      max-lifetime: 1800000
 
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
