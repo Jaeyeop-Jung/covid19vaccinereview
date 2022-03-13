@@ -34,6 +34,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +51,6 @@ public class UserApiControllerTest {
 
     private final ObjectMapper objectMapper;
     private final ResourceLoader resourceLoader;
-    private final EntityManager em;
     private final UserRepository userRepository;
     private final ProfileImageRepository profileImageRepository;
     private final CreateUserRequestUtil createUserRequestUtil;
@@ -59,10 +59,9 @@ public class UserApiControllerTest {
     private final JsonParseUtil jsonParseUtil;
 
     @Autowired
-    public UserApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, EntityManager em, UserRepository userRepository, ProfileImageRepository profileImageRepository, CreateUserRequestUtil createUserRequestUtil, BCryptPasswordEncoder bCryptPasswordEncoder, ImageFileUtil imageFileUtil, JsonParseUtil jsonParseUtil) {
+    public UserApiControllerTest(ObjectMapper objectMapper, ResourceLoader resourceLoader, UserRepository userRepository, ProfileImageRepository profileImageRepository, CreateUserRequestUtil createUserRequestUtil, BCryptPasswordEncoder bCryptPasswordEncoder, ImageFileUtil imageFileUtil, JsonParseUtil jsonParseUtil) {
         this.objectMapper = objectMapper;
         this.resourceLoader = resourceLoader;
-        this.em = em;
         this.userRepository = userRepository;
         this.profileImageRepository = profileImageRepository;
         this.createUserRequestUtil = createUserRequestUtil;
@@ -101,6 +100,7 @@ public class UserApiControllerTest {
 
         JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
 
+        Thread.sleep(660000);
         ExtractableResponse<Response> response = UserRestAssuredCRUD.postOriginUser(objectMapper.convertValue(joinRequest, Map.class));
 
         assertThat(response.statusCode()).isEqualTo(200);
