@@ -182,6 +182,29 @@ public class UserApiControllerTest {
     }
 
     @Test
+    @Transactional
+    @DisplayName("회원 프로필이미지 수정 테스트")
+    public void 회원_프로필이미지_수정_을_테스트한다() throws IOException {
+
+        String testUUID = UUID.randomUUID().toString();
+
+        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
+        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
+        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUserWithProfileImage(objectMapper.convertValue(joinRequest, Map.class), resource.getFile());
+        System.out.println("\n");
+
+        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
+        Resource changedResource = resourceLoader.getResource("classpath:profileimage/testimage2.png");
+        ExtractableResponse<Response> changeProfileImageResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, null, null, changedResource.getFile(), true);
+
+        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(changeProfileImageResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(userRepository.findByEmail(testUUID + "@" + testUUID + ".com").get().getProfileImage().getFileSize()).isEqualTo(changedResource.contentLength());
+        assertThat(imageFileUtil.profileImageFileToBytes( profileImageRepository.findByFileName(testUUID + "@" + testUUID + ".com" + ".png").get(0).getFileName() ))
+                .isEqualTo(FileUtil.readAsByteArray(changedResource.getFile()));
+    }
+
+    @Test
     @DisplayName("회원 비밀번호 수정 테스트")
     public void 회원_비밀번호_수정_을_테스트한다() throws IOException {
 
@@ -225,29 +248,6 @@ public class UserApiControllerTest {
         assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(changeNicknameTestResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
         assertThat(changedNickname).isEqualTo("putTest");
-    }
-
-    @Test
-    @Transactional
-    @DisplayName("회원 프로필이미지 수정 테스트")
-    public void 회원_프로필이미지_수정_을_테스트한다() throws IOException {
-
-        String testUUID = UUID.randomUUID().toString();
-
-        JoinRequest joinRequest = createUserRequestUtil.createJoinRequestWithUUID(testUUID);
-        Resource resource = resourceLoader.getResource("classpath:profileimage/testimage.png");
-        ExtractableResponse<Response> postOriginJoinResponse = UserRestAssuredCRUD.postOriginUserWithProfileImage(objectMapper.convertValue(joinRequest, Map.class), resource.getFile());
-        System.out.println("\n");
-
-        String accessToken = jsonParseUtil.getJsonValue(postOriginJoinResponse, "accessToken");
-        Resource changedResource = resourceLoader.getResource("classpath:profileimage/testimage2.png");
-        ExtractableResponse<Response> changeProfileImageResponse = UserRestAssuredCRUD.patchWithUserInfo(accessToken, null, null, changedResource.getFile(), true);
-
-        assertThat(postOriginJoinResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(changeProfileImageResponse.statusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(userRepository.findByEmail(testUUID + "@" + testUUID + ".com").get().getProfileImage().getFileSize()).isEqualTo(changedResource.contentLength());
-        assertThat(imageFileUtil.profileImageFileToBytes( profileImageRepository.findByFileName(testUUID + "@" + testUUID + ".com" + ".png").get(0).getFileName() ))
-                .isEqualTo(FileUtil.readAsByteArray(changedResource.getFile()));
     }
 
     @Test

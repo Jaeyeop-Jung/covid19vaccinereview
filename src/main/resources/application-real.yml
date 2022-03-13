@@ -10,11 +10,6 @@ spring:
     url: ENC(SS2wnjDlJ37muR8kmeqvompnUDkzZrfXc+I/HN0vuE93ouwCoJT/4yqzQPYCQrtchL70ee4tgBp2s1u6dFdp5U45TcKbS01NmRgox8nlLI6pB1SIQGK0gGSun68BpBwTE0naoeCi6OSgonpq/cEC9Y26YEshYtwEEktIO7BoIZg8/7LOGuhXENZEFFvkWZIjfCnfqBBloOJmrUJpvUmqqQ==)
     username: ENC(fNYTY1LF0lew/n74mHvplw==)
     password: ENC(HP7khSE2iIiMJzwyyZj2LbbmpXREf+VOzyL2el+r1+s=)
-    hikari:
-      maximum-pool-size: 100
-      idle-timeout: 120000
-      connection-timeout: 300000
-      leak-detection-threshold: 300000
 
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
