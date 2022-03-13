@@ -35,10 +35,6 @@ jobs:
       shell: bash
     
     - name: Build with Gradle
-      run: ./gradlew clean build --debug
+      run: ./gradlew clean build
       shell: bash
-    
-    - name: Make zip file 
-      run: zip -r ./build.zip
-      shell: bash 
-      
+
