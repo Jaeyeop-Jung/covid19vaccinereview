@@ -11,8 +11,7 @@ spring:
     username: ENC(fNYTY1LF0lew/n74mHvplw==)
     password: ENC(HP7khSE2iIiMJzwyyZj2LbbmpXREf+VOzyL2el+r1+s=)
     hikari:
-#      maximum-pool-size: 10
-      max-lifetime: 3600000
+      max-lifetime: 300000
       connection-timeout: 3600000
       idle-timeout: 3600000
 
