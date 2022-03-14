@@ -12,8 +12,8 @@ spring:
     password: ENC(HP7khSE2iIiMJzwyyZj2LbbmpXREf+VOzyL2el+r1+s=)
     hikari:
       max-lifetime: 300000
-      connection-timeout: 3600000
-      idle-timeout: 3600000
+#      connection-timeout: 3600000
+#      idle-timeout: 3600000
 
 
   jpa:
