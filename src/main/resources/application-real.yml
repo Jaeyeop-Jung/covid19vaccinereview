@@ -11,9 +11,9 @@ spring:
     username: ENC(fNYTY1LF0lew/n74mHvplw==)
     password: ENC(HP7khSE2iIiMJzwyyZj2LbbmpXREf+VOzyL2el+r1+s=)
     hikari:
-#      maximum-pool-size: 40
+      maximum-pool-size: 40
       max-lifetime: 3600000
-#      connection-timeout: 3600000
+      connection-timeout: 3600000
       idle-timeout: 3600000
 
 
@@ -27,6 +27,11 @@ spring:
     #      naming:
     #        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     generate-ddl: true
+
+logging:
+  level:
+    com.zaxxer.hikari.HikariConfig: INFO
+    com.zaxxer.hikari: TRACE
 
 oauth:
   google:
