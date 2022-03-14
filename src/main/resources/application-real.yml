@@ -11,10 +11,10 @@ spring:
     username: ENC(fNYTY1LF0lew/n74mHvplw==)
     password: ENC(HP7khSE2iIiMJzwyyZj2LbbmpXREf+VOzyL2el+r1+s=)
     hikari:
-      connection-timeout: 30000
-      idle-timeout: 600000
-      max-lifetime: 1800000
-      maximum-pool-size: 50
+      maximum-pool-size: 40
+      max-lifetime: 3600000
+      connection-timeout: 3600000
+      idle-timeout: 3600000
 
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
