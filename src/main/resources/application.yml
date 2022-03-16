@@ -13,7 +13,7 @@ logging:
   config: classpath:log4j2.xml
 
 jwt:
-  secret: covid19vaccinereview
+  secret: ENC(q0rX9ZjYX1pmdlRWuYhOqNC9/6p7LXxIwI0VtYaME/Q=)
 
 jasypt:
   encryptor:
