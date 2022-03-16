@@ -39,7 +39,7 @@ jobs:
       shell: bash
 
     - name: zip 파일 생성
-      run:
+      run: |
         mkdir -p before-deploy
         cp scripts/*.sh before-deploy/
         cp appspec.yml before-deploy/
