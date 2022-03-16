@@ -39,7 +39,14 @@ jobs:
       shell: bash
 
     - name: zip 파일 생성
-      run: zip -r ./$GITHUB_SHA.zip .
+      run:
+        mkdir -p before-deploy
+        cp scripts/*.sh before-deploy/
+        cp appspec.yml before-deploy/
+        cp build/libs/*.jar before-deploy/
+        cd before-deploy && zip -r ./$GITHUB_SHA.zip *
+        cd ../ && mkdir -p deploy
+        mv before-deploy/$GITHUB_SHA.zip deploy/$GITHUB_SHA.zip
       shell: bash
 
     - name: AWS 자격 증명
@@ -50,7 +57,7 @@ jobs:
         aws-region: ${{ secrets.AWS_REGION }}
 
     - name: S3 업로드
-      run: aws s3 cp --region ap-northeast-2 ./$GITHUB_SHA.zip s3://${{ secrets.S3_BUCKET_NAME }}/$GITHUB_SHA.zip
+      run: aws s3 cp --region ap-northeast-2 ./deploy/$GITHUB_SHA.zip s3://${{ secrets.S3_BUCKET_NAME }}/$GITHUB_SHA.zip
 
     - name: CodeDeploy 배포
       run: aws deploy create-deployment --application-name covid19vaccinereview --deployment-config-name CodeDeployDefault.AllAtOnce --deployment-group-name covid19vaccinereview-group --s3-location bucket=${{ secrets.S3_BUCKET_NAME }},bundleType=zip,key=$GITHUB_SHA.zip
