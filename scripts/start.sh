@@ -3,6 +3,7 @@
 ABSPATH=$(readlink -f $0)
 ABSDIR=$(dirname $ABSPATH)
 source ${ABSDIR}/profile.sh
+source /etc/bash.bashrc
 
 REPOSITORY=/home/ubuntu/build
 PROJECT_NAME=covid19vaccinereview
