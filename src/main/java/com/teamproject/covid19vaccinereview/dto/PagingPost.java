@@ -1,7 +1,6 @@
 package com.teamproject.covid19vaccinereview.dto;
 
 import com.teamproject.covid19vaccinereview.domain.Post;
-import com.teamproject.covid19vaccinereview.domain.PostLike;
 import com.teamproject.covid19vaccinereview.domain.VaccineType;
 import lombok.*;
 
@@ -21,7 +20,13 @@ public class PagingPost {
 
     private String writer;
 
+    private String writerProfileImageUrl;
+
     private String title;
+
+    private String content;
+
+    private String postImageUrl;
 
     private int viewCount;
 
@@ -30,18 +35,21 @@ public class PagingPost {
     private boolean isThisUserLike;
 
     @Builder
-    public PagingPost(long id, VaccineType vaccineType, int ordinalNumber, String writer, String title, int viewCount, int likeCount, boolean isThisUserLike) {
+    public PagingPost(long id, VaccineType vaccineType, int ordinalNumber, String writer, String writerProfileImageUrl, String title, String content, String postImageUrl, int viewCount, int likeCount, boolean isThisUserLike) {
         this.id = id;
         this.vaccineType = vaccineType;
         this.ordinalNumber = ordinalNumber;
         this.writer = writer;
+        this.writerProfileImageUrl = writerProfileImageUrl;
         this.title = title;
+        this.content = content;
+        this.postImageUrl = postImageUrl;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
         this.isThisUserLike = isThisUserLike;
     }
 
-    public static List<PagingPost> convertOf(List<Post> postList, List<Post> postLikeList){
+    public static List<PagingPost> convertOf(String domainUrl, List<Post> postList, List<Post> postLikeList){
 
         List<PagingPost> response = new ArrayList<>();
         for (Post post : postList) {
@@ -52,12 +60,19 @@ public class PagingPost {
                     .ordinalNumber(post.getBoard().getOrdinalNumber())
                     .writer(post.getUser().getNickname())
                     .title(post.getTitle())
+                    .content(post.getContent())
                     .viewCount(post.getViewCount())
                     .likeCount(post.getPostLikeList().size())
                     .build();
 
             if(postLikeList.contains(post)){
                 build.isThisUserLike = true;
+            }
+            if(post.getUser().getProfileImage() != null){
+                build.writerProfileImageUrl = domainUrl + "/profileimage/" + post.getUser().getProfileImage().getId();
+            }
+            if(!post.getPostImageList().isEmpty()){
+                build.postImageUrl = domainUrl + "/postimage/" + post.getPostImageList().get(0).getFileName();
             }
 
             response.add(build);

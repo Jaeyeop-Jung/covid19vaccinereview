@@ -117,7 +117,7 @@ public class PostService {
 
         return FindAllPostResponse.builder()
                 .totalPage(findPost.getTotalPages())
-                .pagingPostList(PagingPost.convertOf(findPost.getContent(), likedPostList))
+                .pagingPostList(PagingPost.convertOf(domainUrl, findPost.getContent(), likedPostList))
                 .build();
     }
 
@@ -156,7 +156,7 @@ public class PostService {
 
         return FindAllPostResponse.builder()
                 .totalPage(findPost.getTotalPages())
-                .pagingPostList(PagingPost.convertOf(findPost.getContent(), likedPostList))
+                .pagingPostList(PagingPost.convertOf(domainUrl, findPost.getContent(), likedPostList))
                 .build();
     }
 

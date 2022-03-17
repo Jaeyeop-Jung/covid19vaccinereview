@@ -20,6 +20,8 @@ public class FindPostByIdResponse {
     @NotNull
     private String writer;
 
+    private String writerProfileImageUrl;
+
     @NotNull
     @NotBlank
     private String title;
@@ -42,8 +44,9 @@ public class FindPostByIdResponse {
     private boolean isThisUserLike;
 
     @Builder
-    private FindPostByIdResponse(String writer, String title, String content, List<String> postImageUrlList, int viewCount, int likeCount, boolean isThisUserLike) {
+    private FindPostByIdResponse(String writer, String writerProfileImageUrl, String title, String content, List<String> postImageUrlList, int viewCount, int likeCount, boolean isThisUserLike) {
         this.writer = writer;
+        this.writerProfileImageUrl = writerProfileImageUrl;
         this.title = title;
         this.content = content;
         this.postImageUrlList = postImageUrlList;
@@ -66,6 +69,10 @@ public class FindPostByIdResponse {
                 .viewCount(post.getViewCount())
                 .likeCount(post.getPostLikeList().size())
                 .build();
+
+        if(post.getUser().getProfileImage() != null){
+            build.writerProfileImageUrl = domainUrl + "/profileimage/" + post.getUser().getProfileImage().getId();
+        }
 
         for (PostLike postLike : post.getPostLikeList()) {
 
