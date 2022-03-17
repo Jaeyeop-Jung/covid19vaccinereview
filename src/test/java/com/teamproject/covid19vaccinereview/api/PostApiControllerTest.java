@@ -554,7 +554,7 @@ public class PostApiControllerTest {
     @Test
     @DisplayName("게시글 검색 좋아요 테스트")
     public void 게시글_검색_할_때_좋아요_를_테스트한다(){
-        
+
         String testUUID = UUID.randomUUID().toString();
         VaccineType randomVaccineType = VaccineType.getRandomVaccineType();
         int randomOrdinalNumber = (int)( Math.random() * 100 );

@@ -4,6 +4,9 @@ ABSPATH=$(readlink -f $0)
 ABSDIR=$(dirname $ABSPATH)
 source ${ABSDIR}/profile.sh
 
+source /etc/jasypt_password
+echo "> JASYPT_PASSWORD = ${JASYPT_PASSWORD}"
+
 REPOSITORY=/home/ubuntu/build
 PROJECT_NAME=covid19vaccinereview
 

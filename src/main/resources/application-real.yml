@@ -10,6 +10,11 @@ spring:
     url: ENC(SS2wnjDlJ37muR8kmeqvompnUDkzZrfXc+I/HN0vuE93ouwCoJT/4yqzQPYCQrtchL70ee4tgBp2s1u6dFdp5U45TcKbS01NmRgox8nlLI6pB1SIQGK0gGSun68BpBwTE0naoeCi6OSgonpq/cEC9Y26YEshYtwEEktIO7BoIZg8/7LOGuhXENZEFFvkWZIjfCnfqBBloOJmrUJpvUmqqQ==)
     username: ENC(fNYTY1LF0lew/n74mHvplw==)
     password: ENC(HP7khSE2iIiMJzwyyZj2LbbmpXREf+VOzyL2el+r1+s=)
+    hikari:
+      max-lifetime: 300000
+#      connection-timeout: 3600000
+#      idle-timeout: 3600000
+
 
   jpa:
     database-platform: org.hibernate.dialect.MySQL8Dialect
@@ -21,6 +26,11 @@ spring:
     #      naming:
     #        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     generate-ddl: true
+
+logging:
+  level:
+    com.zaxxer.hikari.HikariConfig: INFO
+    com.zaxxer.hikari: TRACE
 
 oauth:
   google:
