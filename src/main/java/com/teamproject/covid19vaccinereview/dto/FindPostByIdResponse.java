@@ -3,6 +3,7 @@ package com.teamproject.covid19vaccinereview.dto;
 import com.teamproject.covid19vaccinereview.domain.Post;
 import com.teamproject.covid19vaccinereview.domain.PostLike;
 import com.teamproject.covid19vaccinereview.domain.User;
+import com.teamproject.covid19vaccinereview.domain.VaccineType;
 import lombok.*;
 
 import javax.validation.constraints.Min;
@@ -22,6 +23,10 @@ public class FindPostByIdResponse {
     private String writer;
 
     private String writerProfileImageUrl;
+
+    private VaccineType vaccineType;
+
+    private int ordinalNumber;
 
     @NotNull
     @NotBlank
@@ -48,9 +53,11 @@ public class FindPostByIdResponse {
     private boolean isThisUserLike;
 
     @Builder
-    public FindPostByIdResponse(String writer, String writerProfileImageUrl, String title, String content, List<String> postImageUrlList, int viewCount, int likeCount, LocalDateTime dateCreated, boolean isThisUserLike) {
+    public FindPostByIdResponse(String writer, String writerProfileImageUrl, VaccineType vaccineType, int ordinalNumber, String title, String content, List<String> postImageUrlList, int viewCount, int likeCount, LocalDateTime dateCreated, boolean isThisUserLike) {
         this.writer = writer;
         this.writerProfileImageUrl = writerProfileImageUrl;
+        this.vaccineType = vaccineType;
+        this.ordinalNumber = ordinalNumber;
         this.title = title;
         this.content = content;
         this.postImageUrlList = postImageUrlList;
@@ -64,6 +71,8 @@ public class FindPostByIdResponse {
 
         FindPostByIdResponse build = FindPostByIdResponse.builder()
                 .writer(post.getUser().getNickname())
+                .vaccineType(post.getBoard().getVaccineType())
+                .ordinalNumber(post.getBoard().getOrdinalNumber())
                 .title(post.getTitle())
                 .content(post.getContent())
                 .postImageUrlList(

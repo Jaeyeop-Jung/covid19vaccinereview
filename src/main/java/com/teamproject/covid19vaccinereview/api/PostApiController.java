@@ -71,10 +71,7 @@ public class PostApiController {
             @PathVariable(name = "postId") @NotNull long postId
     )
     {
-
-        FindPostByIdResponse findFindPostByIdResponse = postService.findPostById(request, postId);
-
-        return ResponseEntity.ok(findFindPostByIdResponse);
+        return ResponseEntity.ok(postService.findPostById(request, postId));
     }
 
     /**
