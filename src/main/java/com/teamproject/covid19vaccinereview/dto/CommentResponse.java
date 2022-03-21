@@ -20,6 +20,8 @@ public class CommentResponse {
 
     private String writer;
 
+    private String writerProfileImageUrl;
+
     private String content;
 
     private int likeCount;
@@ -31,9 +33,10 @@ public class CommentResponse {
     private boolean isThisUserLike;
 
     @Builder
-    public CommentResponse(long id, String writer, String content, int likeCount, List<CommentResponse> children, LocalDateTime dateCreated, boolean isThisUserLike) {
+    public CommentResponse(long id, String writer, String writerProfileImageUrl, String content, int likeCount, List<CommentResponse> children, LocalDateTime dateCreated, boolean isThisUserLike) {
         this.id = id;
         this.writer = writer;
+        this.writerProfileImageUrl = writerProfileImageUrl;
         this.content = content;
         this.likeCount = likeCount;
         this.children = children;
@@ -41,7 +44,7 @@ public class CommentResponse {
         this.isThisUserLike = isThisUserLike;
     }
 
-    public static CommentResponse toDto(Comment comment, User user){
+    public static CommentResponse toDto(String domainUrl, Comment comment, User user){
 
         CommentResponse build = CommentResponse.builder()
                 .id(comment.getId())
@@ -53,6 +56,8 @@ public class CommentResponse {
 
         if(!comment.isDeleted()){
             build.writer = comment.getUser().getNickname();
+            build.writerProfileImageUrl = (comment.getUser().getProfileImage() != null) ?
+                    domainUrl + "/profileimage/" + comment.getUser().getProfileImage().getId() : null;
         }
 
         for (CommentLike commentLike : comment.getCommentLikeList()) {
@@ -66,14 +71,14 @@ public class CommentResponse {
         return build;
     }
 
-    public static List<CommentResponse> toResponseList(List<Comment> commentList, User user){
+    public static List<CommentResponse> toResponseList(String domainUrl, List<Comment> commentList, User user){
 
         Map<Comment, CommentResponse> map = new HashMap<>();
         List<CommentResponse> roots = new ArrayList<>();
 
         for (Comment comment : commentList) {
 
-            CommentResponse commentToDto = toDto(comment, user);
+            CommentResponse commentToDto = toDto(domainUrl, comment, user);
             map.put(comment, commentToDto);
 
             if(comment.hasParent()){

@@ -12,6 +12,7 @@ import com.teamproject.covid19vaccinereview.repository.CommentRepository;
 import com.teamproject.covid19vaccinereview.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,9 @@ import java.util.List;
 @RequiredArgsConstructor
 @Slf4j
 public class CommentService {
+
+    @Value("${domain-url}")
+    private String domainUrl;
 
     private final CommentRepository commentRepository;
     private final PostRepository postRepository;
@@ -45,14 +49,14 @@ public class CommentService {
                 )
         );
 
-        return CommentResponse.toDto(savedComment, loginUserByAccessToken);
+        return CommentResponse.toDto(domainUrl, savedComment, loginUserByAccessToken);
     }
 
     @Transactional(readOnly = true)
     public List<CommentResponse> findByPostId(HttpServletRequest request, long postId){
         User loginUser = userService.getLoginUserWithoutExceptionByAccessToken(request);
 
-        return CommentResponse.toResponseList(commentRepository.findAllCommentByPostId(postId), loginUser);
+        return CommentResponse.toResponseList(domainUrl, commentRepository.findAllCommentByPostId(postId), loginUser);
     }
 
     @Transactional
@@ -67,7 +71,7 @@ public class CommentService {
 
         findComment.changeContent(content);
 
-        return CommentResponse.toDto(findComment, loginUserByAccessToken);
+        return CommentResponse.toDto(domainUrl, findComment, loginUserByAccessToken);
     }
 
     @Transactional
