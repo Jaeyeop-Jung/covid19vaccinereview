@@ -27,10 +27,10 @@ spring:
     #        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     generate-ddl: true
 
-logging:
-  level:
-    com.zaxxer.hikari.HikariConfig: INFO
-    com.zaxxer.hikari: TRACE
+#logging:
+#  level:
+#    com.zaxxer.hikari.HikariConfig: INFO
+#    com.zaxxer.hikari: TRACE
 
 oauth:
   google:
