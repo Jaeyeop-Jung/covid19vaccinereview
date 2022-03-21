@@ -105,6 +105,7 @@ public class PostService {
         return PostWriteResponse.builder()
                 .id(post.getId())
                 .location(domainUrl + "/post/" + post.getId())
+                .dateCreated(post.getDateCreated())
                 .build();
     }
 
