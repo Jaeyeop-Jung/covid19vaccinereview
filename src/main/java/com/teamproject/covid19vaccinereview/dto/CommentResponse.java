@@ -5,6 +5,7 @@ import com.teamproject.covid19vaccinereview.domain.CommentLike;
 import com.teamproject.covid19vaccinereview.domain.User;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,15 +26,18 @@ public class CommentResponse {
 
     private List<CommentResponse> children;
 
+    private LocalDateTime dateCreated;
+
     private boolean isThisUserLike;
 
     @Builder
-    public CommentResponse(long id, String writer, String content, int likeCount, List<CommentResponse> children, boolean isThisUserLike) {
+    public CommentResponse(long id, String writer, String content, int likeCount, List<CommentResponse> children, LocalDateTime dateCreated, boolean isThisUserLike) {
         this.id = id;
         this.writer = writer;
         this.content = content;
         this.likeCount = likeCount;
         this.children = children;
+        this.dateCreated = dateCreated;
         this.isThisUserLike = isThisUserLike;
     }
 
@@ -44,6 +48,7 @@ public class CommentResponse {
                 .content(comment.getContent())
                 .children(new ArrayList<>())
                 .likeCount(comment.getCommentLikeList().size())
+                .dateCreated(comment.getDateCreated())
                 .build();
 
         if(!comment.isDeleted()){
