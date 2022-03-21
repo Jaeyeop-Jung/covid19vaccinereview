@@ -4,6 +4,7 @@ import com.teamproject.covid19vaccinereview.domain.Post;
 import com.teamproject.covid19vaccinereview.domain.VaccineType;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,10 +33,12 @@ public class PagingPost {
 
     private int likeCount;
 
+    private LocalDateTime dateCreated;
+
     private boolean isThisUserLike;
 
     @Builder
-    public PagingPost(long id, VaccineType vaccineType, int ordinalNumber, String writer, String writerProfileImageUrl, String title, String content, String postImageUrl, int viewCount, int likeCount, boolean isThisUserLike) {
+    public PagingPost(long id, VaccineType vaccineType, int ordinalNumber, String writer, String writerProfileImageUrl, String title, String content, String postImageUrl, int viewCount, int likeCount, LocalDateTime dateCreated, boolean isThisUserLike) {
         this.id = id;
         this.vaccineType = vaccineType;
         this.ordinalNumber = ordinalNumber;
@@ -46,6 +49,7 @@ public class PagingPost {
         this.postImageUrl = postImageUrl;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
+        this.dateCreated = dateCreated;
         this.isThisUserLike = isThisUserLike;
     }
 
@@ -63,6 +67,7 @@ public class PagingPost {
                     .content(post.getContent())
                     .viewCount(post.getViewCount())
                     .likeCount(post.getPostLikeList().size())
+                    .dateCreated(post.getDateCreated())
                     .build();
 
             if(postLikeList.contains(post)){

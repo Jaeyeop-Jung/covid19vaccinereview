@@ -144,9 +144,7 @@ public class PostApiController {
     ) throws IOException {
         bindingParameterUtil.checkParameterBindingException(bindingResult);
 
-        PostWriteResponse postModifyResponse = postService.modifyPost(request, postId, modifyPostRequest, multipartFileList);
-
-        return ResponseEntity.ok(postModifyResponse);
+        return ResponseEntity.ok(postService.modifyPost(request, postId, modifyPostRequest, multipartFileList));
     }
 
     /**

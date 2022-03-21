@@ -8,6 +8,7 @@ import lombok.*;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,10 +42,13 @@ public class FindPostByIdResponse {
     private int likeCount;
 
     @NotNull
+    private LocalDateTime dateCreated;
+
+    @NotNull
     private boolean isThisUserLike;
 
     @Builder
-    private FindPostByIdResponse(String writer, String writerProfileImageUrl, String title, String content, List<String> postImageUrlList, int viewCount, int likeCount, boolean isThisUserLike) {
+    public FindPostByIdResponse(String writer, String writerProfileImageUrl, String title, String content, List<String> postImageUrlList, int viewCount, int likeCount, LocalDateTime dateCreated, boolean isThisUserLike) {
         this.writer = writer;
         this.writerProfileImageUrl = writerProfileImageUrl;
         this.title = title;
@@ -52,6 +56,7 @@ public class FindPostByIdResponse {
         this.postImageUrlList = postImageUrlList;
         this.viewCount = viewCount;
         this.likeCount = likeCount;
+        this.dateCreated = dateCreated;
         this.isThisUserLike = isThisUserLike;
     }
 
@@ -68,6 +73,7 @@ public class FindPostByIdResponse {
                 )
                 .viewCount(post.getViewCount())
                 .likeCount(post.getPostLikeList().size())
+                .dateCreated(post.getDateCreated())
                 .build();
 
         if(post.getUser().getProfileImage() != null){
