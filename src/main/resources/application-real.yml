@@ -1,4 +1,4 @@
-domain-url: http://ec2-3-36-239-6.ap-northeast-2.compute.amazonaws.com
+domain-url: http://ec2-3-36-239-6.ap-northeast-2.compute.amazonaws.com:8080
 
 spring:
   config:
