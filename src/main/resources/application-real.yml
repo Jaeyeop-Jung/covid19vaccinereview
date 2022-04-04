@@ -37,7 +37,7 @@ oauth:
     url: https://accounts.google.com/o/oauth2/v2/auth
     client-id: ENC(GKIFsrf+gq1gBPJ/E54AEyEb25o57YhUiuKKbOSZPyit4i0ar6GkquRQ99hR05M5a6fT9CteKgz0kSVRiROrvzD9lYyFW7eS9p+0nEXK6cDIdldNd2YHOQ==)
     client-secret: ENC(Ws0ooHOQKEygj7y4tKg1yno6sHa35JUaS88iW42cW/TCJRxrUV+m1dw8808Jjh6q)
-    callback-url: http://localhost:3000
+    callback-url: http://localhost:8080
     token-url: https://oauth2.googleapis.com/token
     userinfo-url: https://www.googleapis.com/drive/v2/files
   kakao:
