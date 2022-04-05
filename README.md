@@ -38,3 +38,6 @@ http://ec2-3-36-239-6.ap-northeast-2.compute.amazonaws.com/
 
 <img width="297" alt="image" src="https://user-images.githubusercontent.com/65753029/161678872-83d8a5fd-1877-4615-a5a8-80e589d16f73.png">
 
+# ERD
+
+https://www.erdcloud.com/d/TE9rpuxWe6Y6bfY8u
