@@ -32,3 +32,9 @@ http://ec2-3-36-239-6.ap-northeast-2.compute.amazonaws.com/
 <img width="1216" alt="server" src="https://user-images.githubusercontent.com/65753029/161666333-4921899d-f8f4-43cd-86bb-36320907c741.PNG">
 
 # 기술 스택
+<img width="833" alt="image" src="https://user-images.githubusercontent.com/65753029/161678025-6bec561d-af73-40f8-bbe9-a45021605147.png">
+
+<img width="636" alt="image" src="https://user-images.githubusercontent.com/65753029/161678486-de193a3e-b45a-40e7-9a73-2a683199d543.png">
+
+<img width="297" alt="image" src="https://user-images.githubusercontent.com/65753029/161678872-83d8a5fd-1877-4615-a5a8-80e589d16f73.png">
+
