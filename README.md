@@ -15,7 +15,7 @@ http://ec2-3-36-239-6.ap-northeast-2.compute.amazonaws.com/
 - Google Oauth2를 활용한 로그인
 - 게시글, 댓글 작성 및 조회
 - 게시글에 이미지 첨부 
-- 게시글, 댓그 좋아요 기능
+- 게시글, 댓글 좋아요 기능
 
 👍  특징
 - Front-End와 협업
